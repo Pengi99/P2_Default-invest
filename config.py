@@ -1,0 +1,17 @@
+# --- 데이터 설정 ---
+START_YEAR = 2013
+END_YEAR = 2024
+DATA_PATH = "./data"
+API_KEY = "your_dart_api_key_here"
+
+# --- 전처리 및 모델링 설정 ---
+K1_SCORE_THRESHOLD = 0
+TRAIN_END_YEAR = 2020
+VALIDATION_END_YEAR = 2022
+
+# --- 투자 전략 및 백테스팅 설정 ---
+QUALITY_FACTOR = 'ROE'
+QUALITY_QUANTILE = 0.2
+TRANSACTION_COST = 0.002
+REBALANCE_MONTH = 4
+REBALANCE_DAY = 30
