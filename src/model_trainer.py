@@ -18,12 +18,23 @@ def run_training_pipeline():
 
 
 def load_split_data():
-    train = pd.read_csv("data/processed/train.csv")
-    val = pd.read_csv("data/processed/val.csv")
-    X_train = train.drop("bankrupt_label", axis=1)
-    y_train = train["bankrupt_label"]
-    X_val = val.drop("bankrupt_label", axis=1)
-    y_val = val["bankrupt_label"]
+    train_df = pd.read_csv(os.path.join(config.DATA_PATH, "processed", "train.csv"))
+    val_df = pd.read_csv(os.path.join(config.DATA_PATH, "processed", "val.csv"))
+
+    # Ensure all feature columns are present
+    missing_train_cols = [col for col in config.FEATURE_COLUMNS if col not in train_df.columns]
+    if missing_train_cols:
+        raise ValueError(f"Feature columns {missing_train_cols} not found in train.csv")
+    
+    missing_val_cols = [col for col in config.FEATURE_COLUMNS if col not in val_df.columns]
+    if missing_val_cols:
+        raise ValueError(f"Feature columns {missing_val_cols} not found in val.csv")
+
+    X_train = train_df[config.FEATURE_COLUMNS]
+    y_train = train_df["bankrupt_label"]
+    X_val = val_df[config.FEATURE_COLUMNS]
+    y_val = val_df["bankrupt_label"]
+    
     return X_train, y_train, X_val, y_val
 
 

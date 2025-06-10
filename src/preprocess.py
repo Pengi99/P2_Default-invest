@@ -2,6 +2,7 @@
 
 import os
 import pandas as pd
+import numpy as np
 import config
 
 
@@ -21,21 +22,68 @@ def load_and_combine_data():
 
 
 def clean_data(df):
-    # TODO: implement cleaning
-    return df.dropna()
+    """Basic data cleaning."""
+    # Convert 'date' to datetime objects
+    if 'date' in df.columns:
+        df['date'] = pd.to_datetime(df['date'])
+
+    # Fill NaNs in 'return' column with 0
+    # This assumes that if a return is NaN, it's equivalent to a 0% return for that period.
+    if 'return' in df.columns:
+        df['return'] = df['return'].fillna(0)
+
+    # TODO: Implement more sophisticated cleaning for real-world data
+    # Examples:
+    # - Outlier detection and treatment for financial ratios
+    # - More advanced imputation strategies for missing values (beyond df.get(col, default))
+    # - Handling of delisted stocks or M&A events if relevant to 'return'
+
+    # Drop rows with any remaining NaNs.
+    # For K-1 and quality factor, .get(col, default) handles NaNs at calculation time.
+    # This dropna primarily targets other unexpected NaNs (e.g. in stock_code, year).
+    df = df.dropna() # Consider subset=['stock_code', 'year', 'date'] for critical identifiers
+    return df
 
 
 def calculate_features_and_labels(df):
     # Calculate K-1 score
     df["k1_score"] = (
-        6.56 * df.get("X1", 0)
+        6.56 * df.get("X1", 0)  # Using .get for robustness against missing columns
         + 3.26 * df.get("X2", 0)
         + 6.72 * df.get("X3", 0)
         + 1.05 * df.get("X4", 0)
     )
     df["bankrupt_label"] = (df["k1_score"] < config.K1_SCORE_THRESHOLD).astype(int)
+    print(f"Bankrupt label distribution in combined data:\n{df['bankrupt_label'].value_counts(normalize=True)}")
+
     if config.QUALITY_FACTOR == 'ROE':
-        df["quality_factor"] = df.get("net_income", 0) / df.get("equity", 1)
+        net_income = df.get("net_income") # Returns None if column missing
+        equity = df.get("equity")       # Returns None if column missing
+
+        if net_income is not None and equity is not None:
+            # Ensure net_income and equity are numeric before division
+            net_income_numeric = pd.to_numeric(net_income, errors='coerce')
+            equity_numeric = pd.to_numeric(equity, errors='coerce')
+            
+            # Calculate ROE where equity is positive; otherwise, NaN
+            df["quality_factor"] = np.where(equity_numeric > 0, net_income_numeric / equity_numeric, np.nan)
+            
+            # Handle potential inf values if any (e.g. if equity_numeric was extremely small but positive)
+            df["quality_factor"] = df["quality_factor"].replace([np.inf, -np.inf], np.nan)
+            
+            # Fill NaNs in quality_factor (e.g., from division by zero/negative equity, or non-numeric) with 0
+            # This implies a neutral or low quality if ROE is problematic or undefined.
+            df["quality_factor"] = df["quality_factor"].fillna(0)
+        else:
+            # If 'net_income' or 'equity' columns are missing, default 'quality_factor' to 0
+            df["quality_factor"] = 0
+            
+    elif config.QUALITY_FACTOR == 'SOME_OTHER_FACTOR': # Example for future extension
+        # df["quality_factor"] = ... # calculation for another factor
+        pass # Implement other quality factors as needed
+    else:
+        # Default quality factor if not specified or not implemented
+        df["quality_factor"] = 0 
     return df
 
 
