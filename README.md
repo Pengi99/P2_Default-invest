@@ -1,4 +1,3 @@
-<<<<<<< b15470-codex/design-project-structure-and-code-implementation
 # Default Invest
 
 본 프로젝트는 한국 상장기업의 부실 위험을 예측하고 퀄리티 팩터 기반의 포트폴리오 전략을 백테스트하기 위한 파이프라인을 제공합니다.
@@ -48,8 +47,3 @@
 ## 노트북 활용
 
 `notebooks/1_eda_and_prototyping.ipynb` 파일에서 데이터 탐색과 간단한 모델 실험을 진행할 수 있습니다. 본격적인 코드 작성 전 아이디어를 검증하는 데 활용하세요.
-=======
-# Default Invest Project
-
-This repository implements a pipeline for bankrupt prediction and quality factor-based backtesting.
->>>>>>> main

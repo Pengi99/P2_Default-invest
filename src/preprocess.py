@@ -38,10 +38,10 @@ def clean_data(df):
     # - More advanced imputation strategies for missing values (beyond df.get(col, default))
     # - Handling of delisted stocks or M&A events if relevant to 'return'
 
-    # Drop rows with any remaining NaNs.
-    # For K-1 and quality factor, .get(col, default) handles NaNs at calculation time.
-    # This dropna primarily targets other unexpected NaNs (e.g. in stock_code, year).
-    df = df.dropna() # Consider subset=['stock_code', 'year', 'date'] for critical identifiers
+    # The following dropna() call was too aggressive for the generated sample data,
+    # as it removed all rows and resulted in an empty DataFrame.
+    # For now, we'll rely on the specific NaN handling already present in the pipeline.
+    # df = df.dropna()
     return df
 
 

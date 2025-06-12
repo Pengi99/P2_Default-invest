@@ -15,6 +15,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List
 
+import numpy as np
 import pandas as pd
 
 # ---------------------------------------------------------------------------
@@ -35,6 +36,8 @@ CONSOLIDATED_ACCOUNT_CODE_MAP = {
     "total_assets": "[A100000000]자산(*)(IFRS연결)(천원)",
     "total_liabilities": "[A800000000]부채(*)(IFRS연결)(천원)",
     "total_equity": "[A600000000]자본(*)(IFRS연결)(천원)",
+    "cfo": "[D100000000]영업활동으로 인한 현금흐름(간접법)(*)(IFRS연결)(천원)",
+    "interest_expense": "[D100020400]      이자비용유출액(IFRS연결)(천원)",
 }
 
 # 2. For non-consolidated statements (재무제표)
@@ -45,6 +48,8 @@ NON_CONSOLIDATED_ACCOUNT_CODE_MAP = {
     "total_assets": "[A100000000]자산(*)(IFRS)(천원)",
     "total_liabilities": "[A800000000]부채(*)(IFRS)(천원)",
     "total_equity": "[A600000000]자본(*)(IFRS)(천원)",
+    "cfo": "[D100000000]영업활동으로 인한 현금흐름(간접법)(*)(IFRS)(천원)",
+    "interest_expense": "[D100020400]      이자비용유출액(IFRS)(천원)",
 }
 
 # 3. For consolidated financial ratios (연결재무비율)
@@ -78,6 +83,14 @@ NON_CONSOLIDATED_RATIO_COLUMN_MAP = {
 # ---------------------------------------------------------------------------
 # Data Loading and Processing Helpers
 # ---------------------------------------------------------------------------
+
+def _safe_divide(numerator: pd.Series, denominator: pd.Series) -> pd.Series:
+    """Perform element-wise division, returning np.nan for division by zero."""
+    # Replace 0 with NaN in the denominator to avoid division by zero errors.
+    # The result of any operation with NaN is NaN, which is what we want.
+    denominator_with_nan = denominator.replace(0, np.nan)
+    return (numerator / denominator_with_nan).astype(float)
+
 
 def _find_and_load_csv(filename: str) -> pd.DataFrame:
     """Construct path to a CSV in RAW_DIR, check existence, and load it."""
@@ -183,6 +196,19 @@ def build_financial_data_dataframe(save: bool = True) -> pd.DataFrame:
     print("\nCombining datasets (consolidated fills from non-consolidated)...")
     # The index must be aligned for combine_first to work correctly
     final_df = consolidated_df.combine_first(separate_df)
+
+    # --- Calculate Custom Ratios ---
+    # Ratios that need to be calculated from raw account lines.
+    print("Calculating custom financial ratios...")
+    final_df["cfo_to_interest_expense"] = _safe_divide(
+        final_df["cfo"], final_df["interest_expense"]
+    )
+    final_df["cfo_to_total_debt"] = _safe_divide(
+        final_df["cfo"], final_df["total_liabilities"]
+    )
+    final_df["cfo_to_total_assets"] = _safe_divide(
+        final_df["cfo"], final_df["total_assets"]
+    )
 
     if save:
         OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
