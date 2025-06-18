@@ -32,8 +32,8 @@ def calculate_financial_ratios(df):
     # 3. 총부채 (천원 -> 원)
     result_df['total_liabilities'] = df['[A800000000]부채(*)(IFRS연결)(천원)'].apply(convert_thousand_to_won)
     
-    # 4. 영업이익 (천원 -> 원)
-    result_df['operating_income'] = df['[B420000000]* (정상)영업손익(보고서기재)(IFRS연결)(천원)'].apply(convert_thousand_to_won)
+    # 4. 영업이익 (계속영업이익 사용, 천원 -> 원)
+    result_df['operating_income'] = df['[B800000000]계속영업이익(손실)(IFRS연결)(천원)'].apply(convert_thousand_to_won)
     
     # 5. 당기순이익 (천원 -> 원)
     result_df['net_income'] = df['[B840000000]당기순이익(손실)(IFRS연결)(천원)'].apply(convert_thousand_to_won)
@@ -42,7 +42,7 @@ def calculate_financial_ratios(df):
     result_df['cfo'] = df['[D100000000]영업활동으로 인한 현금흐름(간접법)(*)(IFRS연결)(천원)'].apply(convert_thousand_to_won)
     
     # 7. 이자비용 (천원 -> 원) - 직접적인 이자비용 컬럼이 없으므로 0으로 설정
-    result_df['interest_expense'] = 0
+    # result_df['interest_expense'] = 0
     
     # 8. 발행주식수 (주)
     result_df['shares_outstanding'] = df['[A600010300]   보통주(IFRS연결)(주)']
@@ -68,38 +68,38 @@ def calculate_financial_ratios(df):
         np.nan
     )
     
-    # 13. 부채비율 (Debt to Equity Ratio) = 총부채 / 총자본 * 100
+    # 13. 부채비율 (Debt to Equity Ratio) = 총부채 / 총자본
     result_df['debt_to_equity'] = np.where(
         result_df['total_equity'] > 0,
-        (result_df['total_liabilities'] / result_df['total_equity']) * 100,
+        (result_df['total_liabilities'] / result_df['total_equity']),
         np.nan
     )
     
-    # 14. ROA (Return on Assets) = 당기순이익 / 총자산 * 100
+    # 14. ROA (Return on Assets) = 당기순이익 / 총자산
     result_df['roa'] = np.where(
         result_df['total_assets'] > 0,
-        (result_df['net_income'] / result_df['total_assets']) * 100,
+        (result_df['net_income'] / result_df['total_assets']),
         np.nan
     )
     
-    # 15. ROE (Return on Equity) = 당기순이익 / 총자본 * 100
+    # 15. ROE (Return on Equity) = 당기순이익 / 총자본
     result_df['roe'] = np.where(
         result_df['total_equity'] > 0,
-        (result_df['net_income'] / result_df['total_equity']) * 100,
+        (result_df['net_income'] / result_df['total_equity']),
         np.nan
     )
     
-    # 16. 영업이익률 (Operating Profit Margin) = 영업이익 / 매출액 * 100
+    # 16. 영업이익률 (Operating Profit Margin) = 영업이익 / 매출액
     result_df['operating_profit_margin'] = np.where(
         result_df['revenue'] > 0,
-        (result_df['operating_income'] / result_df['revenue']) * 100,
+        (result_df['operating_income'] / result_df['revenue']),
         0
     )
     
-    # 17. 순이익률 (Net Profit Margin) = 당기순이익 / 매출액 * 100
+    # 17. 순이익률 (Net Profit Margin) = 당기순이익 / 매출액
     result_df['net_profit_margin'] = np.where(
         result_df['revenue'] > 0,
-        (result_df['net_income'] / result_df['revenue']) * 100,
+        (result_df['net_income'] / result_df['revenue']),
         0
     )
     
@@ -110,11 +110,11 @@ def calculate_financial_ratios(df):
     result_df['per'] = df['PER(최저)(IFRS연결)']
     
     # 20. CFO to Interest Expense Ratio
-    result_df['cfo_to_interest_expense'] = np.where(
-        result_df['interest_expense'] != 0,
-        result_df['cfo'] / result_df['interest_expense'],
-        np.nan
-    )
+    # result_df['cfo_to_interest_expense'] = np.where(
+    #     result_df['interest_expense'] != 0,
+    #     result_df['cfo'] / result_df['interest_expense'],
+    #     np.nan
+    # )
     
     # 21. CFO to Total Debt Ratio
     result_df['cfo_to_total_debt'] = np.where(
@@ -133,10 +133,13 @@ def calculate_financial_ratios(df):
     # final.csv와 동일한 컬럼 순서로 재배열
     final_columns = [
         '회사명', '거래소코드', '회계년도', 'bps', 'cfo', 'debt_to_equity', 
-        'eps', 'interest_expense', 'net_income', 'net_profit_margin',
+        'eps', 
+        # 'interest_expense', 
+        'net_income', 'net_profit_margin',
         'operating_income', 'operating_profit_margin', 'pbr', 'per', 
         'roa', 'roe', 'total_assets', 'total_equity', 'total_liabilities',
-        'cfo_to_interest_expense', 'cfo_to_total_debt', 'cfo_to_total_assets'
+        # 'cfo_to_interest_expense', 
+        'cfo_to_total_debt', 'cfo_to_total_assets'
     ]
     
     result_df = result_df[final_columns]
@@ -149,7 +152,7 @@ def main():
     
     # BS_ratio.csv 읽기
     try:
-        df = pd.read_csv('../data/processed/BS_ratio.csv')
+        df = pd.read_csv('/Users/jojongho/KDT/P2_Default-invest/data/processed/BS_ratio.csv')
         print(f"데이터 로드 완료: {df.shape[0]}행, {df.shape[1]}열")
     except FileNotFoundError:
         print("BS_ratio.csv 파일을 찾을 수 없습니다.")
@@ -159,7 +162,7 @@ def main():
     final_df = calculate_financial_ratios(df)
     
     # 결과 저장
-    output_path = '../data/processed/final_calculated.csv'
+    output_path = '/Users/jojongho/KDT/P2_Default-invest/data/processed/final_calculated.csv'
     final_df.to_csv(output_path, index=False)
     
     print(f"계산 완료! 결과가 {output_path}에 저장되었습니다.")
