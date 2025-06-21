@@ -76,3 +76,6 @@ urllib3==2.4.0
 wcwidth==0.2.13
 xmltodict==0.14.2
 yaspin==3.1.0
+xgboost>=1.7.0
+optuna>=3.0.0
+imbalanced-learn>=0.9.0

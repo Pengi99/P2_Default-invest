@@ -1,0 +1,29 @@
+{
+  "analysis_summary": {
+    "k2_target_correlation": -0.09861260538178912,
+    "k2_only_auc": 0.9129883274620118,
+    "high_correlation_features": 1,
+    "total_features": 17
+  },
+  "performance_comparison": {
+    "LogisticRegression": {
+      "base_auc": 0.8515214722111274,
+      "k2_auc": 0.8508261956537818,
+      "base_f1": 0.0,
+      "k2_f1": 0.0,
+      "auc_diff": -0.000695276557345581,
+      "f1_diff": 0.0
+    },
+    "RandomForest": {
+      "base_auc": 0.8205742688501311,
+      "k2_auc": 0.8424976700838769,
+      "base_f1": 0.08,
+      "k2_f1": 0.0,
+      "auc_diff": 0.02192340123374581,
+      "f1_diff": -0.08
+    }
+  },
+  "conclusions": [
+    "K2 Score 단독으로도 높은 예측 성능, 다른 특성 학습 필요성 감소"
+  ]
+}

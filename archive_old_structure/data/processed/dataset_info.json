@@ -1,0 +1,78 @@
+{
+  "dataset_info": {
+    "total_samples": 22780,
+    "total_features": 17,
+    "default_rate": 0.005794556628621598,
+    "train_samples": 13996,
+    "val_samples": 4265,
+    "test_samples": 4519
+  },
+  "feature_info": {
+    "feature_columns": [
+      "ROA",
+      "TLTA",
+      "WC_TA",
+      "CFO_TD",
+      "SIGMA",
+      "RE_TA",
+      "EBIT_TA",
+      "MVE_TL",
+      "S_TA",
+      "CLCA",
+      "OENEG",
+      "CR",
+      "CFO_TA",
+      "TLMTA",
+      "RET_3M",
+      "RET_9M",
+      "MB"
+    ],
+    "robust_scaled": [
+      "ROA",
+      "CFO_TD",
+      "RE_TA",
+      "EBIT_TA",
+      "MVE_TL",
+      "S_TA",
+      "CLCA",
+      "OENEG",
+      "CR",
+      "CFO_TA",
+      "RET_3M",
+      "RET_9M",
+      "MB"
+    ],
+    "standard_scaled": [
+      "TLTA",
+      "WC_TA",
+      "SIGMA",
+      "TLMTA"
+    ],
+    "meta_columns": [
+      "회사명",
+      "거래소코드",
+      "회계년도"
+    ]
+  },
+  "split_info": {
+    "train_years": [
+      2012,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019
+    ],
+    "val_years": [
+      2020,
+      2021
+    ],
+    "test_years": [
+      2022,
+      2023
+    ],
+    "split_method": "time_based"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "model_name": "XGBoost",
+  "data_type": "smote",
+  "timestamp": "20250622_011542",
+  "best_params": {
+    "booster": "dart",
+    "n_estimators": 367,
+    "max_depth": 7,
+    "learning_rate": 0.041390946934451577,
+    "subsample": 0.6293706652033366,
+    "colsample_bytree": 0.8733483504383756,
+    "reg_alpha": 0.0004160767557788983,
+    "reg_lambda": 0.5250245382445852,
+    "min_child_weight": 1,
+    "gamma": 0.036084627638405156,
+    "sample_type": "weighted",
+    "normalize_type": "tree",
+    "rate_drop": 2.0001054391897725e-08,
+    "one_drop": 0
+  },
+  "cv_score": 0.9984250751374029,
+  "validation_metrics": {
+    "auc": 0.923303441948563,
+    "precision": 0.391304347826087,
+    "recall": 0.42857142857142855,
+    "f1": 0.4090909090909091
+  },
+  "test_metrics": {
+    "auc": 0.911833015281291,
+    "precision": 0.05555555555555555,
+    "recall": 0.047619047619047616,
+    "f1": 0.05128205128205128
+  },
+  "data_info": {
+    "train_shape": [
+      10621,
+      18
+    ],
+    "valid_shape": [
+      3239,
+      18
+    ],
+    "test_shape": [
+      3240,
+      18
+    ],
+    "train_default_ratio": 0.09085773467658413,
+    "valid_default_ratio": 0.006483482556344551,
+    "test_default_ratio": 0.006481481481481481
+  }
+}

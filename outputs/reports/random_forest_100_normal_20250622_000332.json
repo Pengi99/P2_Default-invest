@@ -1,0 +1,44 @@
+{
+  "model_name": "RandomForest",
+  "data_type": "normal",
+  "timestamp": "20250622_000332",
+  "best_params": {
+    "n_estimators": 165,
+    "max_depth": 12,
+    "min_samples_split": 3,
+    "min_samples_leaf": 6,
+    "max_features": "sqrt",
+    "bootstrap": true,
+    "oob_score": false
+  },
+  "cv_score": 0.9672121432506906,
+  "validation_metrics": {
+    "auc": 0.9113024948947883,
+    "precision": 0.6666666666666666,
+    "recall": 0.09523809523809523,
+    "f1": 0.16666666666666666
+  },
+  "test_metrics": {
+    "auc": 0.90715099335789,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0
+  },
+  "data_info": {
+    "train_shape": [
+      9718,
+      18
+    ],
+    "valid_shape": [
+      3239,
+      18
+    ],
+    "test_shape": [
+      3240,
+      18
+    ],
+    "train_default_ratio": 0.006379913562461412,
+    "valid_default_ratio": 0.006483482556344551,
+    "test_default_ratio": 0.006481481481481481
+  }
+}
