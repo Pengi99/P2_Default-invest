@@ -1,0 +1,33 @@
+{
+  "optimal_alpha": 0.001,
+  "threshold_value": 0.0036283954611092536,
+  "original_features": 18,
+  "selected_features": 5,
+  "selected_feature_names": [
+    "ROA",
+    "RE_TA",
+    "CLCA",
+    "OENEG",
+    "RET_9M"
+  ],
+  "feature_coefficients": {
+    "ROA": -0.012647104910222917,
+    "TLTA": -0.0017511321138490117,
+    "WC_TA": -0.0,
+    "CFO_TD": 0.003228798455710324,
+    "SIGMA": -0.0,
+    "RE_TA": -0.010060649095675327,
+    "EBIT_TA": 0.0013150713939862598,
+    "MVE_TL": 0.0,
+    "S_TA": -0.0007370823605193268,
+    "CLCA": 0.005705788864640531,
+    "OENEG": 0.013773021896627978,
+    "CR": 0.0,
+    "CFO_TA": -0.0,
+    "TLMTA": 0.0,
+    "RET_3M": -0.0,
+    "RET_9M": 0.004027992466508184,
+    "MB": -0.0027210263449569737,
+    "K2_Score_Original": 0.0
+  }
+}

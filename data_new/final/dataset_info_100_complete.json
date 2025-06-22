@@ -1,23 +1,23 @@
 {
-  "dataset_name": "100% Complete Financial Data",
-  "creation_date": "2025-06-21 23:52:32",
+  "dataset_name": "100% Complete Financial Data (4:3:3 Split)",
+  "creation_date": "2025-06-23 01:04:00",
   "original_data": {
     "total_samples": 16197,
-    "features": 18,
+    "features": 17,
     "default_count": 104,
     "default_ratio": 0.006420942149780824
   },
   "data_split": {
-    "train_samples": 9718,
-    "valid_samples": 3239,
-    "test_samples": 3240,
-    "train_ratio": 0.6,
-    "valid_ratio": 0.2,
-    "test_ratio": 0.2
+    "train_samples": 6478,
+    "valid_samples": 4859,
+    "test_samples": 4860,
+    "train_ratio": 0.4,
+    "valid_ratio": 0.3,
+    "test_ratio": 0.3
   },
   "smote_applied": {
-    "original_train_samples": 9718,
-    "smote_train_samples": 10621,
+    "original_train_samples": 6478,
+    "smote_train_samples": 7079,
     "target_ratio": 0.1,
     "smote_type": "BorderlineSMOTE"
   },
@@ -38,8 +38,7 @@
     "TLMTA",
     "RET_3M",
     "RET_9M",
-    "MB",
-    "K2_Score_Original"
+    "MB"
   ],
   "scaling": "StandardScaler",
   "files": {
@@ -49,8 +48,7 @@
       "X_test": "X_test_100_normal.csv",
       "y_train": "y_train_100_normal.csv",
       "y_valid": "y_valid_100_normal.csv",
-      "y_test": "y_test_100_normal.csv",
-      "scaler": "scaler_100_normal.joblib"
+      "y_test": "y_test_100_normal.csv"
     },
     "smote": {
       "X_train": "X_train_100_smote.csv",
@@ -58,8 +56,7 @@
       "X_test": "X_test_100_smote.csv",
       "y_train": "y_train_100_smote.csv",
       "y_valid": "y_valid_100_smote.csv",
-      "y_test": "y_test_100_smote.csv",
-      "scaler": "scaler_100_smote.joblib"
+      "y_test": "y_test_100_smote.csv"
     },
     "meta": {
       "meta_train": "meta_train_100.csv",

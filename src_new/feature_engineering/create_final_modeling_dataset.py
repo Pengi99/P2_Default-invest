@@ -49,8 +49,8 @@ if not missing_info:
 else:
     print("  ✅ 결측값을 중앙값으로 대체 완료")
 
-# 3. 데이터 분할 (5:3:2 비율)
-print("\n3️⃣ 데이터 분할 (Train:Valid:Test = 5:3:2)")
+# 3. 데이터 분할 (4:3:3 비율)
+print("\n3️⃣ 데이터 분할 (Train:Valid:Test = 4:3:3)")
 print("="*50)
 
 # 특성과 타겟 분리
@@ -58,19 +58,19 @@ X = df[feature_columns].copy()
 y = df['default'].copy()
 meta_data = df[meta_columns].copy()
 
-# 1차 분할: Train(50%) vs Temp(50%)
+# 1차 분할: Train(40%) vs Temp(60%)
 X_train, X_temp, y_train, y_temp, meta_train, meta_temp = train_test_split(
     X, y, meta_data, 
-    test_size=0.5, 
+    test_size=0.6,  # 60% for Valid+Test
     random_state=42, 
     stratify=y
 )
 
-# 2차 분할: Temp(50%) -> Valid(30%) + Test(20%)
-# Temp 중에서 Valid:Test = 3:2 비율이므로 test_size = 2/5 = 0.4
+# 2차 분할: Temp(60%) -> Valid(30%) + Test(30%)
+# Temp 중에서 Valid:Test = 1:1 비율이므로 test_size = 0.5
 X_valid, X_test, y_valid, y_test, meta_valid, meta_test = train_test_split(
     X_temp, y_temp, meta_temp,
-    test_size=0.4,  # 2/(3+2) = 0.4
+    test_size=0.5,  # Valid와 Test를 1:1로 분할
     random_state=42,
     stratify=y_temp
 )
@@ -220,7 +220,7 @@ summary_info = {
         'original_samples': len(df),
         'total_features': len(feature_columns),
         'original_default_rate': (df['default']==1).sum() / len(df),
-        'split_ratio': [5, 3, 2],  # train:valid:test
+        'split_ratio': [4, 3, 3],  # train:valid:test
         'split_method': 'stratified_random'
     },
     'normal_version': {

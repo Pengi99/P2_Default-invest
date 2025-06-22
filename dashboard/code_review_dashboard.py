@@ -19,7 +19,7 @@ st.set_page_config(
 st.sidebar.title("📊 Navigation")
 menu = st.sidebar.selectbox(
     "메뉴 선택",
-    ["🏠 프로젝트 개요", "🏗️ 코드베이스 구조", "📁 데이터 파이프라인", "🔧 핵심 기능", "📈 데이터 현황", "🎯 모델링 준비"]
+    ["🏠 프로젝트 개요", "🏗️ 코드베이스 구조", "📁 데이터 파이프라인", "🔧 핵심 기능", "📈 데이터 현황", "🎯 모델링 준비", "🚀 모델링 결과"]
 )
 
 # 메인 타이틀
@@ -677,12 +677,254 @@ elif menu == "🎯 모델링 준비":
         "일반 버전으로 베이스라인 모델 훈련",
         "SMOTE 버전으로 성능 향상 모델 훈련",
         "모델별 성능 비교 및 분석",
-        "하이퍼파라미터 튜닝",
+        "하이퍼파라미터 tuning",
         "최종 모델 선택 및 해석"
     ]
     
     for i, step in enumerate(next_steps, 1):
         st.markdown(f"{i}. {step}")
+
+elif menu == "🚀 모델링 결과":
+    st.header("🚀 모델링 결과")
+    
+    # 결과 디렉토리 확인
+    results_dir = Path("outputs/master_runs")
+    
+    if results_dir.exists():
+        # 실행 결과 폴더 목록
+        run_folders = [f for f in results_dir.iterdir() if f.is_dir()]
+        
+        if run_folders:
+            # 가장 최근 실행 결과 선택
+            latest_run = max(run_folders, key=lambda x: x.stat().st_mtime)
+            
+            st.subheader(f"📁 최신 실행 결과: {latest_run.name}")
+            
+            # 결과 파일들 확인
+            results_path = latest_run / "results"
+            
+            if results_path.exists():
+                
+                # summary_table.csv 로드 및 시각화
+                summary_file = results_path / "summary_table.csv"
+                if summary_file.exists():
+                    st.subheader("📊 모델 성능 요약")
+                    
+                    df_summary = pd.read_csv(summary_file)
+                    
+                    # Threshold 최적화 결과가 있는지 확인
+                    if 'Optimal_Threshold' in df_summary.columns:
+                        st.success("🎯 **Threshold 자동 최적화 적용됨!**")
+                        
+                        # 성능 메트릭 시각화
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            # AUC 비교
+                            fig_auc = px.bar(
+                                df_summary, 
+                                x='Model', 
+                                y=['CV_AUC', 'Test_AUC'],
+                                color='Data_Type',
+                                barmode='group',
+                                title='🎯 AUC 성능 비교',
+                                labels={'value': 'AUC Score', 'variable': 'Metric'}
+                            )
+                            st.plotly_chart(fig_auc, use_container_width=True)
+                        
+                        with col2:
+                            # F1 Score와 Threshold 관계
+                            fig_f1 = px.scatter(
+                                df_summary,
+                                x='Optimal_Threshold',
+                                y='Test_F1',
+                                color='Model',
+                                size='Test_Precision',
+                                hover_data=['Test_Recall'],
+                                title='🎯 최적 Threshold vs F1 Score',
+                                labels={'Optimal_Threshold': '최적 Threshold', 'Test_F1': 'F1 Score'}
+                            )
+                            st.plotly_chart(fig_f1, use_container_width=True)
+                        
+                        # 상세 결과 테이블
+                        st.subheader("📋 상세 성능 지표")
+                        
+                        # 컬럼 순서 재정렬
+                        display_cols = ['Model', 'Data_Type', 'Optimal_Threshold', 'Test_AUC', 'Test_F1', 'Test_Precision', 'Test_Recall']
+                        available_cols = [col for col in display_cols if col in df_summary.columns]
+                        
+                        # 스타일링된 데이터프레임 표시
+                        styled_df = df_summary[available_cols].style.format({
+                            'Optimal_Threshold': '{:.2f}',
+                            'Test_AUC': '{:.4f}',
+                            'Test_F1': '{:.4f}',
+                            'Test_Precision': '{:.4f}',
+                            'Test_Recall': '{:.4f}'
+                        }).highlight_max(subset=['Test_AUC', 'Test_F1'], color='lightgreen')
+                        
+                        st.dataframe(styled_df, use_container_width=True)
+                        
+                        # 주요 인사이트
+                        st.subheader("💡 주요 인사이트")
+                        
+                        # 최고 성능 모델 찾기
+                        best_f1_idx = df_summary['Test_F1'].idxmax()
+                        best_model = df_summary.loc[best_f1_idx]
+                        
+                        col1, col2, col3 = st.columns(3)
+                        
+                        with col1:
+                            st.metric(
+                                "🏆 최고 F1 모델",
+                                f"{best_model['Model']} ({best_model['Data_Type']})",
+                                f"F1: {best_model['Test_F1']:.4f}"
+                            )
+                        
+                        with col2:
+                            st.metric(
+                                "🎯 최적 Threshold",
+                                f"{best_model['Optimal_Threshold']:.2f}",
+                                f"AUC: {best_model['Test_AUC']:.4f}"
+                            )
+                        
+                        with col3:
+                            st.metric(
+                                "⚖️ Precision-Recall",
+                                f"P: {best_model['Test_Precision']:.3f}",
+                                f"R: {best_model['Test_Recall']:.3f}"
+                            )
+                        
+                        # Threshold 분석
+                        st.subheader("🔍 Threshold 분석")
+                        
+                        threshold_analysis = df_summary.groupby('Model')['Optimal_Threshold'].agg(['mean', 'std', 'min', 'max']).round(3)
+                        
+                        st.markdown("**모델별 최적 Threshold 분포:**")
+                        st.dataframe(threshold_analysis)
+                        
+                        # 메트릭별 권장사항
+                        st.subheader("📋 실무 적용 가이드")
+                        
+                        high_precision_model = df_summary.loc[df_summary['Test_Precision'].idxmax()]
+                        high_recall_model = df_summary.loc[df_summary['Test_Recall'].idxmax()]
+                        
+                        st.markdown(f"""
+                        **🏦 보수적 예측 (High Precision)**
+                        - 추천 모델: **{high_precision_model['Model']} ({high_precision_model['Data_Type']})**
+                        - Threshold: **{high_precision_model['Optimal_Threshold']:.2f}**
+                        - Precision: **{high_precision_model['Test_Precision']:.3f}** | Recall: {high_precision_model['Test_Recall']:.3f}
+                        
+                        **🔍 적극적 탐지 (High Recall)**
+                        - 추천 모델: **{high_recall_model['Model']} ({high_recall_model['Data_Type']})**
+                        - Threshold: **{high_recall_model['Optimal_Threshold']:.2f}**
+                        - Precision: {high_recall_model['Test_Precision']:.3f} | Recall: **{high_recall_model['Test_Recall']:.3f}**
+                        """)
+                        
+                    else:
+                        st.warning("⚠️ 기존 하드코딩 방식 결과입니다. Threshold 최적화를 활성화하여 재실행하세요.")
+                        st.dataframe(df_summary)
+                    
+                else:
+                    st.warning("summary_table.csv 파일을 찾을 수 없습니다.")
+                
+                # all_results.json 정보 표시
+                all_results_file = results_path / "all_results.json"
+                if all_results_file.exists():
+                    st.subheader("🔧 하이퍼파라미터 최적화 결과")
+                    
+                    with open(all_results_file, 'r') as f:
+                        all_results = json.load(f)
+                    
+                    # Threshold 최적화 정보가 있는지 확인
+                    if 'threshold_optimization' in all_results:
+                        st.success("🎯 **각 모델별 최적 Threshold 자동 탐색 완료!**")
+                        
+                        threshold_results = all_results['threshold_optimization']
+                        
+                        # 모델별 threshold 최적화 상세 결과
+                        for model_key, thres_info in threshold_results.items():
+                            with st.expander(f"🔍 {model_key} Threshold 최적화 상세"):
+                                
+                                col1, col2 = st.columns(2)
+                                
+                                with col1:
+                                    st.metric("최적 Threshold", f"{thres_info['optimal_threshold']:.2f}")
+                                    st.metric("최적화 메트릭", thres_info.get('optimization_metric', 'f1').upper())
+                                
+                                with col2:
+                                    metric_scores = thres_info['metric_scores']
+                                    st.metric("F1 Score", f"{metric_scores['f1']:.4f}")
+                                    st.metric("Precision", f"{metric_scores['precision']:.4f}")
+                                    st.metric("Recall", f"{metric_scores['recall']:.4f}")
+                                
+                                # 모든 threshold별 성능 표시 (만약 있다면)
+                                if 'all_threshold_scores' in thres_info:
+                                    st.markdown("**모든 Threshold별 성능:**")
+                                    threshold_df = pd.DataFrame(thres_info['all_threshold_scores'])
+                                    
+                                    fig_threshold = px.line(
+                                        threshold_df,
+                                        x='threshold',
+                                        y=['f1', 'precision', 'recall'],
+                                        title=f'{model_key} - Threshold별 성능 곡선',
+                                        labels={'value': 'Score', 'variable': 'Metric'}
+                                    )
+                                    
+                                    # 최적 포인트 표시
+                                    optimal_thresh = thres_info['optimal_threshold']
+                                    fig_threshold.add_vline(
+                                        x=optimal_thresh,
+                                        line_dash="dash",
+                                        line_color="red",
+                                        annotation_text=f"최적: {optimal_thresh:.2f}"
+                                    )
+                                    
+                                    st.plotly_chart(fig_threshold, use_container_width=True)
+                    
+                    # 하이퍼파라미터 정보 표시
+                    st.subheader("⚙️ 최적 하이퍼파라미터")
+                    
+                    for model_name, model_results in all_results.items():
+                        if model_name != 'threshold_optimization' and isinstance(model_results, dict):
+                            for data_type, result in model_results.items():
+                                if 'best_params' in result:
+                                    with st.expander(f"🔧 {model_name.title()} - {data_type.title()}"):
+                                        
+                                        params_df = pd.DataFrame(
+                                            list(result['best_params'].items()), 
+                                            columns=['Parameter', 'Value']
+                                        )
+                                        st.dataframe(params_df, use_container_width=True)
+                
+            else:
+                st.warning("results 폴더를 찾을 수 없습니다.")
+        else:
+            st.info("아직 실행된 모델링 결과가 없습니다.")
+    else:
+        st.info("outputs/master_runs 디렉토리가 없습니다. 모델을 먼저 실행해주세요.")
+    
+    # 실행 가이드
+    st.subheader("🚀 모델 실행 가이드")
+    
+    st.markdown("""
+    **모델을 실행하려면:**
+    
+    ```bash
+    # 빠른 테스트
+    python src_new/modeling/run_master.py --template quick
+    
+    # 완전한 최적화
+    python src_new/modeling/run_master.py --template production
+    
+    # Lasso 특성 선택 포함
+    python src_new/modeling/run_master.py --template lasso
+    ```
+    
+    **🎯 Threshold 최적화 기능:**
+    - 각 모델별로 0.1~0.85 범위에서 최적 threshold 자동 탐색
+    - F1, Precision, Recall, Balanced Accuracy 중 선택 가능
+    - Validation Set 기반으로 과적합 방지
+    """)
 
 # 푸터
 st.markdown("---")

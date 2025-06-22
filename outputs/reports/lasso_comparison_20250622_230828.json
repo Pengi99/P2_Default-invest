@@ -1,0 +1,94 @@
+{
+  "LogisticRegression_All": {
+    "auc": 0.9355115570155967,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "cv_score": 0.9555186736924066,
+    "n_features": 18,
+    "best_params": {
+      "penalty": "l2",
+      "C": 0.00026202274048538253,
+      "max_iter": 1372,
+      "solver": "saga"
+    }
+  },
+  "RandomForest_All": {
+    "auc": 0.9259818284056941,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "cv_score": 0.967168381863685,
+    "n_features": 18,
+    "best_params": {
+      "n_estimators": 488,
+      "max_depth": 14,
+      "min_samples_split": 10,
+      "min_samples_leaf": 9,
+      "max_features": 0.1059108142947453
+    }
+  },
+  "XGBoost_All": {
+    "auc": 0.9291633371807393,
+    "precision": 0.8,
+    "recall": 0.38095238095238093,
+    "f1": 0.5161290322580645,
+    "cv_score": 0.971298349145207,
+    "n_features": 18,
+    "best_params": {
+      "n_estimators": 243,
+      "max_depth": 5,
+      "learning_rate": 0.16738186411589204,
+      "subsample": 0.6563696899899051,
+      "colsample_bytree": 0.9208787923016158,
+      "reg_alpha": 0.7455064367977082,
+      "reg_lambda": 9.868869366005173
+    }
+  },
+  "LogisticRegression_Selected": {
+    "auc": 0.9311758264523957,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "cv_score": 0.953660318384048,
+    "n_features": 9,
+    "best_params": {
+      "penalty": "l2",
+      "C": 0.0009111386332386759,
+      "max_iter": 862,
+      "solver": "saga"
+    }
+  },
+  "RandomForest_Selected": {
+    "auc": 0.9292595223297523,
+    "precision": 1.0,
+    "recall": 0.047619047619047616,
+    "f1": 0.09090909090909091,
+    "cv_score": 0.9632870564990667,
+    "n_features": 9,
+    "best_params": {
+      "n_estimators": 435,
+      "max_depth": 15,
+      "min_samples_split": 8,
+      "min_samples_leaf": 4,
+      "max_features": 0.12458353326246138
+    }
+  },
+  "XGBoost_Selected": {
+    "auc": 0.9288229897303856,
+    "precision": 0.7142857142857143,
+    "recall": 0.23809523809523808,
+    "f1": 0.35714285714285715,
+    "cv_score": 0.9593146797650546,
+    "n_features": 9,
+    "best_params": {
+      "n_estimators": 172,
+      "max_depth": 4,
+      "learning_rate": 0.09823025045826593,
+      "subsample": 0.8099025726528951,
+      "colsample_bytree": 0.7727780074568463,
+      "reg_alpha": 2.9122914019804194,
+      "reg_lambda": 6.118528947223795
+    }
+  }
+}

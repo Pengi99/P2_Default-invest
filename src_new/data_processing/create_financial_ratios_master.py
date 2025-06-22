@@ -15,7 +15,7 @@ def run_step(step_file, step_name):
     
     try:
         # archive_old_structure/src 폴더에서 실행 (기존 스크립트들 위치)
-        result = subprocess.run([sys.executable, f'archive_old_structure/src/{step_file}'], 
+        result = subprocess.run([sys.executable, f'src_new/data_processing/{step_file}'], 
                               capture_output=True, 
                               text=True, 
                               encoding='utf-8')
