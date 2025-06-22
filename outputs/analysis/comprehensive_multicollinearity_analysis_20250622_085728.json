@@ -1,0 +1,115 @@
+{
+  "analysis_timestamp": "20250622_085728",
+  "dataset_info": {
+    "total_observations": 16197,
+    "original_variables": 18,
+    "final_variables": 17,
+    "removed_variables": 1,
+    "variable_names": [
+      "ROA",
+      "TLTA",
+      "WC_TA",
+      "CFO_TD",
+      "SIGMA",
+      "RE_TA",
+      "EBIT_TA",
+      "MVE_TL",
+      "S_TA",
+      "CLCA",
+      "OENEG",
+      "CR",
+      "CFO_TA",
+      "TLMTA",
+      "RET_3M",
+      "RET_9M",
+      "MB",
+      "K2_Score_Original"
+    ],
+    "clean_variable_names": [
+      "ROA",
+      "TLTA",
+      "WC_TA",
+      "CFO_TD",
+      "SIGMA",
+      "RE_TA",
+      "EBIT_TA",
+      "MVE_TL",
+      "S_TA",
+      "CLCA",
+      "OENEG",
+      "CR",
+      "CFO_TA",
+      "TLMTA",
+      "RET_3M",
+      "RET_9M",
+      "MB"
+    ],
+    "removed_variable_names": [
+      "K2_Score_Original"
+    ]
+  },
+  "correlation_analysis": {
+    "high_correlation_pairs_count": 1,
+    "high_correlation_pairs": [
+      {
+        "variable1": "WC_TA",
+        "variable2": "CLCA",
+        "correlation": -0.822539584648397
+      }
+    ]
+  },
+  "vif_analysis": {
+    "final_variables_count": 17,
+    "max_vif": 4.974505040390208,
+    "mean_vif": 2.340414372528302,
+    "variables_with_high_vif": 0
+  },
+  "pca_analysis": {
+    "total_components": 18,
+    "components_for_95_variance": "13",
+    "explained_variance_ratio": [
+      0.27647756366772114,
+      0.1692967041965699,
+      0.0792553589008283,
+      0.06967346816835848,
+      0.06036540640398369,
+      0.055070556552620775,
+      0.05191519917911151,
+      0.04852140200836466,
+      0.038491582547142654,
+      0.0323204280068539,
+      0.03044638237195718,
+      0.026194815076282074,
+      0.021933309848994637,
+      0.012661292226581706,
+      0.011145498248028162,
+      0.008681370789903465,
+      0.00754966180669776,
+      5.3753572646131715e-17
+    ],
+    "cumulative_variance": [
+      0.27647756366772114,
+      0.44577426786429103,
+      0.5250296267651193,
+      0.5947030949334778,
+      0.6550685013374615,
+      0.7101390578900824,
+      0.7620542570691938,
+      0.8105756590775585,
+      0.8490672416247012,
+      0.881387669631555,
+      0.9118340520035122,
+      0.9380288670797943,
+      0.9599621769287889,
+      0.9726234691553707,
+      0.9837689674033988,
+      0.9924503381933023,
+      1.0,
+      1.0
+    ]
+  },
+  "perfect_multicollinearity": {
+    "perfect_correlation_pairs": [],
+    "perfect_pairs_count": 0
+  }
+}

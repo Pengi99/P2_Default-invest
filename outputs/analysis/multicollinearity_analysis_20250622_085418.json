@@ -1,0 +1,46 @@
+{
+  "analysis_timestamp": "20250622_085418",
+  "dataset_info": {
+    "total_observations": 16197,
+    "numeric_variables": 18,
+    "variable_names": [
+      "ROA",
+      "TLTA",
+      "WC_TA",
+      "CFO_TD",
+      "SIGMA",
+      "RE_TA",
+      "EBIT_TA",
+      "MVE_TL",
+      "S_TA",
+      "CLCA",
+      "OENEG",
+      "CR",
+      "CFO_TA",
+      "TLMTA",
+      "RET_3M",
+      "RET_9M",
+      "MB",
+      "K2_Score_Original"
+    ]
+  },
+  "correlation_analysis": {
+    "high_correlation_pairs_count": 1,
+    "high_correlation_pairs": [
+      {
+        "variable1": "WC_TA",
+        "variable2": "CLCA",
+        "correlation": -0.822539584648397
+      }
+    ]
+  },
+  "vif_analysis": {
+    "variables_with_high_vif": 6,
+    "max_vif": Infinity,
+    "mean_vif": Infinity
+  },
+  "condition_index_analysis": {
+    "max_condition_index": 6.051544039271748,
+    "multicollinearity_severity": "Low"
+  }
+}

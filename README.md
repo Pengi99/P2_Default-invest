@@ -1,72 +1,233 @@
-# Default Invest
+# 🏢 Default Invest: 한국 기업 부실예측 모델링 프로젝트
 
-본 프로젝트는 한국 상장기업의 부실 위험을 예측하고 퀄리티 팩터 기반의 포트폴리오 전략을 백테스트하기 위한 파이프라인을 제공합니다.
+한국 상장기업의 재무데이터를 활용한 **부실예측 모델링** 및 **퀄리티 팩터 기반 포트폴리오 전략** 프로젝트입니다.
 
-## 프로젝트 구조
+## 📊 프로젝트 개요
+
+- **목표**: 한국 상장기업의 부실 위험을 예측하고 퀄리티 팩터 기반의 투자 전략 백테스트
+- **데이터**: 2012-2023년 DART 재무제표 데이터 (16,197개 관측치)
+- **모델**: Logistic Regression, Random Forest, XGBoost
+- **특징**: 다중공선성 분석, SMOTE 적용, 포괄적 성능 평가
+
+## 🏗️ 프로젝트 구조
 
 ```
-.
-├── analysis_scripts/
-│   ├── analyze_delisted_reasons.py
-│   └── compare_tickers.py
-├── data/
-│   ├── raw/          # 수집한 원본 데이터
-│   └── processed/    # 전처리 후 저장되는 데이터
-├── models/           # 학습된 최적 모델 저장 위치
-├── notebooks/
-│   └── jongho.ipynb
-├── src/
-│   ├── __init__.py
-│   ├── analysis.py
-│   ├── backtester.py
-│   ├── data_collector.py
-│   ├── financial_ratios.py
-│   ├── model_trainer.py
-│   └── preprocess.py
-├── main.py           # 파이프라인 실행 스크립트
-├── config.py         # 설정 파일
-└── requirements.txt
+📦 P2_Default-invest/
+├── 📁 src_new/                    # 새로운 소스코드 (추천)
+│   ├── 📁 analysis/               # 데이터 분석
+│   │   ├── 📄 multicollinearity_analysis.py        # 다중공선성 분석
+│   │   ├── 📄 multicollinearity_analysis_improved.py # 개선된 다중공선성 분석
+│   │   ├── 📄 comprehensive_altman_analysis.py     # Altman Z-Score 분석
+│   │   ├── 📄 score_performance_analysis.py        # 스코어 성능 분석
+│   │   ├── 📄 analyze_scaling_needs.py             # 스케일링 필요성 분석
+│   │   └── 📄 apply_default_labeling_and_scaling.py # 라벨링 및 스케일링
+│   ├── 📁 data_processing/        # 데이터 전처리
+│   │   ├── 📄 create_financial_ratios_master.py    # 재무비율 마스터 생성
+│   │   ├── 📄 step1_basic_financial_ratios.py      # 기본 재무비율
+│   │   ├── 📄 step2_market_based_ratios.py         # 시장기반 비율
+│   │   ├── 📄 step3_volatility_returns.py          # 변동성 및 수익률
+│   │   └── 📄 step4_finalize_ratios.py             # 최종 비율 완성
+│   ├── 📁 feature_engineering/    # 특성 엔지니어링
+│   │   ├── 📄 add_financial_variables.py           # 재무변수 추가
+│   │   └── 📄 create_final_modeling_dataset.py     # 최종 모델링 데이터셋
+│   ├── 📁 modeling/              # 머신러닝 모델링
+│   │   ├── 📄 logistic_regression_100.py           # 로지스틱 회귀
+│   │   ├── 📄 RF_100.py                           # 랜덤 포레스트
+│   │   ├── 📄 xgboost_100.py                      # XGBoost
+│   │   └── 📄 model_comparison.py                 # 모델 비교
+│   └── 📁 utils/                 # 유틸리티
+├── 📁 data_new/                  # 최신 데이터
+│   ├── 📁 raw/                   # 원본 데이터 (2012-2023)
+│   ├── 📁 processed/             # 전처리된 데이터
+│   └── 📁 final/                 # 최종 모델링 데이터 (100% 완성)
+├── 📁 outputs/                   # 분석 결과
+│   ├── 📁 models/                # 학습된 모델
+│   ├── 📁 reports/               # 분석 보고서
+│   ├── 📁 visualizations/        # 시각화 결과
+│   └── 📁 analysis/              # 다중공선성 분석 결과
+├── 📁 dashboard/                 # 발표용 대시보드
+├── 📁 notebooks/                 # Jupyter 노트북
+└── 📁 archive_old_structure/     # 기존 구조 백업
 ```
 
-### 폴더 설명
+## 🚀 빠른 시작
 
-- **analysis_scripts/**: 데이터 불일치 분석 등 별도 실험용 스크립트
-- **data/raw/**: DART에서 받은 원본 CSV 파일을 저장
-- **data/processed/**: 전처리 후 분석과 모델 학습에 사용하는 데이터
-- **models/**: 학습된 최적 모델을 저장
-- **notebooks/**: 초기 탐색과 아이디어 검증을 위한 Jupyter 노트북
-- **src/**: 파이프라인을 구성하는 주요 모듈 (데이터 수집, 전처리, 모델 학습, 백테스트 등)
-- **main.py**: 전체 파이프라인을 순차적으로 실행하는 진입점
-- **config.py**: 파라미터와 경로 등을 한 곳에서 관리
+### 1. 환경 설정
+```bash
+# 의존성 설치
+pip install -r requirements.txt
 
-## 빠른 시작
+# 가상환경 활성화 (권장)
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+# 또는 .venv\Scripts\activate  # Windows
+```
 
-1. 의존성 설치
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. 데이터 수집부터 백테스트까지 전체 파이프라인 실행
-   ```bash
-   python main.py
-   ```
+### 2. 데이터 준비
+```bash
+# 데이터는 이미 처리되어 data_new/final/ 에 준비되어 있습니다
+ls data_new/final/*.csv
+```
 
-각 모듈의 세부 기능은 주석과 TODO 항목을 참고해 채워 넣을 수 있습니다.
+### 3. 모델 학습 및 평가
+```bash
+# 개별 모델 실행
+python src_new/modeling/logistic_regression_100.py
+python src_new/modeling/RF_100.py  
+python src_new/modeling/xgboost_100.py
 
-## 데이터 파일 설명
+# 모델 비교
+python src_new/modeling/model_comparison.py
+```
 
-- **data/raw/** 폴더에는 다음과 같은 원본 CSV가 들어 있습니다.
-  - `연결 재무제표(IFRS).csv`, `재무제표(IFRS).csv`: 기업의 재무상태표와 손익계산서
-  - `연결 재무비율(IFRS).csv`, `재무비율(IFRS).csv`: 주요 재무비율 정보
-  - `코스피_상장폐지.csv`, `코스닥_상장폐지.csv`: 상장폐지 기업 목록과 사유
-- 전처리 과정에서 위 데이터를 결합하여 `data/processed/financial_ratios.csv` 파일을 생성하며, 향후 학습 및 백테스트에 활용합니다.
+### 4. 다중공선성 분석
+```bash
+# 기본 분석
+python src_new/analysis/multicollinearity_analysis.py
 
-## 주요 기능
+# 개선된 분석 (권장)
+python src_new/analysis/multicollinearity_analysis_improved.py
+```
 
-- **데이터 수집**: DART 등에서 재무제표와 주가 데이터를 가져와 `data/raw/`에 저장합니다.
-- **전처리 및 피처 생성**: K-1 스코어 계산, 부도 라벨 생성, 퀄리티 팩터 산출 등을 수행합니다.
-- **모델 학습**: 로지스틱 회귀, 랜덤 포레스트, LightGBM을 비교하여 최적 모델을 선택합니다.
-- **백테스팅**: 예측 모델로 필터링한 포트폴리오와 비교군을 구성하여 전략 성과를 검증합니다.
+### 5. 대시보드 실행
+```bash
+cd dashboard
+streamlit run code_review_dashboard.py
+```
 
-## 노트북 활용
+## 📈 주요 결과
 
-`notebooks/jongho.ipynb` 파일에서 데이터 탐색과 간단한 모델 실험을 진행할 수 있습니다. 본격적인 코드 작성 전 아이디어를 검증하는 데 활용하세요.
+### 모델 성능 (Test Set)
+| 모델 | Normal | SMOTE |
+|-----|--------|-------|
+| **Logistic Regression** | AUC: 0.943, F1: 0.244 | AUC: 0.928, F1: 0.271 |
+| **Random Forest** | AUC: 0.987, F1: 0.583 | AUC: 0.986, F1: 0.608 |
+| **XGBoost** | AUC: 0.985, F1: 0.538 | AUC: 0.982, F1: 0.569 |
+
+### 다중공선성 분석
+- **K2_Score_Original** 변수가 완전한 다중공선성의 원인으로 확인
+- 제거 후 모든 VIF < 5로 개선 (최대 VIF: 4.97)
+- WC_TA ↔ CLCA 간 높은 상관관계 (-0.823) 발견
+
+## 🔧 핵심 기능
+
+### 1. 포괄적 데이터 전처리
+- **재무비율 계산**: ROA, TLTA, WC_TA 등 18개 주요 비율
+- **결측치 처리**: 완전한 데이터만 사용 (100% Complete)
+- **이상치 탐지**: 통계적 방법으로 이상치 식별 및 처리
+
+### 2. 고급 분석 도구
+- **다중공선성 분석**: VIF, 상관분석, 조건지수 계산
+- **PCA 분석**: 차원 축소 가능성 평가 (27.8% 축소 가능)
+- **SMOTE 적용**: 불균형 데이터 문제 해결
+
+### 3. 모델 성능 최적화
+- **교차검증**: 시계열 특성 고려한 검증 전략
+- **하이퍼파라미터 튜닝**: GridSearchCV 활용
+- **앙상블 기법**: 여러 모델의 장점 결합
+
+## 📊 데이터셋 상세정보
+
+- **총 관측치**: 16,197개 (2012-2023년)
+- **특성 개수**: 18개 (재무비율 및 시장지표)
+- **부실기업**: 104개 (0.64%)
+- **데이터 분할**: Train(60%) / Valid(20%) / Test(20%)
+- **SMOTE 적용**: 불균형 비율 개선 (10% 목표)
+
+## 🎯 주요 특징
+
+### 재무 도메인 전문성
+- 한국 회계기준(K-IFRS) 기반 재무비율 계산
+- 업종별 특성 고려한 정규화
+- 시계열 데이터의 Look-ahead Bias 방지
+
+### 통계적 엄밀성
+- 다중공선성 진단 및 해결
+- 모델 가정 검증
+- Robust한 성능 평가 지표 활용
+
+### 실무 적용 가능성
+- 실시간 예측 파이프라인 구축 가능
+- 포트폴리오 전략 백테스팅 지원
+- 해석 가능한 모델 결과 제공
+
+## 📁 주요 파일 설명
+
+### 데이터 파일
+- `FS_100_complete.csv`: 완전한 재무데이터 (16,197 × 21)
+- `dataset_info_100_complete.json`: 데이터셋 메타정보
+- `X_train/valid/test_100_*.csv`: 모델링용 데이터 분할
+
+### 모델 파일
+- `final_*_model.joblib`: 최종 학습된 모델
+- `*_results.json`: 모델 성능 결과
+- `final_scaler.joblib`: 표준화 스케일러
+
+### 분석 결과
+- `comprehensive_multicollinearity_analysis_*.json`: 다중공선성 분석
+- `100_complete_detailed_results.csv`: 상세 성능 결과
+- 각종 시각화 파일 (PNG)
+
+## 🎨 시각화 및 대시보드
+
+### Streamlit 대시보드
+- 프로젝트 개요 및 워크플로우
+- 실시간 코드 리뷰 및 설명
+- 인터랙티브 데이터 탐색
+- 모델 성능 비교 시각화
+
+### 분석 차트
+- 상관계수 히트맵
+- VIF 분석 차트
+- ROC 곡선 및 Precision-Recall 곡선
+- 특성 중요도 시각화
+
+## 🔄 워크플로우
+
+1. **데이터 수집** → DART API 활용 재무제표 수집
+2. **전처리** → 결측치 처리, 이상치 탐지, 재무비율 계산
+3. **특성 엔지니어링** → 시장지표 추가, 스케일링
+4. **다중공선성 분석** → VIF 계산, 문제 변수 제거
+5. **모델 학습** → 3가지 알고리즘으로 학습
+6. **성능 평가** → AUC, F1-Score 등 다각도 평가
+7. **결과 해석** → 특성 중요도, 비즈니스 인사이트 도출
+
+## 📚 기술 스택
+
+- **언어**: Python 3.8+
+- **데이터 처리**: pandas, numpy
+- **머신러닝**: scikit-learn, xgboost, imbalanced-learn
+- **시각화**: matplotlib, seaborn, plotly
+- **웹 대시보드**: streamlit
+- **통계 분석**: statsmodels, scipy
+
+## 🤝 기여 방법
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 라이선스
+
+이 프로젝트는 MIT 라이선스 하에 배포됩니다.
+
+## 📞 연락처
+
+- 프로젝트 관리자: [GitHub Profile]
+- 이메일: [your-email@example.com]
+
+---
+
+### 📋 TODO
+
+- [ ] 실시간 데이터 수집 API 연동
+- [ ] 포트폴리오 백테스팅 모듈 구현
+- [ ] 모델 해석 도구 추가 (SHAP, LIME)
+- [ ] 웹 서비스 배포 (Flask/FastAPI)
+- [ ] 성능 모니터링 대시보드
+
+---
+
+*이 프로젝트는 한국 금융시장의 투자 의사결정을 지원하기 위한 연구 목적으로 개발되었습니다.*
