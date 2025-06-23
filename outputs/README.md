@@ -15,6 +15,8 @@ outputs/
 │   ├── boxplots/          # 개별 변수 박스플롯
 │   ├── scaling_indicators/ # 스케일링 지표 차트
 │   ├── comprehensive/     # 종합 분석 차트
+│   ├── default_group_analysis/ # Default 그룹별 분석 차트
+│   ├── missing_default_analysis/ # 결측치 임계값별 Default 분석 차트
 │   └── missing_analysis/  # 결측치 분석 차트
 └── 📁 analysis/           # 특별 분석 결과
 ```
@@ -110,6 +112,13 @@ outputs/
   - 변수별 최적 스케일러 선택
   - 추천 근거 제시
 
+### 📊 Default & Missing Threshold 분석 (신규)
+- **`missing_threshold_default_analysis.csv`**: 임계값별 데이터·Default 보존율 분석
+- **`column_missing_changes_by_threshold.csv`**: 임계값별 컬럼별 결측치 비율 변화
+- **`normal_companies_statistics.csv`**, **`default_companies_statistics.csv`**: Default 그룹별 기초 통계
+- **`mean_comparison_analysis.csv`**, **`std_comparison_analysis.csv`**, **`comprehensive_group_comparison.csv`**: 그룹별 평균·표준편차·종합 비교
+- **`default_group_analysis_report.txt`**: Default 그룹 비교 상세 리포트
+
 ### 🏆 모델 성능 보고서
 각 master_run 디렉토리 내:
 - **`all_results.json`**: 전체 모델 성능 요약
@@ -168,6 +177,28 @@ comprehensive/
 ### 📋 **Summary Charts** (요약 차트)
 - **`00_ratio_distributions_summary.png`**: 전체 분포 요약
 - **`00_ratio_boxplots_summary.png`**: 전체 박스플롯 요약
+
+### 🏷️ **Default Group Analysis** (Default 그룹별 분석)
+```
+default_group_analysis/
+├── 01_mean_comparison_top15.png       # 평균값 비교 (발생액 제외)
+├── 02_std_comparison_top15.png        # 표준편차 비교 (발생액 제외)
+├── 03_boxplot_comparison_top12.png    # 박스플롯 비교
+├── 04_histogram_comparison_top6.png   # 히스토그램 비교
+├── 05_statistics_heatmap.png          # 통계량 히트맵
+└── 06_comprehensive_dashboard.png     # 종합 대시보드
+```
+
+### 🏷️ **Missing Threshold Default Analysis** (결측치 임계값별 Default 분석)
+```
+missing_default_analysis/
+├── 01_missing_threshold_analysis.png        # 임계값별 데이터/Default 보존율
+├── 02_data_count_changes.png                # 데이터 행 변화
+├── 03_default_rate_changes.png              # Default 비율 변화
+├── 05_remaining_missing_analysis.png        # 남은 결측치 분석
+├── 06_column_missing_changes_heatmap.png    # 컬럼별 결측치 변화 히트맵
+└── 04_comprehensive_dashboard.png            # 종합 대시보드
+```
 
 ---
 

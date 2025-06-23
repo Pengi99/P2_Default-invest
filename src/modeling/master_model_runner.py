@@ -74,13 +74,21 @@ class MasterModelRunner:
         data_path = Path(self.config['data_path'])
         
         # 원본 데이터 (SMOTE는 동적으로 적용)
+        # self.data['normal'] = {
+        #     'X_train': pd.read_csv(data_path / 'X_train_100_normal.csv'),
+        #     'X_valid': pd.read_csv(data_path / 'X_valid_100_normal.csv'),
+        #     'X_test': pd.read_csv(data_path / 'X_test_100_normal.csv'),
+        #     'y_train': pd.read_csv(data_path / 'y_train_100_normal.csv').iloc[:, 0],
+        #     'y_valid': pd.read_csv(data_path / 'y_valid_100_normal.csv').iloc[:, 0],
+        #     'y_test': pd.read_csv(data_path / 'y_test_100_normal.csv').iloc[:, 0]
+        # }
         self.data['normal'] = {
-            'X_train': pd.read_csv(data_path / 'X_train_100_normal.csv'),
-            'X_valid': pd.read_csv(data_path / 'X_valid_100_normal.csv'),
-            'X_test': pd.read_csv(data_path / 'X_test_100_normal.csv'),
-            'y_train': pd.read_csv(data_path / 'y_train_100_normal.csv').iloc[:, 0],
-            'y_valid': pd.read_csv(data_path / 'y_valid_100_normal.csv').iloc[:, 0],
-            'y_test': pd.read_csv(data_path / 'y_test_100_normal.csv').iloc[:, 0]
+            'X_train': pd.read_csv(data_path / 'X_train.csv'),
+            'X_valid': pd.read_csv(data_path / 'X_val.csv'),
+            'X_test': pd.read_csv(data_path / 'X_test.csv'),
+            'y_train': pd.read_csv(data_path / 'y_train.csv').iloc[:, 0],
+            'y_valid': pd.read_csv(data_path / 'y_val.csv').iloc[:, 0],
+            'y_test': pd.read_csv(data_path / 'y_test.csv').iloc[:, 0]
         }
         
         # SMOTE 데이터는 동적으로 생성 (Data Leakage 방지)
