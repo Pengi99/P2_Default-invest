@@ -44,9 +44,9 @@ print("=== 재무비율 스케일링 필요성 시각적 분석 ===")
 print("\n1️⃣ 데이터 로드")
 print("="*50)
 
-# FS_ratio_flow.csv 로드 (라벨링 전 원본 데이터)
-fs_ratio = pd.read_csv('data/final/FS_ratio_flow.csv', dtype={'거래소코드': str})
-print(f"FS_ratio_flow.csv: {fs_ratio.shape}")
+# FS_ratio_flow_korean.csv 로드 (한국어 변수명 적용)
+fs_ratio = pd.read_csv('data/final/FS_ratio_flow_korean.csv', dtype={'거래소코드': str})
+print(f"FS_ratio_flow_korean.csv: {fs_ratio.shape}")
 
 # 재무비율 컬럼만 추출
 ratio_columns = [col for col in fs_ratio.columns 
