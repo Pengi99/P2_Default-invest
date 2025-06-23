@@ -32,6 +32,8 @@ import optuna
 from optuna.samplers import TPESampler
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LassoCV
+from imblearn.over_sampling import BorderlineSMOTE
+from ensemble_model import EnsembleModel
 
 class MasterModelRunner:
     def __init__(self, config):
@@ -71,7 +73,7 @@ class MasterModelRunner:
         
         data_path = Path(self.config['data_path'])
         
-        # Normal 데이터
+        # 원본 데이터 (SMOTE는 동적으로 적용)
         self.data['normal'] = {
             'X_train': pd.read_csv(data_path / 'X_train_100_normal.csv'),
             'X_valid': pd.read_csv(data_path / 'X_valid_100_normal.csv'),
@@ -81,22 +83,22 @@ class MasterModelRunner:
             'y_test': pd.read_csv(data_path / 'y_test_100_normal.csv').iloc[:, 0]
         }
         
-        # SMOTE 데이터
-        self.data['smote'] = {
-            'X_train': pd.read_csv(data_path / 'X_train_100_smote.csv'),
-            'X_valid': pd.read_csv(data_path / 'X_valid_100_smote.csv'),
-            'X_test': pd.read_csv(data_path / 'X_test_100_smote.csv'),
-            'y_train': pd.read_csv(data_path / 'y_train_100_smote.csv').iloc[:, 0],
-            'y_valid': pd.read_csv(data_path / 'y_valid_100_smote.csv').iloc[:, 0],
-            'y_test': pd.read_csv(data_path / 'y_test_100_smote.csv').iloc[:, 0]
-        }
+        # SMOTE 데이터는 동적으로 생성 (Data Leakage 방지)
+        self.data['smote'] = self.data['normal'].copy()  # 동일한 원본 데이터 사용
         
-        for data_type in ['normal', 'smote']:
-            data = self.data[data_type]
-            print(f"✅ {data_type.upper()} 데이터:")
-            print(f"   Train: {data['X_train'].shape}, 부실비율: {data['y_train'].mean():.2%}")
-            print(f"   Valid: {data['X_valid'].shape}, 부실비율: {data['y_valid'].mean():.2%}")
-            print(f"   Test: {data['X_test'].shape}, 부실비율: {data['y_test'].mean():.2%}")
+        # Normal 데이터 정보 출력
+        data = self.data['normal']
+        print(f"✅ NORMAL 데이터:")
+        print(f"   Train: {data['X_train'].shape}, 부실비율: {data['y_train'].mean():.2%}")
+        print(f"   Valid: {data['X_valid'].shape}, 부실비율: {data['y_valid'].mean():.2%}")
+        print(f"   Test: {data['X_test'].shape}, 부실비율: {data['y_test'].mean():.2%}")
+        
+        # SMOTE 데이터 정보 출력 (동적 적용 설명)
+        print(f"✅ SMOTE 데이터:")
+        print(f"   원본과 동일한 크기 (동적 적용): {data['X_train'].shape}")
+        print(f"   🔄 SMOTE는 CV 및 최종 훈련 시 동적으로 적용됩니다")
+        print(f"   🎯 목표 부실비율: 10% (BorderlineSMOTE)")
+        print(f"   🚫 Data Leakage 방지: CV 내부에서만 적용")
     
     def apply_lasso_feature_selection(self, data_type):
         """Lasso 특성 선택 적용"""
@@ -202,8 +204,18 @@ class MasterModelRunner:
                 params['l1_ratio'] = trial.suggest_float('l1_ratio', *self.config['models']['logistic']['l1_ratio_range'])
             
             model = LogisticRegression(**params)
-            skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.config['random_state'])
-            scores = cross_val_score(model, X_train, y_train, cv=skf, scoring='roc_auc', n_jobs=-1)
+            
+            # Data Leakage 방지를 위한 올바른 CV (SMOTE 데이터 타입인 경우)
+            if data_type == 'smote':
+                # 원본 데이터 로드 (SMOTE 적용 전)
+                X_train_original = self.data['normal']['X_train']
+                y_train_original = self.data['normal']['y_train']
+                scores = self.proper_cv_with_smote(model, X_train_original, y_train_original, cv_folds=5)
+            else:
+                # Normal 데이터는 기존 방식 사용
+                skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.config['random_state'])
+                scores = cross_val_score(model, X_train, y_train, cv=skf, scoring='roc_auc', n_jobs=-1)
+            
             return scores.mean()
         
         study = optuna.create_study(direction='maximize', sampler=TPESampler(seed=self.config['random_state']))
@@ -221,7 +233,20 @@ class MasterModelRunner:
         best_params['solver'] = solver
         
         model = LogisticRegression(**best_params)
-        model.fit(X_train, y_train)
+        
+        # SMOTE 데이터 타입인 경우 최종 훈련에도 SMOTE 적용
+        if data_type == 'smote':
+            smote = BorderlineSMOTE(
+                sampling_strategy=0.1, 
+                random_state=self.config['random_state'],
+                k_neighbors=5,
+                m_neighbors=10
+            )
+            X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
+            model.fit(X_train_smote, y_train_smote)
+            print(f"✅ SMOTE 적용 후 훈련: {len(X_train_smote):,}개 샘플")
+        else:
+            model.fit(X_train, y_train)
         
         # 저장
         model_key = f'LogisticRegression_{data_type}'
@@ -257,8 +282,18 @@ class MasterModelRunner:
             }
             
             model = RandomForestClassifier(**params)
-            skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.config['random_state'])
-            scores = cross_val_score(model, X_train, y_train, cv=skf, scoring='roc_auc', n_jobs=-1)
+            
+            # Data Leakage 방지를 위한 올바른 CV (SMOTE 데이터 타입인 경우)
+            if data_type == 'smote':
+                # 원본 데이터 로드 (SMOTE 적용 전)
+                X_train_original = self.data['normal']['X_train']
+                y_train_original = self.data['normal']['y_train']
+                scores = self.proper_cv_with_smote(model, X_train_original, y_train_original, cv_folds=5)
+            else:
+                # Normal 데이터는 기존 방식 사용
+                skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.config['random_state'])
+                scores = cross_val_score(model, X_train, y_train, cv=skf, scoring='roc_auc', n_jobs=-1)
+            
             return scores.mean()
         
         study = optuna.create_study(direction='maximize', sampler=TPESampler(seed=self.config['random_state']))
@@ -267,7 +302,20 @@ class MasterModelRunner:
         # 최적 모델 훈련
         best_params = study.best_params
         model = RandomForestClassifier(**best_params)
-        model.fit(X_train, y_train)
+        
+        # SMOTE 데이터 타입인 경우 최종 훈련에도 SMOTE 적용
+        if data_type == 'smote':
+            smote = BorderlineSMOTE(
+                sampling_strategy=0.1, 
+                random_state=self.config['random_state'],
+                k_neighbors=5,
+                m_neighbors=10
+            )
+            X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
+            model.fit(X_train_smote, y_train_smote)
+            print(f"✅ SMOTE 적용 후 훈련: {len(X_train_smote):,}개 샘플")
+        else:
+            model.fit(X_train, y_train)
         
         # 저장
         model_key = f'RandomForest_{data_type}'
@@ -309,8 +357,18 @@ class MasterModelRunner:
             }
             
             model = xgb.XGBClassifier(**params)
-            skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.config['random_state'])
-            scores = cross_val_score(model, X_train, y_train, cv=skf, scoring='roc_auc', n_jobs=-1)
+            
+            # Data Leakage 방지를 위한 올바른 CV (SMOTE 데이터 타입인 경우)
+            if data_type == 'smote':
+                # 원본 데이터 로드 (SMOTE 적용 전)
+                X_train_original = self.data['normal']['X_train']
+                y_train_original = self.data['normal']['y_train']
+                scores = self.proper_cv_with_smote(model, X_train_original, y_train_original, cv_folds=5)
+            else:
+                # Normal 데이터는 기존 방식 사용
+                skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.config['random_state'])
+                scores = cross_val_score(model, X_train, y_train, cv=skf, scoring='roc_auc', n_jobs=-1)
+            
             return scores.mean()
         
         study = optuna.create_study(direction='maximize', sampler=TPESampler(seed=self.config['random_state']))
@@ -319,7 +377,20 @@ class MasterModelRunner:
         # 최적 모델 훈련
         best_params = study.best_params
         model = xgb.XGBClassifier(**best_params)
-        model.fit(X_train, y_train)
+        
+        # SMOTE 데이터 타입인 경우 최종 훈련에도 SMOTE 적용
+        if data_type == 'smote':
+            smote = BorderlineSMOTE(
+                sampling_strategy=0.1, 
+                random_state=self.config['random_state'],
+                k_neighbors=5,
+                m_neighbors=10
+            )
+            X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
+            model.fit(X_train_smote, y_train_smote)
+            print(f"✅ SMOTE 적용 후 훈련: {len(X_train_smote):,}개 샘플")
+        else:
+            model.fit(X_train, y_train)
         
         # 저장
         model_key = f'XGBoost_{data_type}'
@@ -351,7 +422,7 @@ class MasterModelRunner:
         y_valid_proba = model.predict_proba(X_valid)[:, 1]
         
         # Precision-Recall 곡선과 다양한 threshold에서의 성능 계산
-        thresholds = np.arange(0.1, 0.9, 0.05)  # 0.1부터 0.85까지 0.05 간격
+        thresholds = np.arange(0.05, 0.5, 0.05)  # 0.05부터 0.5까지 0.05 간격
         
         threshold_results = []
         
@@ -514,6 +585,134 @@ class MasterModelRunner:
         
         for model_key in self.models.keys():
             self.evaluate_model(model_key)
+        
+        # 앙상블 모델 실행
+        if self.config.get('ensemble', {}).get('enabled', False):
+            self.run_ensemble_model()
+    
+    def run_ensemble_model(self):
+        """앙상블 모델 실행"""
+        print(f"\n🎭 앙상블 모델 실행")
+        print("="*60)
+        
+        ensemble_config = self.config['ensemble']
+        
+        # 앙상블에 포함할 모델들 필터링
+        ensemble_models = {}
+        enabled_models = ensemble_config.get('models', [])
+        enabled_data_types = ensemble_config.get('data_types', ['normal', 'smote'])
+        
+        # 모델 이름 매핑 (설정명 -> 실제 모델 키명)
+        model_name_mapping = {
+            'logistic': 'LogisticRegression',
+            'random_forest': 'RandomForest', 
+            'xgboost': 'XGBoost'
+        }
+        
+        print(f"🔍 현재 훈련된 모델들: {list(self.models.keys())}")
+        print(f"🎯 앙상블 설정 - 모델: {enabled_models}, 데이터 타입: {enabled_data_types}")
+        
+        for model_key, model_obj in self.models.items():
+            # 모델 키에서 정보 추출 (예: LogisticRegression_normal)
+            model_parts = model_key.split('_')
+            if len(model_parts) >= 2:
+                model_name = model_parts[0]  # LogisticRegression, RandomForest, XGBoost
+                data_type = model_parts[1].lower()  # normal, smote
+            else:
+                continue  # 올바르지 않은 키 형식은 건너뛰기
+            
+            # 설정의 모델명을 실제 모델명으로 변환하여 비교
+            enabled_model_names = [model_name_mapping.get(em, em) for em in enabled_models]
+            
+            # 설정에 따라 모델 선택
+            if model_name in enabled_model_names and data_type in enabled_data_types:
+                ensemble_models[model_key] = model_obj
+                print(f"✅ 앙상블에 포함: {model_key} (모델: {model_name}, 데이터: {data_type})")
+        
+        if not ensemble_models:
+            print("⚠️ 앙상블에 포함할 모델이 없습니다.")
+            print(f"💡 디버깅 정보:")
+            print(f"   - 설정된 모델: {enabled_models}")
+            print(f"   - 매핑된 모델명: {[model_name_mapping.get(em, em) for em in enabled_models]}")
+            print(f"   - 설정된 데이터 타입: {enabled_data_types}")
+            print(f"   - 실제 모델 키들: {list(self.models.keys())}")
+            return
+        
+        # 앙상블 모델 생성
+        ensemble = EnsembleModel(self.config, ensemble_models)
+        
+        # 검증 및 테스트 데이터 (normal 데이터 사용)
+        X_valid = self.data['normal']['X_valid']
+        y_valid = self.data['normal']['y_valid']
+        X_test = self.data['normal']['X_test']
+        y_test = self.data['normal']['y_test']
+        
+        print(f"\n🎯 앙상블 예측 수행")
+        print("="*40)
+        
+        # 검증 데이터로 앙상블 예측 (자동 가중치 계산 포함)
+        ensemble_valid_proba = ensemble.ensemble_predict_proba(
+            X_valid, X_valid, y_valid
+        )
+        
+        # 테스트 데이터 예측
+        ensemble_test_proba = ensemble.ensemble_predict_proba(X_test)
+        
+        # 최적 threshold 찾기
+        if ensemble_config.get('threshold_optimization', {}).get('enabled', True):
+            metric = ensemble_config.get('threshold_optimization', {}).get('metric_priority', 'f1')
+            optimal_threshold, threshold_metrics = ensemble.find_optimal_threshold(
+                X_valid, y_valid, metric=metric
+            )
+        else:
+            optimal_threshold = 0.5
+            threshold_metrics = {}
+        
+        # 최종 성능 평가
+        ensemble_metrics = ensemble.evaluate_ensemble(X_test, y_test, optimal_threshold)
+        
+        # 앙상블 모델 저장
+        ensemble_key = 'ensemble_model'
+        self.models[ensemble_key] = ensemble
+        
+        # 결과 저장
+        self.results[ensemble_key] = {
+            'model_type': 'ensemble',
+            'data_type': 'mixed',
+            'method': ensemble_config.get('method', 'weighted_average'),
+            'auto_weight': ensemble_config.get('auto_weight', False),
+            'included_models': list(ensemble_models.keys()),
+            'weights': ensemble.weights,
+            'optimal_threshold': optimal_threshold,
+            'threshold_metrics': threshold_metrics,
+            'cv_score': np.mean([self.results[mk]['cv_score'] for mk in ensemble_models.keys()]),
+            'valid_metrics': {
+                'auc': roc_auc_score(y_valid, ensemble_valid_proba),
+                'precision': precision_score(y_valid, (ensemble_valid_proba >= optimal_threshold).astype(int), zero_division=0),
+                'recall': recall_score(y_valid, (ensemble_valid_proba >= optimal_threshold).astype(int), zero_division=0),
+                'f1': f1_score(y_valid, (ensemble_valid_proba >= optimal_threshold).astype(int), zero_division=0),
+                'balanced_accuracy': balanced_accuracy_score(y_valid, (ensemble_valid_proba >= optimal_threshold).astype(int)),
+                'average_precision': average_precision_score(y_valid, ensemble_valid_proba)
+            },
+            'test_metrics': ensemble_metrics,
+            'predictions': {
+                'y_valid_proba': ensemble_valid_proba.tolist(),
+                'y_test_proba': ensemble_test_proba.tolist()
+            }
+        }
+        
+        print(f"\n🏆 앙상블 모델 최종 성능:")
+        print(f"   방법: {ensemble_config.get('method', 'weighted_average')}")
+        print(f"   포함 모델: {len(ensemble_models)}개")
+        print(f"   최적 Threshold: {optimal_threshold:.3f}")
+        print(f"   테스트 AUC: {ensemble_metrics['auc']:.4f}")
+        print(f"   테스트 F1: {ensemble_metrics['f1']:.4f}")
+        print(f"   테스트 Precision: {ensemble_metrics['precision']:.4f}")
+        print(f"   테스트 Recall: {ensemble_metrics['recall']:.4f}")
+        
+        # 앙상블 시각화 생성
+        viz_dir = self.output_dir / 'visualizations'
+        ensemble.create_ensemble_report(viz_dir)
     
     def save_all_results(self):
         """모든 결과 저장"""
@@ -644,40 +843,76 @@ class MasterModelRunner:
         metric_names = ['CV AUC', 'Test AUC', 'Test Precision', 'Test Recall', 'Test F1']
         
         fig, axes = plt.subplots(2, 3, figsize=(18, 12))
-        fig.suptitle('모델 성능 지표 비교', fontsize=16, fontweight='bold')
+        fig.suptitle('모델 성능 지표 비교 (앙상블 포함)', fontsize=16, fontweight='bold')
         
         # 색상 설정
-        colors = {'NORMAL': 'skyblue', 'SMOTE': 'lightcoral'}
+        colors = {'NORMAL': 'skyblue', 'SMOTE': 'lightcoral', 'MIXED': 'gold', 'ENSEMBLE': 'purple'}
         
         for i, (metric, name) in enumerate(zip(metrics, metric_names)):
             row, col = i // 3, i % 3
             ax = axes[row, col]
             
-            # 데이터 준비
-            pivot_data = summary_df.pivot(index='Model', columns='Data_Type', values=metric)
+            # 앙상블과 일반 모델 분리
+            ensemble_data = summary_df[summary_df['Model'] == 'ensemble']
+            regular_data = summary_df[summary_df['Model'] != 'ensemble']
             
-            # 바 차트
-            x = np.arange(len(pivot_data.index))
-            width = 0.35
+            if not regular_data.empty:
+                # 일반 모델들 - 기존 방식
+                pivot_data = regular_data.pivot(index='Model', columns='Data_Type', values=metric)
+                
+                # 바 차트
+                x = np.arange(len(pivot_data.index))
+                width = 0.35
+                
+                if 'NORMAL' in pivot_data.columns:
+                    bars1 = ax.bar(x - width/2, pivot_data['NORMAL'], width, 
+                                  label='Normal', alpha=0.8, color=colors['NORMAL'])
+                if 'SMOTE' in pivot_data.columns:
+                    bars2 = ax.bar(x + width/2, pivot_data['SMOTE'], width, 
+                                  label='SMOTE', alpha=0.8, color=colors['SMOTE'])
+                
+                # 값 표시
+                for col_name in pivot_data.columns:
+                    if col_name in ['NORMAL', 'SMOTE']:
+                        bars = ax.containers[list(pivot_data.columns).index(col_name)]
+                        for bar in bars:
+                            height = bar.get_height()
+                            if not np.isnan(height):
+                                ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                                       f'{height:.3f}', ha='center', va='bottom', fontsize=9)
+                
+                ax.set_xticks(x)
+                ax.set_xticklabels(pivot_data.index, rotation=45)
+                
+                # 앙상블 추가
+                if not ensemble_data.empty:
+                    ensemble_x = len(pivot_data.index)
+                    ensemble_value = ensemble_data[metric].iloc[0]
+                    bars3 = ax.bar(ensemble_x, ensemble_value, width*2, 
+                                  label='Ensemble', alpha=0.9, color=colors['ENSEMBLE'])
+                    
+                    # 앙상블 값 표시
+                    ax.text(ensemble_x, ensemble_value + 0.01,
+                           f'{ensemble_value:.3f}', ha='center', va='bottom', fontsize=9)
+                    
+                    # x축 라벨 업데이트
+                    all_labels = list(pivot_data.index) + ['Ensemble']
+                    ax.set_xticks(list(range(len(all_labels))))
+                    ax.set_xticklabels(all_labels, rotation=45)
             
-            bars1 = ax.bar(x - width/2, pivot_data['NORMAL'], width, 
-                          label='Normal', alpha=0.8, color=colors['NORMAL'])
-            bars2 = ax.bar(x + width/2, pivot_data['SMOTE'], width, 
-                          label='SMOTE', alpha=0.8, color=colors['SMOTE'])
-            
-            # 값 표시
-            for bars in [bars1, bars2]:
-                for bar in bars:
-                    height = bar.get_height()
-                    if not np.isnan(height):
-                        ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                               f'{height:.3f}', ha='center', va='bottom', fontsize=9)
+            elif not ensemble_data.empty:
+                # 앙상블만 있는 경우
+                ensemble_value = ensemble_data[metric].iloc[0]
+                ax.bar(0, ensemble_value, width=0.5, 
+                      label='Ensemble', alpha=0.9, color=colors['ENSEMBLE'])
+                ax.text(0, ensemble_value + 0.01,
+                       f'{ensemble_value:.3f}', ha='center', va='bottom', fontsize=9)
+                ax.set_xticks([0])
+                ax.set_xticklabels(['Ensemble'])
             
             ax.set_title(f'{name}', fontsize=12, fontweight='bold')
             ax.set_ylabel(name)
             ax.set_xlabel('모델')
-            ax.set_xticks(x)
-            ax.set_xticklabels(pivot_data.index, rotation=45)
             ax.legend()
             ax.grid(True, alpha=0.3)
             ax.set_ylim(0, 1.1 if metric != 'Test_F1' else max(summary_df[metric].max() * 1.2, 0.5))
@@ -792,10 +1027,17 @@ class MasterModelRunner:
         """Normal vs SMOTE 상세 비교"""
         print("⚖️ Normal vs SMOTE 비교 생성...")
         
+        # ensemble 모델 제외 (MIXED 데이터 타입)
+        df_filtered = summary_df[summary_df['Data_Type'].isin(['NORMAL', 'SMOTE'])]
+        
+        if len(df_filtered) == 0:
+            print("  ⚠️ Normal/SMOTE 비교할 데이터 없음")
+            return
+        
         fig, axes = plt.subplots(2, 2, figsize=(16, 12))
         fig.suptitle('Normal vs SMOTE 데이터 성능 비교', fontsize=16, fontweight='bold')
         
-        models = summary_df['Model'].unique()
+        models = df_filtered['Model'].unique()
         metrics = ['Test_AUC', 'Test_F1', 'Test_Precision', 'Test_Recall']
         metric_names = ['Test AUC', 'Test F1', 'Test Precision', 'Test Recall']
         
@@ -806,14 +1048,26 @@ class MasterModelRunner:
             smote_values = []
             
             for model in models:
-                normal_val = summary_df[(summary_df['Model'] == model) & 
-                                      (summary_df['Data_Type'] == 'NORMAL')][metric].iloc[0]
-                smote_val = summary_df[(summary_df['Model'] == model) & 
-                                     (summary_df['Data_Type'] == 'SMOTE')][metric].iloc[0]
-                normal_values.append(normal_val)
-                smote_values.append(smote_val)
+                # NORMAL 데이터 결과 확인
+                normal_mask = (df_filtered['Model'] == model) & (df_filtered['Data_Type'] == 'NORMAL')
+                normal_result = df_filtered[normal_mask][metric]
+                normal_val = normal_result.iloc[0] if len(normal_result) > 0 else 0
+                
+                # SMOTE 데이터 결과 확인  
+                smote_mask = (df_filtered['Model'] == model) & (df_filtered['Data_Type'] == 'SMOTE')
+                smote_result = df_filtered[smote_mask][metric]
+                smote_val = smote_result.iloc[0] if len(smote_result) > 0 else 0
+                
+                # 둘 다 있는 경우만 추가
+                if len(normal_result) > 0 and len(smote_result) > 0:
+                    normal_values.append(normal_val)
+                    smote_values.append(smote_val)
             
-            x = np.arange(len(models))
+            # 실제로 데이터가 있는 모델만 사용
+            if len(normal_values) == 0 or len(smote_values) == 0:
+                continue  # 이 메트릭에 대해 유효한 데이터가 없음
+                
+            x = np.arange(len(normal_values))  # normal_values 길이에 맞춤
             width = 0.35
             
             bars1 = ax.bar(x - width/2, normal_values, width, label='Normal', 
@@ -834,11 +1088,20 @@ class MasterModelRunner:
                     ax.text(bar.get_x() + bar.get_width()/2., height + 0.005,
                            f'{height:.3f}', ha='center', va='bottom', fontsize=9)
             
+            # 실제 사용된 모델들의 레이블 생성
+            used_model_labels = []
+            for model in models:
+                # NORMAL과 SMOTE 둘 다 있는 모델만
+                normal_mask = (df_filtered['Model'] == model) & (df_filtered['Data_Type'] == 'NORMAL')
+                smote_mask = (df_filtered['Model'] == model) & (df_filtered['Data_Type'] == 'SMOTE')
+                if len(df_filtered[normal_mask]) > 0 and len(df_filtered[smote_mask]) > 0:
+                    used_model_labels.append(model)
+            
             ax.set_title(f'{name} 비교', fontsize=12, fontweight='bold')
             ax.set_ylabel(name)
             ax.set_xlabel('모델')
             ax.set_xticks(x)
-            ax.set_xticklabels(models, rotation=45)
+            ax.set_xticklabels(used_model_labels, rotation=45)
             ax.legend()
             ax.grid(True, alpha=0.3)
         
@@ -1073,6 +1336,50 @@ class MasterModelRunner:
         plt.close()
         
         print(f"  ✅ Precision-Recall 곡선 저장: precision_recall_curves.png")
+
+    def proper_cv_with_smote(self, model, X, y, cv_folds=5, sampling_strategy=0.1):
+        """
+        SMOTE Data Leakage를 방지하는 올바른 Cross Validation
+        각 CV fold마다 SMOTE를 별도로 적용
+        """
+        skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=self.config['random_state'])
+        scores = []
+        
+        for fold, (train_idx, val_idx) in enumerate(skf.split(X, y)):
+            # 각 fold마다 별도로 분할
+            X_fold_train, X_fold_val = X.iloc[train_idx], X.iloc[val_idx]
+            y_fold_train, y_fold_val = y.iloc[train_idx], y.iloc[val_idx]
+            
+            # 훈련 fold에만 SMOTE 적용 (Data Leakage 방지)
+            smote = BorderlineSMOTE(
+                sampling_strategy=sampling_strategy, 
+                random_state=self.config['random_state'],
+                k_neighbors=5,
+                m_neighbors=10
+            )
+            
+            try:
+                X_fold_train_smote, y_fold_train_smote = smote.fit_resample(X_fold_train, y_fold_train)
+                
+                # 모델 복사 및 훈련
+                model_copy = model.__class__(**model.get_params())
+                model_copy.fit(X_fold_train_smote, y_fold_train_smote)
+                
+                # 검증 fold에서 평가 (원본 데이터만 사용)
+                y_pred_proba = model_copy.predict_proba(X_fold_val)[:, 1]
+                score = roc_auc_score(y_fold_val, y_pred_proba)
+                scores.append(score)
+                
+            except Exception as e:
+                print(f"⚠️ Fold {fold+1} SMOTE 적용 실패: {e}")
+                # SMOTE 실패 시 원본 데이터로 훈련
+                model_copy = model.__class__(**model.get_params())
+                model_copy.fit(X_fold_train, y_fold_train)
+                y_pred_proba = model_copy.predict_proba(X_fold_val)[:, 1]
+                score = roc_auc_score(y_fold_val, y_pred_proba)
+                scores.append(score)
+        
+        return np.array(scores)
 
 def load_config(config_path='master_config.json'):
     """설정 파일 로드"""

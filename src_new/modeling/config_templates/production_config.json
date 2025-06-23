@@ -49,5 +49,25 @@
       "reg_alpha_range": [0, 20],
       "reg_lambda_range": [0, 20]
     }
+  },
+  
+  "ensemble": {
+    "enabled": true,
+    "method": "weighted_average",
+    "auto_weight": true,
+    "models": ["logistic", "random_forest", "xgboost"],
+    "data_types": ["normal", "smote"],
+    "weights": {
+      "logisticregression_normal": 0.25,
+      "randomforest_normal": 0.35,
+      "xgboost_normal": 0.25,
+      "logisticregression_smote": 0.15,
+      "randomforest_smote": 0.25,
+      "xgboost_smote": 0.15
+    },
+    "threshold_optimization": {
+      "enabled": true,
+      "metric_priority": "f1"
+    }
   }
 } 

@@ -15,11 +15,12 @@
     "valid_ratio": 0.3,
     "test_ratio": 0.3
   },
-  "smote_applied": {
-    "original_train_samples": 6478,
-    "smote_train_samples": 7079,
+  "smote_strategy": {
+    "method": "Dynamic SMOTE in Cross-Validation",
+    "description": "SMOTE is applied dynamically within each CV fold to prevent data leakage",
     "target_ratio": 0.1,
-    "smote_type": "BorderlineSMOTE"
+    "smote_type": "BorderlineSMOTE",
+    "applied_during": "Cross-Validation and Final Training"
   },
   "features": [
     "ROA",
@@ -42,7 +43,7 @@
   ],
   "scaling": "StandardScaler",
   "files": {
-    "normal": {
+    "data": {
       "X_train": "X_train_100_normal.csv",
       "X_valid": "X_valid_100_normal.csv",
       "X_test": "X_test_100_normal.csv",
@@ -50,18 +51,16 @@
       "y_valid": "y_valid_100_normal.csv",
       "y_test": "y_test_100_normal.csv"
     },
-    "smote": {
-      "X_train": "X_train_100_smote.csv",
-      "X_valid": "X_valid_100_smote.csv",
-      "X_test": "X_test_100_smote.csv",
-      "y_train": "y_train_100_smote.csv",
-      "y_valid": "y_valid_100_smote.csv",
-      "y_test": "y_test_100_smote.csv"
-    },
     "meta": {
       "meta_train": "meta_train_100.csv",
       "meta_valid": "meta_valid_100.csv",
       "meta_test": "meta_test_100.csv"
     }
+  },
+  "data_leakage_prevention": {
+    "smote_application": "Dynamic within CV folds",
+    "validation_on": "Original data only",
+    "cross_validation": "Proper CV with SMOTE",
+    "description": "SMOTE is applied separately in each CV fold to prevent synthetic data contamination"
   }
 }

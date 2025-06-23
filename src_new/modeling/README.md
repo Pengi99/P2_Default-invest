@@ -7,6 +7,7 @@
 ### 1. **🆕 마스터 모델 러너** (통합 파이프라인)
 - **자동화된 모델 실행**: LogisticRegression, RandomForest, XGBoost 일괄 실행
 - **🔥 자동 Threshold 최적화**: 각 모델별 최적 임계값 자동 탐색
+- **🎭 앙상블 모델**: 여러 모델을 결합한 앙상블 예측 (NEW!)
 - **중앙 설정 관리**: JSON 기반 설정으로 모든 하이퍼파라미터 관리
 - **Lasso 특성 선택**: 선택적 특성 선택 기능
 - **체계적 저장**: 실행별 폴더 생성 및 결과 관리
@@ -44,6 +45,50 @@ python src_new/modeling/run_master.py
 # 커스텀 설정 파일 사용
 python src_new/modeling/run_master.py --config my_config.json
 ```
+
+## 🎭 앙상블 모델 (NEW!)
+
+### 개요
+개별 모델들을 결합하여 더 강력한 예측 성능을 달성합니다!
+
+- **가중 평균**: 각 모델의 예측 확률을 가중치로 결합
+- **자동 가중치**: 검증 성능 기반 최적 가중치 자동 계산
+- **수동 가중치**: 사용자 정의 가중치 설정 가능
+- **최적 Threshold**: 앙상블 결과에도 최적 임계값 적용
+
+### 설정 방법
+
+```json
+{
+  "ensemble": {
+    "enabled": true,                                    // 앙상블 활성화
+    "method": "weighted_average",                       // 앙상블 방법
+    "auto_weight": true,                               // 자동 가중치 계산
+    "models": ["logistic", "random_forest", "xgboost"], // 포함할 모델들
+    "data_types": ["normal", "smote"],                 // 포함할 데이터 타입
+    "weights": {                                       // 수동 가중치 (auto_weight=false시)
+      "logisticregression_normal": 0.3,
+      "randomforest_normal": 0.4,
+      "xgboost_normal": 0.3,
+      "logisticregression_smote": 0.2,
+      "randomforest_smote": 0.3,
+      "xgboost_smote": 0.2
+    },
+    "threshold_optimization": {
+      "enabled": true,
+      "metric_priority": "f1"
+    }
+  }
+}
+```
+
+### 🎯 앙상블 방법
+
+| 방법 | 설명 | 특징 |
+|------|------|------|
+| **weighted_average** | 가중 평균 | **권장** - 안정적이고 해석 가능 |
+| **voting** | 가중 다수결 | 이진 투표 기반 |
+| **stacking** | 메타 모델 | 고급 기법 (미래 확장) |
 
 ## 🔥 자동 Threshold 최적화 (핵심 기능)
 
@@ -332,3 +377,105 @@ python src_new/modeling/run_master.py --template lasso
 4. **🔧 유연성**: JSON 설정으로 모든 하이퍼파라미터 제어
 5. **📁 체계성**: 실행별 독립적 결과 저장
 6. **🔄 재현성**: 설정 파일 저장으로 완전한 재현 가능
+
+## 🔧 **SMOTE Data Leakage 문제 해결**
+
+### ❌ 기존 문제점
+```python
+# 잘못된 방법: SMOTE 먼저 적용 → CV 수행
+X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
+scores = cross_val_score(model, X_train_smote, y_train_smote, cv=5)  # ❌ Data Leakage!
+```
+
+### ✅ 올바른 해결책
+```python
+# 올바른 방법: CV 내부에서 SMOTE 적용
+def proper_cv_with_smote(model, X, y, cv_folds=5):
+    skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=42)
+    scores = []
+    
+    for train_idx, val_idx in skf.split(X, y):
+        # 각 fold마다 별도로 분할
+        X_fold_train, X_fold_val = X.iloc[train_idx], X.iloc[val_idx]
+        y_fold_train, y_fold_val = y.iloc[train_idx], y.iloc[val_idx]
+        
+        # 훈련 fold에만 SMOTE 적용 (Data Leakage 방지)
+        smote = BorderlineSMOTE(sampling_strategy=0.1, random_state=42)
+        X_fold_train_smote, y_fold_train_smote = smote.fit_resample(X_fold_train, y_fold_train)
+        
+        # 모델 훈련 및 평가
+        model.fit(X_fold_train_smote, y_fold_train_smote)
+        y_pred_proba = model.predict_proba(X_fold_val)[:, 1]  # 원본 데이터로 평가
+        score = roc_auc_score(y_fold_val, y_pred_proba)
+        scores.append(score)
+    
+    return np.array(scores)
+```
+
+### 🎯 핵심 개선사항
+1. **각 CV fold마다 SMOTE 별도 적용**
+2. **원본 데이터로 검증 수행**
+3. **합성 데이터 간 오염 방지**
+4. **정확한 일반화 성능 평가**
+
+## 📊 결과 파일
+
+### 모델 저장
+- `outputs/master_runs/{run_name}/models/` - 훈련된 모델 파일들
+- `.joblib` 형식으로 저장
+
+### 결과 분석
+- `outputs/master_runs/{run_name}/results/` - 성능 메트릭 및 분석 결과
+- `all_results.json` - 전체 결과 종합
+- `summary_table.csv` - 요약 테이블
+
+### 시각화
+- `outputs/master_runs/{run_name}/visualizations/` - 그래프 및 차트
+- ROC 곡선, Precision-Recall 곡선
+- 특성 중요도 비교
+- Normal vs SMOTE 성능 비교
+
+## 🔍 성능 메트릭
+
+### 분류 메트릭
+- **AUC-ROC**: 전체적인 분류 성능
+- **Precision**: 부실 예측의 정확도
+- **Recall**: 실제 부실기업 탐지율
+- **F1-Score**: Precision과 Recall의 조화평균
+- **Balanced Accuracy**: 클래스 불균형 고려 정확도
+
+### 검증 방식
+- **5-Fold Stratified Cross Validation**
+- **Hold-out Test Set** 최종 평가
+- **Validation Set** 기반 Threshold 최적화
+
+## 💡 주요 특징
+
+### 1. **클래스 불균형 처리**
+- BorderlineSMOTE로 부실기업 데이터 증강
+- 1:10 비율로 균형 조정
+- 원본 데이터 보존
+
+### 2. **과적합 방지**
+- 3단계 검증 (CV → Validation → Test)
+- Early Stopping 및 정규화
+- 특성 선택으로 차원 축소
+
+### 3. **재현 가능성**
+- 모든 랜덤 시드 고정
+- 설정 파일 기반 실험 관리
+- 버전 관리 및 결과 추적
+
+## 🚨 주의사항
+
+1. **데이터 누수 방지**: SMOTE는 반드시 CV 내부에서 적용
+2. **시계열 특성 고려**: 금융 데이터의 시간적 의존성 주의
+3. **메모리 사용량**: 대용량 데이터 처리 시 메모리 모니터링 필요
+4. **하이퍼파라미터 범위**: 과도한 탐색 범위는 최적화 시간 증가
+
+## 📈 성능 향상 팁
+
+1. **특성 엔지니어링**: 도메인 지식 기반 특성 생성
+2. **앙상블 방법**: 여러 모델 조합으로 성능 향상
+3. **임계값 조정**: 비즈니스 목적에 맞는 Precision/Recall 균형
+4. **데이터 품질**: 이상치 처리 및 결측값 보완
