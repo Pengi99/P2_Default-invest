@@ -4,6 +4,33 @@
   "data_path": "data/final",
   "output_base_dir": "outputs/master_runs",
   
+  "data_types": {
+    "normal": {
+      "enabled": true,
+      "description": "원본 불균형 데이터"
+    },
+    "smote": {
+      "enabled": false,
+      "description": "SMOTE 오버샘플링 적용",
+      "sampling_strategy": 0.1,
+      "k_neighbors": 5,
+      "m_neighbors": 10
+    },
+    "undersampling": {
+      "enabled": false,
+      "description": "언더샘플링 적용",
+      "method": "random",
+      "sampling_strategy": "auto",
+      "random_state": 42
+    },
+    "combined": {
+      "enabled": true,
+      "description": "SMOTE + 언더샘플링 조합",
+      "smote_ratio": 0.1,
+      "undersampling_ratio": 0.3
+    }
+  },
+  
   "threshold_optimization": {
     "enabled": true,
     "metric_priority": "f1",
@@ -16,7 +43,7 @@
     "enabled": true,
     "alphas": [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0],
     "cv_folds": 5,
-    "threshold": "median"
+    "threshold": 0.0000001
   },
   
   "models": {
@@ -58,14 +85,17 @@
     "method": "weighted_average",
     "auto_weight": true,
     "models": ["logistic", "random_forest", "xgboost"],
-    "data_types": ["normal", "smote"],
+    "data_types": ["normal", "smote", "undersampling"],
     "weights": {
-      "logisticregression_normal": 0.3,
-      "randomforest_normal": 0.4,
-      "xgboost_normal": 0.3,
-      "logisticregression_smote": 0.2,
-      "randomforest_smote": 0.3,
-      "xgboost_smote": 0.2
+      "logisticregression_normal": 0.25,
+      "randomforest_normal": 0.25,
+      "xgboost_normal": 0.25,
+      "logisticregression_smote": 0.15,
+      "randomforest_smote": 0.15,
+      "xgboost_smote": 0.15,
+      "logisticregression_undersampling": 0.2,
+      "randomforest_undersampling": 0.2,
+      "xgboost_undersampling": 0.2
     },
     "threshold_optimization": {
       "enabled": true,

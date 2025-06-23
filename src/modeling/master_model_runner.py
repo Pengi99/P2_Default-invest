@@ -33,6 +33,7 @@ from optuna.samplers import TPESampler
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LassoCV
 from imblearn.over_sampling import BorderlineSMOTE
+from imblearn.under_sampling import RandomUnderSampler, EditedNearestNeighbours, TomekLinks
 from ensemble_model import EnsembleModel
 
 class MasterModelRunner:
@@ -91,8 +92,11 @@ class MasterModelRunner:
             'y_test': pd.read_csv(data_path / 'y_test.csv').iloc[:, 0]
         }
         
-        # SMOTE 데이터는 동적으로 생성 (Data Leakage 방지)
-        self.data['smote'] = self.data['normal'].copy()  # 동일한 원본 데이터 사용
+        # 활성화된 데이터 타입별로 복사 (동적 샘플링 적용)
+        enabled_data_types = [dt for dt, config in self.config['data_types'].items() if config['enabled']]
+        for data_type in enabled_data_types:
+            if data_type != 'normal':
+                self.data[data_type] = self.data['normal'].copy()
         
         # Normal 데이터 정보 출력
         data = self.data['normal']
@@ -101,13 +105,107 @@ class MasterModelRunner:
         print(f"   Valid: {data['X_valid'].shape}, 부실비율: {data['y_valid'].mean():.2%}")
         print(f"   Test: {data['X_test'].shape}, 부실비율: {data['y_test'].mean():.2%}")
         
-        # SMOTE 데이터 정보 출력 (동적 적용 설명)
-        print(f"✅ SMOTE 데이터:")
-        print(f"   원본과 동일한 크기 (동적 적용): {data['X_train'].shape}")
-        print(f"   🔄 SMOTE는 CV 및 최종 훈련 시 동적으로 적용됩니다")
-        print(f"   🎯 목표 부실비율: 10% (BorderlineSMOTE)")
-        print(f"   🚫 Data Leakage 방지: CV 내부에서만 적용")
+        # 활성화된 데이터 타입별 정보 출력
+        for data_type in enabled_data_types:
+            if data_type == 'normal':
+                continue
+            elif data_type == 'smote':
+                config = self.config['data_types']['smote']
+                print(f"✅ SMOTE 데이터:")
+                print(f"   원본과 동일한 크기 (동적 적용): {data['X_train'].shape}")
+                print(f"   🔄 SMOTE는 CV 및 최종 훈련 시 동적으로 적용됩니다")
+                print(f"   🎯 목표 부실비율: {config['sampling_strategy']*100:.0f}% (BorderlineSMOTE)")
+                print(f"   🚫 Data Leakage 방지: CV 내부에서만 적용")
+            elif data_type == 'undersampling':
+                config = self.config['data_types']['undersampling']
+                print(f"✅ UNDERSAMPLING 데이터:")
+                print(f"   원본과 동일한 크기 (동적 적용): {data['X_train'].shape}")
+                print(f"   🔄 언더샘플링은 CV 및 최종 훈련 시 동적으로 적용됩니다")
+                print(f"   🎯 방법: {config['method']} (sampling_strategy: {config['sampling_strategy']})")
+                print(f"   🚫 Data Leakage 방지: CV 내부에서만 적용")
+            elif data_type == 'combined':
+                config = self.config['data_types']['combined']
+                print(f"✅ COMBINED 데이터:")
+                print(f"   원본과 동일한 크기 (동적 적용): {data['X_train'].shape}")
+                print(f"   🔄 SMOTE + 언더샘플링 조합이 동적으로 적용됩니다")
+                print(f"   🎯 SMOTE 비율: {config['smote_ratio']*100:.0f}%, 언더샘플링 비율: {config['undersampling_ratio']*100:.0f}%")
+                print(f"   🚫 Data Leakage 방지: CV 내부에서만 적용")
     
+    def apply_sampling_strategy(self, X, y, data_type):
+        """
+        데이터 타입에 따른 샘플링 전략 적용
+        
+        Args:
+            X: 특성 데이터
+            y: 타겟 데이터
+            data_type: 데이터 타입 ('normal', 'smote', 'undersampling', 'combined')
+            
+        Returns:
+            tuple: (X_resampled, y_resampled)
+        """
+        if data_type == 'normal':
+            return X, y
+        
+        elif data_type == 'smote':
+            config = self.config['data_types']['smote']
+            smote = BorderlineSMOTE(
+                sampling_strategy=config['sampling_strategy'],
+                random_state=self.config['random_state'],
+                k_neighbors=config['k_neighbors'],
+                m_neighbors=config['m_neighbors']
+            )
+            return smote.fit_resample(X, y)
+        
+        elif data_type == 'undersampling':
+            config = self.config['data_types']['undersampling']
+            
+            if config['method'] == 'random':
+                undersampler = RandomUnderSampler(
+                    sampling_strategy=config['sampling_strategy'],
+                    random_state=config['random_state']
+                )
+            elif config['method'] == 'edited_nearest_neighbours':
+                undersampler = EditedNearestNeighbours(
+                    sampling_strategy=config['sampling_strategy']
+                )
+            elif config['method'] == 'tomek':
+                undersampler = TomekLinks(
+                    sampling_strategy=config['sampling_strategy']
+                )
+            else:
+                print(f"⚠️ 지원하지 않는 언더샘플링 방법: {config['method']}, Random 사용")
+                undersampler = RandomUnderSampler(
+                    sampling_strategy=config['sampling_strategy'],
+                    random_state=config['random_state']
+                )
+            
+            return undersampler.fit_resample(X, y)
+        
+        elif data_type == 'combined':
+            config = self.config['data_types']['combined']
+            
+            # 1단계: SMOTE 적용
+            smote = BorderlineSMOTE(
+                sampling_strategy=config['smote_ratio'],
+                random_state=self.config['random_state'],
+                k_neighbors=5,
+                m_neighbors=10
+            )
+            X_smote, y_smote = smote.fit_resample(X, y)
+            
+            # 2단계: 언더샘플링 적용
+            undersampler = RandomUnderSampler(
+                sampling_strategy=config['undersampling_ratio'],
+                random_state=self.config['random_state']
+            )
+            X_combined, y_combined = undersampler.fit_resample(X_smote, y_smote)
+            
+            return X_combined, y_combined
+        
+        else:
+            print(f"⚠️ 알 수 없는 데이터 타입: {data_type}, 원본 데이터 반환")
+            return X, y
+
     def apply_lasso_feature_selection(self, data_type):
         """Lasso 특성 선택 적용"""
         if not self.config['lasso']['enabled']:
@@ -213,12 +311,12 @@ class MasterModelRunner:
             
             model = LogisticRegression(**params)
             
-            # Data Leakage 방지를 위한 올바른 CV (SMOTE 데이터 타입인 경우)
-            if data_type == 'smote':
-                # 원본 데이터 로드 (SMOTE 적용 전)
+            # Data Leakage 방지를 위한 올바른 CV (샘플링 데이터 타입인 경우)
+            if data_type != 'normal':
+                # 원본 데이터 로드 (샘플링 적용 전)
                 X_train_original = self.data['normal']['X_train']
                 y_train_original = self.data['normal']['y_train']
-                scores = self.proper_cv_with_smote(model, X_train_original, y_train_original, cv_folds=5)
+                scores = self.proper_cv_with_sampling(model, X_train_original, y_train_original, data_type, cv_folds=5)
             else:
                 # Normal 데이터는 기존 방식 사용
                 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.config['random_state'])
@@ -242,17 +340,12 @@ class MasterModelRunner:
         
         model = LogisticRegression(**best_params)
         
-        # SMOTE 데이터 타입인 경우 최종 훈련에도 SMOTE 적용
-        if data_type == 'smote':
-            smote = BorderlineSMOTE(
-                sampling_strategy=0.1, 
-                random_state=self.config['random_state'],
-                k_neighbors=5,
-                m_neighbors=10
-            )
-            X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
-            model.fit(X_train_smote, y_train_smote)
-            print(f"✅ SMOTE 적용 후 훈련: {len(X_train_smote):,}개 샘플")
+        # 샘플링 데이터 타입인 경우 최종 훈련에도 샘플링 적용
+        if data_type != 'normal':
+            X_train_resampled, y_train_resampled = self.apply_sampling_strategy(X_train, y_train, data_type)
+            model.fit(X_train_resampled, y_train_resampled)
+            print(f"✅ {data_type.upper()} 적용 후 훈련: {len(X_train_resampled):,}개 샘플")
+            print(f"   부실비율: {y_train_resampled.mean():.2%}")
         else:
             model.fit(X_train, y_train)
         
@@ -291,12 +384,12 @@ class MasterModelRunner:
             
             model = RandomForestClassifier(**params)
             
-            # Data Leakage 방지를 위한 올바른 CV (SMOTE 데이터 타입인 경우)
-            if data_type == 'smote':
-                # 원본 데이터 로드 (SMOTE 적용 전)
+            # Data Leakage 방지를 위한 올바른 CV (샘플링 데이터 타입인 경우)
+            if data_type != 'normal':
+                # 원본 데이터 로드 (샘플링 적용 전)
                 X_train_original = self.data['normal']['X_train']
                 y_train_original = self.data['normal']['y_train']
-                scores = self.proper_cv_with_smote(model, X_train_original, y_train_original, cv_folds=5)
+                scores = self.proper_cv_with_sampling(model, X_train_original, y_train_original, data_type, cv_folds=5)
             else:
                 # Normal 데이터는 기존 방식 사용
                 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.config['random_state'])
@@ -311,17 +404,12 @@ class MasterModelRunner:
         best_params = study.best_params
         model = RandomForestClassifier(**best_params)
         
-        # SMOTE 데이터 타입인 경우 최종 훈련에도 SMOTE 적용
-        if data_type == 'smote':
-            smote = BorderlineSMOTE(
-                sampling_strategy=0.1, 
-                random_state=self.config['random_state'],
-                k_neighbors=5,
-                m_neighbors=10
-            )
-            X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
-            model.fit(X_train_smote, y_train_smote)
-            print(f"✅ SMOTE 적용 후 훈련: {len(X_train_smote):,}개 샘플")
+        # 샘플링 데이터 타입인 경우 최종 훈련에도 샘플링 적용
+        if data_type != 'normal':
+            X_train_resampled, y_train_resampled = self.apply_sampling_strategy(X_train, y_train, data_type)
+            model.fit(X_train_resampled, y_train_resampled)
+            print(f"✅ {data_type.upper()} 적용 후 훈련: {len(X_train_resampled):,}개 샘플")
+            print(f"   부실비율: {y_train_resampled.mean():.2%}")
         else:
             model.fit(X_train, y_train)
         
@@ -366,12 +454,12 @@ class MasterModelRunner:
             
             model = xgb.XGBClassifier(**params)
             
-            # Data Leakage 방지를 위한 올바른 CV (SMOTE 데이터 타입인 경우)
-            if data_type == 'smote':
-                # 원본 데이터 로드 (SMOTE 적용 전)
+            # Data Leakage 방지를 위한 올바른 CV (샘플링 데이터 타입인 경우)
+            if data_type != 'normal':
+                # 원본 데이터 로드 (샘플링 적용 전)
                 X_train_original = self.data['normal']['X_train']
                 y_train_original = self.data['normal']['y_train']
-                scores = self.proper_cv_with_smote(model, X_train_original, y_train_original, cv_folds=5)
+                scores = self.proper_cv_with_sampling(model, X_train_original, y_train_original, data_type, cv_folds=5)
             else:
                 # Normal 데이터는 기존 방식 사용
                 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.config['random_state'])
@@ -386,17 +474,12 @@ class MasterModelRunner:
         best_params = study.best_params
         model = xgb.XGBClassifier(**best_params)
         
-        # SMOTE 데이터 타입인 경우 최종 훈련에도 SMOTE 적용
-        if data_type == 'smote':
-            smote = BorderlineSMOTE(
-                sampling_strategy=0.1, 
-                random_state=self.config['random_state'],
-                k_neighbors=5,
-                m_neighbors=10
-            )
-            X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
-            model.fit(X_train_smote, y_train_smote)
-            print(f"✅ SMOTE 적용 후 훈련: {len(X_train_smote):,}개 샘플")
+        # 샘플링 데이터 타입인 경우 최종 훈련에도 샘플링 적용
+        if data_type != 'normal':
+            X_train_resampled, y_train_resampled = self.apply_sampling_strategy(X_train, y_train, data_type)
+            model.fit(X_train_resampled, y_train_resampled)
+            print(f"✅ {data_type.upper()} 적용 후 훈련: {len(X_train_resampled):,}개 샘플")
+            print(f"   부실비율: {y_train_resampled.mean():.2%}")
         else:
             model.fit(X_train, y_train)
         
@@ -566,14 +649,28 @@ class MasterModelRunner:
         print("\n🚀 모든 모델 실행 시작")
         print("="*80)
         
-        # 데이터 타입별로 실행
-        for data_type in ['normal', 'smote']:
+        # 활성화된 데이터 타입 확인
+        enabled_data_types = [dt for dt, config in self.config['data_types'].items() if config['enabled']]
+        print(f"🎯 활성화된 데이터 타입: {enabled_data_types}")
+        
+        # Lasso 특성 선택 (한 번만 수행)
+        if self.config['lasso']['enabled']:
+            self.apply_lasso_feature_selection('normal')  # normal 데이터로 특성 선택
+            
+            # 선택된 특성을 다른 데이터 타입에도 적용
+            selected_features = self.data['normal']['X_train'].columns.tolist()
+            self.selected_features = selected_features
+            
+            # 다른 데이터 타입에도 동일한 특성 적용
+            for data_type in enabled_data_types:
+                if data_type != 'normal':
+                    for split in ['X_train', 'X_valid', 'X_test']:
+                        self.data[data_type][split] = self.data[data_type][split][selected_features]
+        
+        # 활성화된 데이터 타입별로 실행
+        for data_type in enabled_data_types:
             print(f"\n📊 {data_type.upper()} 데이터 처리")
             print("="*60)
-            
-            # Lasso 특성 선택
-            if self.config['lasso']['enabled']:
-                self.apply_lasso_feature_selection(data_type)
             
             # 모델별 최적화
             models_to_run = []
@@ -880,14 +977,17 @@ class MasterModelRunner:
                                   label='SMOTE', alpha=0.8, color=colors['SMOTE'])
                 
                 # 값 표시
+                container_idx = 0
                 for col_name in pivot_data.columns:
                     if col_name in ['NORMAL', 'SMOTE']:
-                        bars = ax.containers[list(pivot_data.columns).index(col_name)]
-                        for bar in bars:
-                            height = bar.get_height()
-                            if not np.isnan(height):
-                                ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                                       f'{height:.3f}', ha='center', va='bottom', fontsize=9)
+                        if container_idx < len(ax.containers):
+                            bars = ax.containers[container_idx]
+                            for bar in bars:
+                                height = bar.get_height()
+                                if not np.isnan(height):
+                                    ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                                           f'{height:.3f}', ha='center', va='bottom', fontsize=9)
+                            container_idx += 1
                 
                 ax.set_xticks(x)
                 ax.set_xticklabels(pivot_data.index, rotation=45)
@@ -940,12 +1040,21 @@ class MasterModelRunner:
         
         from sklearn.metrics import roc_curve, auc
         
-        fig, axes = plt.subplots(1, 2, figsize=(16, 6))
-        fig.suptitle('ROC 곡선 비교', fontsize=16, fontweight='bold')
-        
-        data_types = ['normal', 'smote']
-        titles = ['Normal 데이터', 'SMOTE 데이터']
+        # 실제 사용 가능한 데이터 타입만 가져오기
+        available_data_types = list(self.data.keys())
+        if not available_data_types:
+            print("  ⚠️ ROC 곡선 생성을 위한 데이터 없음")
+            return
+            
+        # 최대 2개까지만 표시 (subplot 구조상)
+        data_types = available_data_types[:2]
+        titles = [f'{dt.upper()} 데이터' for dt in data_types]
         colors = ['blue', 'red', 'green']
+        
+        fig, axes = plt.subplots(1, len(data_types), figsize=(8*len(data_types), 6))
+        if len(data_types) == 1:
+            axes = [axes]  # 단일 subplot인 경우 리스트로 변환
+        fig.suptitle('ROC 곡선 비교', fontsize=16, fontweight='bold')
         
         for idx, (data_type, title) in enumerate(zip(data_types, titles)):
             ax = axes[idx]
@@ -990,13 +1099,20 @@ class MasterModelRunner:
         print("🔍 특성 중요도 비교 생성...")
         
         tree_models = ['RandomForest', 'XGBoost']
-        data_types = ['normal', 'smote']
+        # 실제 사용 가능한 데이터 타입만 가져오기
+        available_data_types = list(self.data.keys())[:2]  # 최대 2개
         
-        fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+        if not available_data_types:
+            print("  ⚠️ 특성 중요도 비교를 위한 데이터 없음")
+            return
+        
+        fig, axes = plt.subplots(2, len(available_data_types), figsize=(8*len(available_data_types), 12))
+        if len(available_data_types) == 1:
+            axes = axes.reshape(-1, 1)  # 2D 배열로 유지
         fig.suptitle('특성 중요도 비교 (Tree-based 모델)', fontsize=16, fontweight='bold')
         
         for i, model_name in enumerate(tree_models):
-            for j, data_type in enumerate(data_types):
+            for j, data_type in enumerate(available_data_types):
                 ax = axes[i, j]
                 model_key = f'{model_name}_{data_type}'
                 
@@ -1032,18 +1148,19 @@ class MasterModelRunner:
         print(f"  ✅ 특성 중요도 비교 저장: feature_importance_comparison.png")
     
     def plot_normal_vs_smote_comparison(self, summary_df, viz_dir):
-        """Normal vs SMOTE 상세 비교"""
-        print("⚖️ Normal vs SMOTE 비교 생성...")
+        """Normal vs SMOTE vs Undersampling 상세 비교"""
+        print("⚖️ 샘플링 전략별 비교 생성...")
         
         # ensemble 모델 제외 (MIXED 데이터 타입)
-        df_filtered = summary_df[summary_df['Data_Type'].isin(['NORMAL', 'SMOTE'])]
+        allowed_types = ['NORMAL', 'SMOTE', 'UNDERSAMPLING', 'COMBINED']
+        df_filtered = summary_df[summary_df['Data_Type'].isin(allowed_types)]
         
         if len(df_filtered) == 0:
-            print("  ⚠️ Normal/SMOTE 비교할 데이터 없음")
+            print("  ⚠️ 샘플링 전략별 비교할 데이터 없음")
             return
         
-        fig, axes = plt.subplots(2, 2, figsize=(16, 12))
-        fig.suptitle('Normal vs SMOTE 데이터 성능 비교', fontsize=16, fontweight='bold')
+        fig, axes = plt.subplots(2, 2, figsize=(18, 12))
+        fig.suptitle('샘플링 전략별 데이터 성능 비교', fontsize=16, fontweight='bold')
         
         models = df_filtered['Model'].unique()
         metrics = ['Test_AUC', 'Test_F1', 'Test_Precision', 'Test_Recall']
@@ -1052,84 +1169,88 @@ class MasterModelRunner:
         for i, (metric, name) in enumerate(zip(metrics, metric_names)):
             ax = axes[i//2, i%2]
             
-            normal_values = []
-            smote_values = []
+            data_type_values = {dt: [] for dt in allowed_types}
+            model_labels = []
             
             for model in models:
-                # NORMAL 데이터 결과 확인
-                normal_mask = (df_filtered['Model'] == model) & (df_filtered['Data_Type'] == 'NORMAL')
-                normal_result = df_filtered[normal_mask][metric]
-                normal_val = normal_result.iloc[0] if len(normal_result) > 0 else 0
+                model_has_data = False
+                model_values = {}
                 
-                # SMOTE 데이터 결과 확인  
-                smote_mask = (df_filtered['Model'] == model) & (df_filtered['Data_Type'] == 'SMOTE')
-                smote_result = df_filtered[smote_mask][metric]
-                smote_val = smote_result.iloc[0] if len(smote_result) > 0 else 0
+                # 각 데이터 타입별 결과 확인
+                for data_type in allowed_types:
+                    mask = (df_filtered['Model'] == model) & (df_filtered['Data_Type'] == data_type)
+                    result = df_filtered[mask][metric]
+                    if len(result) > 0:
+                        model_values[data_type] = result.iloc[0]
+                        model_has_data = True
+                    else:
+                        model_values[data_type] = 0
                 
-                # 둘 다 있는 경우만 추가
-                if len(normal_result) > 0 and len(smote_result) > 0:
-                    normal_values.append(normal_val)
-                    smote_values.append(smote_val)
+                # 적어도 하나의 데이터 타입이 있는 경우 추가
+                if model_has_data:
+                    for data_type in allowed_types:
+                        data_type_values[data_type].append(model_values[data_type])
+                    model_labels.append(model)
             
             # 실제로 데이터가 있는 모델만 사용
-            if len(normal_values) == 0 or len(smote_values) == 0:
+            if len(model_labels) == 0:
                 continue  # 이 메트릭에 대해 유효한 데이터가 없음
                 
-            x = np.arange(len(normal_values))  # normal_values 길이에 맞춤
-            width = 0.35
+            x = np.arange(len(model_labels))
+            width = 0.8 / len(allowed_types)  # 여러 데이터 타입에 맞게 조정
             
-            bars1 = ax.bar(x - width/2, normal_values, width, label='Normal', 
-                          alpha=0.8, color='skyblue')
-            bars2 = ax.bar(x + width/2, smote_values, width, label='SMOTE', 
-                          alpha=0.8, color='lightcoral')
+            colors = ['skyblue', 'lightcoral', 'lightgreen', 'orange']
+            bars_list = []
             
-            # 개선도 표시
-            for j, (normal, smote) in enumerate(zip(normal_values, smote_values)):
-                improvement = ((smote - normal) / normal * 100) if normal > 0 else 0
-                ax.text(j, max(normal, smote) + 0.02, f'{improvement:+.1f}%', 
-                       ha='center', va='bottom', fontsize=10, fontweight='bold')
-            
-            # 값 표시
-            for bars in [bars1, bars2]:
-                for bar in bars:
-                    height = bar.get_height()
-                    ax.text(bar.get_x() + bar.get_width()/2., height + 0.005,
-                           f'{height:.3f}', ha='center', va='bottom', fontsize=9)
-            
-            # 실제 사용된 모델들의 레이블 생성
-            used_model_labels = []
-            for model in models:
-                # NORMAL과 SMOTE 둘 다 있는 모델만
-                normal_mask = (df_filtered['Model'] == model) & (df_filtered['Data_Type'] == 'NORMAL')
-                smote_mask = (df_filtered['Model'] == model) & (df_filtered['Data_Type'] == 'SMOTE')
-                if len(df_filtered[normal_mask]) > 0 and len(df_filtered[smote_mask]) > 0:
-                    used_model_labels.append(model)
+            for idx, data_type in enumerate(allowed_types):
+                values = data_type_values[data_type]
+                if any(v > 0 for v in values):  # 실제 데이터가 있는 경우만
+                    bars = ax.bar(x + (idx - len(allowed_types)/2 + 0.5) * width, 
+                                 values, width, label=data_type, 
+                                 alpha=0.8, color=colors[idx % len(colors)])
+                    bars_list.append(bars)
+                    
+                    # 값 표시
+                    for bar in bars:
+                        height = bar.get_height()
+                        if height > 0:
+                            ax.text(bar.get_x() + bar.get_width()/2., height + 0.005,
+                                   f'{height:.3f}', ha='center', va='bottom', fontsize=8)
             
             ax.set_title(f'{name} 비교', fontsize=12, fontweight='bold')
             ax.set_ylabel(name)
             ax.set_xlabel('모델')
             ax.set_xticks(x)
-            ax.set_xticklabels(used_model_labels, rotation=45)
+            ax.set_xticklabels(model_labels, rotation=45)
             ax.legend()
             ax.grid(True, alpha=0.3)
         
         plt.tight_layout()
-        plt.savefig(viz_dir / 'normal_vs_smote_detailed.png', dpi=300, bbox_inches='tight')
+        plt.savefig(viz_dir / 'sampling_strategy_comparison.png', dpi=300, bbox_inches='tight')
         plt.close()
         
-        print(f"  ✅ Normal vs SMOTE 비교 저장: normal_vs_smote_detailed.png")
+        print(f"  ✅ 샘플링 전략별 비교 저장: sampling_strategy_comparison.png")
     
     def plot_cv_vs_test_comparison(self, summary_df, viz_dir):
         """CV vs Test 성능 비교 (과적합 확인)"""
         print("📊 CV vs Test 성능 비교 생성...")
         
-        fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+        # 실제 사용 가능한 데이터 타입 확인
+        available_data_types = summary_df['Data_Type'].unique()
+        available_data_types = [dt for dt in available_data_types if dt != 'MIXED'][:2]  # MIXED 제외, 최대 2개
+        
+        if not available_data_types:
+            print("  ⚠️ CV vs Test 비교를 위한 데이터 없음")
+            return
+        
+        fig, axes = plt.subplots(1, len(available_data_types), figsize=(8*len(available_data_types), 6))
+        if len(available_data_types) == 1:
+            axes = [axes]  # 단일 subplot인 경우 리스트로 변환
         fig.suptitle('CV vs Test AUC 비교 (과적합 확인)', fontsize=16, fontweight='bold')
         
-        data_types = ['NORMAL', 'SMOTE']
-        colors = ['skyblue', 'lightcoral']
+        colors = ['skyblue', 'lightcoral', 'lightgreen', 'orange']
         
-        for idx, data_type in enumerate(data_types):
+        for idx, data_type in enumerate(available_data_types):
             ax = axes[idx]
             
             subset = summary_df[summary_df['Data_Type'] == data_type]
@@ -1286,12 +1407,21 @@ class MasterModelRunner:
         """Precision-Recall 곡선 시각화"""
         print("📈 Precision-Recall 곡선 생성...")
         
-        fig, axes = plt.subplots(1, 2, figsize=(16, 6))
-        fig.suptitle('Precision-Recall 곡선 비교', fontsize=16, fontweight='bold')
-        
-        data_types = ['normal', 'smote']
-        titles = ['Normal 데이터', 'SMOTE 데이터']
+        # 실제 사용 가능한 데이터 타입만 가져오기
+        available_data_types = list(self.data.keys())
+        if not available_data_types:
+            print("  ⚠️ Precision-Recall 곡선 생성을 위한 데이터 없음")
+            return
+            
+        # 최대 2개까지만 표시 (subplot 구조상)
+        data_types = available_data_types[:2]
+        titles = [f'{dt.upper()} 데이터' for dt in data_types]
         colors = ['blue', 'red', 'green']
+        
+        fig, axes = plt.subplots(1, len(data_types), figsize=(8*len(data_types), 6))
+        if len(data_types) == 1:
+            axes = [axes]  # 단일 subplot인 경우 리스트로 변환
+        fig.suptitle('Precision-Recall 곡선 비교', fontsize=16, fontweight='bold')
         
         for idx, (data_type, title) in enumerate(zip(data_types, titles)):
             ax = axes[idx]
@@ -1345,10 +1475,10 @@ class MasterModelRunner:
         
         print(f"  ✅ Precision-Recall 곡선 저장: precision_recall_curves.png")
 
-    def proper_cv_with_smote(self, model, X, y, cv_folds=5, sampling_strategy=0.1):
+    def proper_cv_with_sampling(self, model, X, y, data_type, cv_folds=5):
         """
-        SMOTE Data Leakage를 방지하는 올바른 Cross Validation
-        각 CV fold마다 SMOTE를 별도로 적용
+        샘플링 Data Leakage를 방지하는 올바른 Cross Validation
+        각 CV fold마다 샘플링을 별도로 적용
         """
         skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=self.config['random_state'])
         scores = []
@@ -1358,20 +1488,15 @@ class MasterModelRunner:
             X_fold_train, X_fold_val = X.iloc[train_idx], X.iloc[val_idx]
             y_fold_train, y_fold_val = y.iloc[train_idx], y.iloc[val_idx]
             
-            # 훈련 fold에만 SMOTE 적용 (Data Leakage 방지)
-            smote = BorderlineSMOTE(
-                sampling_strategy=sampling_strategy, 
-                random_state=self.config['random_state'],
-                k_neighbors=5,
-                m_neighbors=10
-            )
-            
+            # 훈련 fold에만 샘플링 적용 (Data Leakage 방지)
             try:
-                X_fold_train_smote, y_fold_train_smote = smote.fit_resample(X_fold_train, y_fold_train)
+                X_fold_train_resampled, y_fold_train_resampled = self.apply_sampling_strategy(
+                    X_fold_train, y_fold_train, data_type
+                )
                 
                 # 모델 복사 및 훈련
                 model_copy = model.__class__(**model.get_params())
-                model_copy.fit(X_fold_train_smote, y_fold_train_smote)
+                model_copy.fit(X_fold_train_resampled, y_fold_train_resampled)
                 
                 # 검증 fold에서 평가 (원본 데이터만 사용)
                 y_pred_proba = model_copy.predict_proba(X_fold_val)[:, 1]
@@ -1379,8 +1504,8 @@ class MasterModelRunner:
                 scores.append(score)
                 
             except Exception as e:
-                print(f"⚠️ Fold {fold+1} SMOTE 적용 실패: {e}")
-                # SMOTE 실패 시 원본 데이터로 훈련
+                print(f"⚠️ Fold {fold+1} {data_type.upper()} 적용 실패: {e}")
+                # 샘플링 실패 시 원본 데이터로 훈련
                 model_copy = model.__class__(**model.get_params())
                 model_copy.fit(X_fold_train, y_fold_train)
                 y_pred_proba = model_copy.predict_proba(X_fold_val)[:, 1]
