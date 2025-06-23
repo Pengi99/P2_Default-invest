@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
+import os
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -54,8 +55,217 @@ ratio_columns = [col for col in fs_ratio.columns
 print(f"분석할 재무비율: {len(ratio_columns)}개")
 print(f"비율 목록: {ratio_columns}")
 
-# 2. 기초 통계량 계산
-print("\n2️⃣ 기초 통계량 계산")
+# 2. 결측치 분석
+print("\n2️⃣ 결측치 분석")
+print("="*50)
+
+# 폴더 생성
+os.makedirs('outputs/visualizations/missing_analysis', exist_ok=True)
+
+# 2-1. 결측치 기본 통계
+total_rows = len(fs_ratio)
+missing_stats = []
+
+for col in ratio_columns:
+    missing_count = fs_ratio[col].isnull().sum()
+    missing_rate = (missing_count / total_rows) * 100
+    valid_count = total_rows - missing_count
+    valid_rate = (valid_count / total_rows) * 100
+    
+    missing_stats.append({
+        '변수명': col,
+        '전체행수': total_rows,
+        '결측치수': missing_count,
+        '결측치비율(%)': missing_rate,
+        '유효데이터수': valid_count,
+        '유효데이터비율(%)': valid_rate
+    })
+
+missing_df = pd.DataFrame(missing_stats)
+missing_df = missing_df.sort_values('결측치비율(%)', ascending=False)
+
+print("📊 결측치 현황 요약:")
+print(f"전체 변수 수: {len(ratio_columns)}개")
+print(f"전체 관측치 수: {total_rows:,}개")
+print(f"결측치 없는 변수: {len(missing_df[missing_df['결측치비율(%)'] == 0])}개")
+print(f"결측치 있는 변수: {len(missing_df[missing_df['결측치비율(%)'] > 0])}개")
+
+# 2-2. 결측치 비율별 변수 분류
+no_missing = missing_df[missing_df['결측치비율(%)'] == 0]
+low_missing = missing_df[(missing_df['결측치비율(%)'] > 0) & (missing_df['결측치비율(%)'] <= 5)]
+medium_missing = missing_df[(missing_df['결측치비율(%)'] > 5) & (missing_df['결측치비율(%)'] <= 20)]
+high_missing = missing_df[missing_df['결측치비율(%)'] > 20]
+
+print(f"\n📈 결측치 비율별 분류:")
+print(f"🟢 결측치 없음 (0%): {len(no_missing)}개")
+for var in no_missing['변수명'].tolist():
+    print(f"   - {var}")
+
+print(f"\n🟡 낮은 결측치 (0-5%): {len(low_missing)}개")
+for _, row in low_missing.iterrows():
+    print(f"   - {row['변수명']:25} : {row['결측치비율(%)']:5.2f}%")
+
+print(f"\n🟠 중간 결측치 (5-20%): {len(medium_missing)}개")
+for _, row in medium_missing.iterrows():
+    print(f"   - {row['변수명']:25} : {row['결측치비율(%)']:5.2f}%")
+
+print(f"\n🔴 높은 결측치 (>20%): {len(high_missing)}개")
+for _, row in high_missing.iterrows():
+    print(f"   - {row['변수명']:25} : {row['결측치비율(%)']:5.2f}%")
+
+# 2-3. 결측치 패턴 분석
+print(f"\n🔍 결측치 패턴 분석:")
+
+# 완전한 관측치 (모든 변수에 값이 있는 행)
+complete_cases = fs_ratio[ratio_columns].dropna()
+complete_rate = (len(complete_cases) / total_rows) * 100
+
+print(f"완전한 관측치 (모든 변수 유효): {len(complete_cases):,}개 ({complete_rate:.2f}%)")
+print(f"불완전한 관측치 (일부 변수 결측): {total_rows - len(complete_cases):,}개 ({100-complete_rate:.2f}%)")
+
+# 결측치 조합 패턴 분석 (상위 10개)
+missing_pattern = fs_ratio[ratio_columns].isnull()
+pattern_counts = missing_pattern.value_counts().head(10)
+
+print(f"\n🔢 주요 결측치 패턴 (상위 10개):")
+for i, (pattern, count) in enumerate(pattern_counts.items(), 1):
+    rate = (count / total_rows) * 100
+    missing_vars = [col for col, is_missing in zip(ratio_columns, pattern) if is_missing]
+    print(f"{i:2d}. {count:,}개 ({rate:.2f}%) - 결측변수: {len(missing_vars)}개")
+    if len(missing_vars) <= 5:
+        print(f"     {missing_vars}")
+    else:
+        print(f"     {missing_vars[:3]} ... (총 {len(missing_vars)}개)")
+
+# 2-4. 결측치 시각화
+print(f"\n📊 결측치 시각화 생성 중...")
+
+# 2-4-1. 결측치 비율 막대그래프
+fig, ax = plt.subplots(figsize=(16, 8))
+
+colors = ['red' if rate > 20 else 'orange' if rate > 5 else 'yellow' if rate > 0 else 'green' 
+          for rate in missing_df['결측치비율(%)']]
+
+bars = ax.bar(range(len(missing_df)), missing_df['결측치비율(%)'], 
+              color=colors, alpha=0.8, edgecolor='black', linewidth=0.5)
+
+ax.set_xlabel('재무비율 변수', fontsize=12)
+ax.set_ylabel('결측치 비율 (%)', fontsize=12)
+ax.set_title('재무비율별 결측치 비율\n(빨강: >20%, 주황: 5-20%, 노랑: 0-5%, 초록: 0%)', 
+             fontsize=14, fontweight='bold')
+ax.set_xticks(range(len(missing_df)))
+ax.set_xticklabels(missing_df['변수명'], rotation=45, ha='right')
+ax.grid(True, alpha=0.3)
+
+# 임계선 표시
+ax.axhline(y=20, color='red', linestyle=':', alpha=0.7, linewidth=2, label='높은 결측치 (20%)')
+ax.axhline(y=5, color='orange', linestyle=':', alpha=0.7, linewidth=2, label='중간 결측치 (5%)')
+ax.legend()
+
+# 비율 표시 (결측치가 있는 변수만)
+for i, bar in enumerate(bars):
+    height = bar.get_height()
+    if height > 0:
+        ax.text(bar.get_x() + bar.get_width()/2., height + 0.5,
+               f'{height:.1f}%', ha='center', va='bottom', fontsize=8, rotation=45)
+
+plt.tight_layout()
+plt.savefig('outputs/visualizations/missing_analysis/01_missing_rates_by_variable.png', 
+           dpi=300, bbox_inches='tight')
+plt.close()
+
+# 2-4-2. 결측치 히트맵 (샘플링)
+print("결측치 패턴 히트맵 생성 중...")
+fig, ax = plt.subplots(figsize=(16, 10))
+
+# 데이터가 너무 크므로 샘플링 (최대 1000행)
+sample_size = min(1000, len(fs_ratio))
+sample_indices = np.random.choice(len(fs_ratio), sample_size, replace=False)
+sample_data = fs_ratio.iloc[sample_indices][ratio_columns]
+
+# 결측치를 1, 유효값을 0으로 변환
+missing_matrix = sample_data.isnull().astype(int)
+
+# 결측치 비율이 높은 순으로 변수 정렬
+sorted_cols = missing_df['변수명'].tolist()
+missing_matrix_sorted = missing_matrix[sorted_cols]
+
+sns.heatmap(missing_matrix_sorted.T, cmap='RdYlGn_r', cbar_kws={'label': '결측치 (1=결측, 0=유효)'}, 
+            ax=ax, xticklabels=False, yticklabels=True)
+ax.set_title(f'결측치 패턴 히트맵 (샘플 {sample_size}개 관측치)', fontsize=14, fontweight='bold')
+ax.set_xlabel('관측치 (샘플)', fontsize=12)
+ax.set_ylabel('재무비율 변수', fontsize=12)
+
+plt.tight_layout()
+plt.savefig('outputs/visualizations/missing_analysis/02_missing_pattern_heatmap.png', 
+           dpi=300, bbox_inches='tight')
+plt.close()
+
+# 2-4-3. 결측치 비율 분포 파이차트
+print("결측치 분포 파이차트 생성 중...")
+fig, ax = plt.subplots(figsize=(10, 8))
+
+category_counts = {
+    '결측치 없음 (0%)': len(no_missing),
+    '낮은 결측치 (0-5%)': len(low_missing),
+    '중간 결측치 (5-20%)': len(medium_missing),
+    '높은 결측치 (>20%)': len(high_missing)
+}
+
+colors_pie = ['green', 'yellow', 'orange', 'red']
+wedges, texts, autotexts = ax.pie(category_counts.values(), labels=category_counts.keys(),
+                                  autopct='%1.1f%%', colors=colors_pie, startangle=90,
+                                  textprops={'fontsize': 11}, explode=(0.05, 0.02, 0.02, 0.1))
+
+ax.set_title('재무비율 변수의 결측치 수준 분포', fontsize=14, fontweight='bold')
+
+# 개수 정보 추가
+for i, (label, count) in enumerate(category_counts.items()):
+    autotexts[i].set_text(f'{count}개\n({count/len(ratio_columns)*100:.1f}%)')
+    autotexts[i].set_fontweight('bold')
+
+plt.tight_layout()
+plt.savefig('outputs/visualizations/missing_analysis/03_missing_level_distribution.png', 
+           dpi=300, bbox_inches='tight')
+plt.close()
+
+# 2-4-4. 완전성 분석 (변수별 유효 데이터 수)
+print("데이터 완전성 분석 차트 생성 중...")
+fig, ax = plt.subplots(figsize=(16, 8))
+
+bars = ax.bar(range(len(missing_df)), missing_df['유효데이터수'], 
+              color='steelblue', alpha=0.8, edgecolor='black', linewidth=0.5)
+
+ax.set_xlabel('재무비율 변수', fontsize=12)
+ax.set_ylabel('유효 데이터 수', fontsize=12)
+ax.set_title('재무비율별 유효 데이터 수', fontsize=14, fontweight='bold')
+ax.set_xticks(range(len(missing_df)))
+ax.set_xticklabels(missing_df['변수명'], rotation=45, ha='right')
+ax.grid(True, alpha=0.3)
+
+# 평균선 표시
+mean_valid = missing_df['유효데이터수'].mean()
+ax.axhline(y=mean_valid, color='red', linestyle='--', alpha=0.7, linewidth=2, 
+          label=f'평균 유효데이터 수: {mean_valid:,.0f}')
+ax.legend()
+
+# 유효 데이터 수 표시 (하위 10개만)
+bottom_10_indices = missing_df['유효데이터수'].nsmallest(10).index
+for i in range(len(missing_df)):
+    if i in bottom_10_indices:
+        height = bars[i].get_height()
+        ax.text(bars[i].get_x() + bars[i].get_width()/2., height + max(missing_df['유효데이터수'])*0.01,
+               f'{int(height):,}', ha='center', va='bottom', fontsize=8, rotation=45)
+
+plt.tight_layout()
+plt.savefig('outputs/visualizations/missing_analysis/04_valid_data_counts.png', 
+           dpi=300, bbox_inches='tight')
+plt.close()
+
+print("✅ 결측치 분석 및 시각화 완료")
+
+# 3. 기초 통계량 계산
+print("\n3️⃣ 기초 통계량 계산")
 print("="*50)
 
 stats_results = []
@@ -66,6 +276,8 @@ for col in ratio_columns:
         stats = {
             '비율명': col,
             '데이터수': len(data),
+            '결측치수': fs_ratio[col].isnull().sum(),
+            '결측치비율(%)': (fs_ratio[col].isnull().sum() / len(fs_ratio)) * 100,
             '평균': data.mean(),
             '표준편차': data.std(),
             '최솟값': data.min(),
@@ -84,12 +296,11 @@ for col in ratio_columns:
 stats_df = pd.DataFrame(stats_results)
 print("기초 통계량 계산 완료")
 
-# 3. 분포 시각화 (히스토그램 + 박스플롯)
-print("\n3️⃣ 분포 시각화")
+# 4. 분포 시각화 (히스토그램 + 박스플롯)
+print("\n4️⃣ 분포 시각화")
 print("="*50)
 
 # 폴더 생성
-import os
 os.makedirs('outputs/visualizations/distributions', exist_ok=True)
 os.makedirs('outputs/visualizations/boxplots', exist_ok=True)
 
@@ -235,8 +446,8 @@ plt.close()
 
 print("✅ 요약 차트 저장 완료")
 
-# 4. 스케일링 필요성 지표 시각화
-print("\n4️⃣ 스케일링 필요성 지표 시각화")
+# 5. 스케일링 필요성 지표 시각화
+print("\n5️⃣ 스케일링 필요성 지표 시각화")
 print("="*50)
 
 # 폴더 생성
@@ -356,8 +567,8 @@ plt.close()
 
 print("✅ 스케일링 지표 차트 4개 저장 완료")
 
-# 5. 스케일링 필요성 종합 점수 계산
-print("\n5️⃣ 스케일링 필요성 종합 점수 계산")
+# 6. 스케일링 필요성 종합 점수 계산
+print("\n6️⃣ 스케일링 필요성 종합 점수 계산")
 print("="*50)
 
 scaling_scores = []
@@ -429,8 +640,8 @@ for _, row in stats_df.iterrows():
 
 scaling_score_df = pd.DataFrame(scaling_scores)
 
-# 6. 스케일링 필요성 종합 시각화
-print("\n6️⃣ 스케일링 필요성 종합 시각화")
+# 7. 스케일링 필요성 종합 시각화
+print("\n7️⃣ 스케일링 필요성 종합 시각화")
 print("="*50)
 
 # 폴더 생성
@@ -552,8 +763,8 @@ plt.close()
 
 print("✅ 종합 분석 차트 4개 저장 완료")
 
-# 7. 스케일링 방법 추천
-print("\n7️⃣ 스케일링 방법 추천")
+# 8. 스케일링 방법 추천
+print("\n8️⃣ 스케일링 방법 추천")
 print("="*50)
 
 scaling_recommendations = []
@@ -633,14 +844,19 @@ for method, ratios in method_groups.items():
 print("\n9️⃣ 결과 저장")
 print("="*50)
 
-# Excel 파일로 저장
-with pd.ExcelWriter('outputs/reports/scaling_analysis_detailed.xlsx', engine='openpyxl') as writer:
-    stats_df.to_excel(writer, sheet_name='기초통계량', index=False)
-    scaling_score_df.to_excel(writer, sheet_name='스케일링점수', index=False)
-    recommend_df.to_excel(writer, sheet_name='스케일링추천', index=False)
+# CSV 파일로 저장
+missing_df.to_csv('outputs/reports/missing_analysis.csv', index=False, encoding='utf-8-sig')
+stats_df.to_csv('outputs/reports/basic_statistics.csv', index=False, encoding='utf-8-sig')
+scaling_score_df.to_csv('outputs/reports/scaling_scores.csv', index=False, encoding='utf-8-sig')
+recommend_df.to_csv('outputs/reports/scaling_recommendations.csv', index=False, encoding='utf-8-sig')
 
-print(f"✅ 상세 분석 결과 저장: outputs/reports/scaling_analysis_detailed.xlsx")
+print(f"✅ 상세 분석 결과 저장:")
+print(f"   📄 outputs/reports/missing_analysis.csv : 결측치 분석 결과")
+print(f"   📄 outputs/reports/basic_statistics.csv : 기초 통계량")
+print(f"   📄 outputs/reports/scaling_scores.csv : 스케일링 점수")
+print(f"   📄 outputs/reports/scaling_recommendations.csv : 스케일링 추천")
 print(f"✅ 시각화 파일 저장:")
+print(f"   📁 missing_analysis/ : 4개 결측치 분석 차트")
 print(f"   📁 distributions/ : {len(ratio_columns)}개 개별 히스토그램")
 print(f"   📁 boxplots/ : {len(ratio_columns)}개 개별 박스플롯")
 print(f"   📁 scaling_indicators/ : 4개 스케일링 지표 차트")
@@ -648,10 +864,12 @@ print(f"   📁 comprehensive/ : 4개 종합 분석 차트")
 print(f"   📄 00_ratio_distributions_summary.png : 전체 히스토그램 요약")
 print(f"   📄 00_ratio_boxplots_summary.png : 전체 박스플롯 요약")
 
-print(f"\n🎯 분석 완료! 총 {len(ratio_columns)*2 + 10}개의 시각화 파일이 생성되었습니다.")
+print(f"\n🎯 분석 완료! 총 {len(ratio_columns)*2 + 14}개의 시각화 파일이 생성되었습니다.")
 print(f"📈 고우선순위: {len(high_priority)}개, 중우선순위: {len(medium_priority)}개, 저우선순위: {len(low_priority)}개")
+print(f"📊 결측치 현황: 결측치 없음 {len(no_missing)}개, 낮은 결측치 {len(low_missing)}개, 중간 결측치 {len(medium_missing)}개, 높은 결측치 {len(high_missing)}개")
 print(f"📂 파일 구조:")
 print(f"   outputs/visualizations/")
+print(f"   ├── missing_analysis/  : 결측치 분석")
 print(f"   ├── distributions/     : 개별 히스토그램")
 print(f"   ├── boxplots/          : 개별 박스플롯")
 print(f"   ├── scaling_indicators/ : 스케일링 지표")
