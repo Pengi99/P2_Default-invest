@@ -80,11 +80,11 @@ elif menu == "🏗️ 코드베이스 구조":
         st.subheader("📁 디렉토리 구조")
         st.code("""
 P2_Default-invest/
-├── 📁 data_new/
+├── 📁 data/
 │   ├── raw/           # 원본 데이터
 │   ├── processed/     # 전처리된 데이터  
 │   └── final/         # 최종 모델링 데이터
-├── 📁 src_new/
+├── 📁 src/
 │   ├── data_processing/    # 데이터 처리
 │   ├── feature_engineering/ # 특성 엔지니어링
 │   ├── analysis/          # 데이터 분석
@@ -494,7 +494,7 @@ elif menu == "📈 데이터 현황":
     
     # 데이터 정보 로드 시도
     try:
-        with open('data_new/final/dataset_info_final.json', 'r', encoding='utf-8') as f:
+        with open('data/final/dataset_info_100_complete.json', 'r', encoding='utf-8') as f:
             dataset_info = json.load(f)
         
         # 메트릭 표시
@@ -911,13 +911,13 @@ elif menu == "🚀 모델링 결과":
     
     ```bash
     # 빠른 테스트
-    python src_new/modeling/run_master.py --template quick
+    python src/modeling/run_master.py --template quick
     
     # 완전한 최적화
-    python src_new/modeling/run_master.py --template production
+    python src/modeling/run_master.py --template production
     
     # Lasso 특성 선택 포함
-    python src_new/modeling/run_master.py --template lasso
+    python src/modeling/run_master.py --template lasso
     ```
     
     **🎯 Threshold 최적화 기능:**
