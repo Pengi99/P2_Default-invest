@@ -85,17 +85,14 @@
     "method": "weighted_average",
     "auto_weight": true,
     "models": ["logistic", "random_forest", "xgboost"],
-    "data_types": ["normal", "smote", "undersampling"],
+    "data_types": ["normal", "combined"],
     "weights": {
-      "logisticregression_normal": 0.25,
-      "randomforest_normal": 0.25,
-      "xgboost_normal": 0.25,
-      "logisticregression_smote": 0.15,
-      "randomforest_smote": 0.15,
-      "xgboost_smote": 0.15,
-      "logisticregression_undersampling": 0.2,
-      "randomforest_undersampling": 0.2,
-      "xgboost_undersampling": 0.2
+    "logisticregression_normal": 0.25,
+    "randomforest_normal": 0.25,
+    "xgboost_normal": 0.25,
+    "logisticregression_combined": 0.25,
+    "randomforest_combined": 0.25,
+    "xgboost_combined": 0.25
     },
     "threshold_optimization": {
       "enabled": true,

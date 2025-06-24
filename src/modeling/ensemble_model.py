@@ -49,6 +49,7 @@ class EnsembleModel:
         self.predictions = {}
         self.final_prediction = None
         self.performance_metrics = {}
+        self.final_weights = {}  # 실제 사용된 최종 가중치 저장
         
         print(f"🎭 앙상블 모델 초기화")
         print(f"📊 방법: {self.method}")
@@ -212,6 +213,9 @@ class EnsembleModel:
         print(f"🎯 최종 가중치:")
         for name, weight in final_weights.items():
             print(f"  {name}: {weight:.4f}")
+        
+        # 실제 사용된 가중치 저장
+        self.final_weights = final_weights.copy()
         
         # 앙상블 방법에 따른 예측
         if self.method == 'weighted_average':
@@ -400,8 +404,8 @@ class EnsembleModel:
         if self.predictions and self.final_prediction is not None:
             self._plot_model_comparison(output_dir)
         
-        # 앙상블 가중치 시각화
-        if self.weights:
+        # 앙상블 가중치 시각화 (실제 사용된 가중치 또는 설정된 가중치)
+        if self.final_weights or self.weights:
             self._plot_weights(output_dir)
     
     def _plot_model_comparison(self, output_dir):
@@ -445,14 +449,28 @@ class EnsembleModel:
         ax.legend()
         ax.grid(True, alpha=0.3)
         
-        # 가중치 막대 그래프
+        # 가중치 막대 그래프 (실제 사용된 가중치)
         ax = axes[1, 1]
-        if self.weights:
-            names = list(self.weights.keys())
-            weights = list(self.weights.values())
+        if self.final_weights:
+            names = list(self.final_weights.keys())
+            weights = list(self.final_weights.values())
             bars = ax.bar(names, weights, alpha=0.7, color='skyblue')
             ax.set_ylabel('가중치')
-            ax.set_title('앙상블 가중치')
+            ax.set_title('실제 앙상블 가중치')
+            ax.tick_params(axis='x', rotation=45)
+            
+            # 가중치 값 표시
+            for bar, weight in zip(bars, weights):
+                height = bar.get_height()
+                ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                       f'{weight:.3f}', ha='center', va='bottom')
+        elif self.weights:
+            # 폴백: final_weights가 없으면 기존 weights 사용
+            names = list(self.weights.keys())
+            weights = list(self.weights.values())
+            bars = ax.bar(names, weights, alpha=0.7, color='lightcoral')
+            ax.set_ylabel('가중치')
+            ax.set_title('설정된 가중치 (참고용)')
             ax.tick_params(axis='x', rotation=45)
             
             # 가중치 값 표시
@@ -468,18 +486,25 @@ class EnsembleModel:
         print(f"  ✅ 앙상블 분석 저장: ensemble_analysis.png")
     
     def _plot_weights(self, output_dir):
-        """가중치 시각화"""
+        """가중치 시각화 (실제 사용된 가중치)"""
         fig, ax = plt.subplots(1, 1, figsize=(10, 6))
         
-        names = list(self.weights.keys())
-        weights = list(self.weights.values())
+        # 실제 사용된 가중치 우선 사용
+        if self.final_weights:
+            names = list(self.final_weights.keys())
+            weights = list(self.final_weights.values())
+            title = '실제 앙상블 모델 가중치 분포'
+        else:
+            names = list(self.weights.keys())
+            weights = list(self.weights.values())
+            title = '설정된 앙상블 모델 가중치 분포 (참고용)'
         
         # 파이 차트
         colors = plt.cm.Set3(np.linspace(0, 1, len(names)))
         wedges, texts, autotexts = ax.pie(weights, labels=names, autopct='%1.2f%%',
                                          colors=colors, startangle=90)
         
-        ax.set_title('앙상블 모델 가중치 분포', fontsize=14, fontweight='bold')
+        ax.set_title(title, fontsize=14, fontweight='bold')
         
         plt.tight_layout()
         plt.savefig(output_dir / 'ensemble_weights.png', dpi=300, bbox_inches='tight')
