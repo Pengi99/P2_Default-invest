@@ -43,12 +43,12 @@ print("=== 결측치 비율별 행 제거 시 Default 분포 분석 ===")
 # 1. 프로젝트 경로 설정
 current_dir = Path(__file__).parent
 project_root = current_dir.parent.parent
-data_path = project_root / 'data' / 'final' / 'FS_ratio_flow_labeled.csv'
-output_base = project_root / 'outputs'
+data_path = project_root / 'data' / 'processed' / 'FS.csv'
+output_base = project_root / 'outputs' / 'analysis' / 'missing_data_default_analysis'
 
 # 출력 디렉토리 생성
 reports_dir = output_base / 'reports'
-viz_dir = output_base / 'visualizations' / 'missing_default_analysis'
+viz_dir = output_base / 'visualizations'
 reports_dir.mkdir(parents=True, exist_ok=True)
 viz_dir.mkdir(parents=True, exist_ok=True)
 

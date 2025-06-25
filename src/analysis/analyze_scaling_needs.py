@@ -48,10 +48,10 @@ print("="*50)
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(os.path.dirname(current_dir))
 
-# FS_ratio_flow_enhanced_v2.csv 로드 (개선된 버전)
-data_path = os.path.join(project_root, 'data', 'final', 'FS_ratio_flow_enhanced.csv')
+# FS_ratio_flow.csv 로드
+data_path = os.path.join(project_root, 'data', 'processed', 'FS.csv')
 fs_ratio = pd.read_csv(data_path, dtype={'거래소코드': str})
-print(f"FS_ratio_flow_enhanced.csv: {fs_ratio.shape}")
+print(f"FS_ratio_flow.csv: {fs_ratio.shape}")
 
 # 재무비율 컬럼만 추출
 ratio_columns = [col for col in fs_ratio.columns 
@@ -65,7 +65,7 @@ print("\n2️⃣ 결측치 분석")
 print("="*50)
 
 # 출력 폴더 생성
-output_base = os.path.join(project_root, 'outputs')
+output_base = os.path.join(project_root, 'outputs/analysis/scaling_needs')
 viz_base = os.path.join(output_base, 'visualizations')
 reports_base = os.path.join(output_base, 'reports')
 

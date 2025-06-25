@@ -17,7 +17,7 @@ data_split:
 # 결측치 처리 설정
 missing_data:
   # 행 삭제 임계값 (50% 이상 결측치인 행 삭제)
-  row_missing_threshold: 0.5
+  row_missing_threshold: 0.2
   # 결측값 대체 방법
   imputation_method: "median"  # median, mean, mode, knn
   # 결측치가 모두 0인 컬럼 처리 여부
@@ -29,8 +29,8 @@ outlier_treatment:
   method: "winsorization"  # winsorization, iqr, zscore
   # 윈저라이징 설정
   winsorization:
-    lower_percentile: 0.05   # 하위 5%
-    upper_percentile: 0.95   # 상위 5% (양 옆 0.05씩)
+    lower_percentile: 0.005   # 하위 0.5%
+    upper_percentile: 0.995   # 상위 0.5% (양 옆 0.005씩)
   
 # 피처 엔지니어링
 feature_engineering:
@@ -41,14 +41,6 @@ feature_engineering:
     - "회계년도"
   # 타겟 변수
   target_column: "default"
-
-# 스케일링 설정
-scaling:
-  methods:
-    - "standard"   # StandardScaler
-    - "robust"     # RobustScaler
-  # 기본 사용할 스케일링 방법
-  default_method: "standard"
 
 # 피처 선택 (라소 회귀)
 feature_selection:
@@ -69,7 +61,6 @@ feature_selection:
 output:
   # 저장할 파일들
   save_processed_data: true
-  save_scaler: true
   save_feature_selector: true
   save_config_log: true
   
@@ -109,9 +100,9 @@ experiment:
   # 실험 이름 (자동 생성하거나 수동 설정)
   name: null  # null이면 파일을 직접 data/final에 저장
   # 실험 설명
-  description: "기본 전처리 파이프라인"
+  description: "기본 전처리 파이프라인 (스케일링 제외)"
   # 버전
-  version: "1.0"
+  version: "1.1"
   # 서브디렉토리 생성 여부 (false면 data/final에 직접 저장)
   create_subdirectory: false
 

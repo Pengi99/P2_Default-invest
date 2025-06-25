@@ -6,8 +6,7 @@
 1. 데이터 로드 및 5:3:2 분할
 2. 결측치 처리 (50% 이상 결측 행 삭제 + median 대체)
 3. 윈저라이징 (양 옆 0.05%)
-4. 스케일링 (Standard, Robust)
-5. 라소 회귀 피처 선택
+4. 라소 회귀 피처 선택
 
 Config를 통한 커스터마이징 지원
 """
@@ -26,7 +25,6 @@ warnings.filterwarnings('ignore')
 
 # 필요한 라이브러리들
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, RobustScaler
 from sklearn.linear_model import LassoCV, Lasso
 from sklearn.impute import SimpleImputer, KNNImputer
 from sklearn.metrics import mean_squared_error, r2_score
@@ -40,7 +38,7 @@ class DataPreprocessingPipeline:
     데이터 전처리 파이프라인 클래스
     
     Config 파일을 통해 모든 설정을 관리하며,
-    데이터 로드부터 피처 선택까지 전체 과정을 수행
+    데이터 로드부터 피처 선택까지 전체 과정을 수행 (스케일링 제외)
     """
     
     def __init__(self, config_path: str):
@@ -66,11 +64,10 @@ class DataPreprocessingPipeline:
             'selected_features': []
         }
         
-        # 스케일러와 모델 저장용
-        self.scalers = {}
+        # 피처 선택 모델 저장용
         self.feature_selector = None
         
-        self.logger.info("데이터 전처리 파이프라인이 초기화되었습니다.")
+        self.logger.info("데이터 전처리 파이프라인이 초기화되었습니다 (스케일링 제외).")
     
     def _load_config(self) -> Dict:
         """Config 파일 로드"""
@@ -291,58 +288,6 @@ class DataPreprocessingPipeline:
         
         return train_df, val_df, test_df
     
-    def apply_scaling(self, train_df: pd.DataFrame, val_df: pd.DataFrame, test_df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-        """스케일링 적용"""
-        self.logger.info("스케일링 적용 시작")
-        
-        # 피처 컬럼들만 추출
-        exclude_cols = self.config['feature_engineering']['exclude_columns'] + [self.config['feature_engineering']['target_column']]
-        feature_cols = [col for col in train_df.columns if col not in exclude_cols]
-        
-        scaling_methods = self.config['scaling']['methods']
-        
-        scaled_datasets = {}
-        
-        for method in scaling_methods:
-            self.logger.info(f"{method} 스케일링 적용 중...")
-            
-            if method == "standard":
-                scaler = StandardScaler()
-            elif method == "robust":
-                scaler = RobustScaler()
-            else:
-                raise ValueError(f"지원하지 않는 스케일링 방법: {method}")
-            
-            # Train 데이터로 스케일러 학습
-            scaler.fit(train_df[feature_cols])
-            
-            # 각 데이터셋 복사 후 스케일링 적용
-            train_scaled = train_df.copy()
-            val_scaled = val_df.copy()
-            test_scaled = test_df.copy()
-            
-            train_scaled[feature_cols] = scaler.transform(train_df[feature_cols])
-            val_scaled[feature_cols] = scaler.transform(val_df[feature_cols])
-            test_scaled[feature_cols] = scaler.transform(test_df[feature_cols])
-            
-            scaled_datasets[method] = (train_scaled, val_scaled, test_scaled)
-            self.scalers[method] = scaler
-        
-        self.logger.info(f"스케일링 완료: {scaling_methods}")
-        
-        # 기본 스케일링 방법 반환
-        default_method = self.config['scaling']['default_method']
-        train_df, val_df, test_df = scaled_datasets[default_method]
-        
-        # 스케일링 정보 저장
-        self.results['preprocessing_steps']['scaling'] = {
-            'methods': scaling_methods,
-            'default_method': default_method,
-            'feature_columns': feature_cols
-        }
-        
-        return train_df, val_df, test_df
-    
     def select_features_with_lasso(self, train_df: pd.DataFrame, val_df: pd.DataFrame, test_df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """라소 회귀를 이용한 피처 선택"""
         if not self.config['feature_selection']['enabled']:
@@ -471,18 +416,12 @@ class DataPreprocessingPipeline:
         if self.config['output']['save_processed_data']:
             self._save_processed_data(train_df, val_df, test_df, experiment_dir)
         
-        # 2. 스케일러 저장
-        if self.config['output']['save_scaler']:
-            for method, scaler in self.scalers.items():
-                with open(experiment_dir / f"scaler_{method}.pkl", 'wb') as f:
-                    pickle.dump(scaler, f)
-        
-        # 3. 피처 선택 모델 저장
+        # 2. 피처 선택 모델 저장
         if self.config['output']['save_feature_selector'] and self.feature_selector is not None:
             with open(experiment_dir / "feature_selector.pkl", 'wb') as f:
                 pickle.dump(self.feature_selector, f)
         
-        # 4. 실험 결과 저장
+        # 3. 실험 결과 저장
         experiment_name = "preprocessing" if not create_subdirectory else self.config['experiment']['name']
         self.results['experiment_info'] = {
             'name': experiment_name,
@@ -498,7 +437,7 @@ class DataPreprocessingPipeline:
             with open(experiment_dir / "experiment_results.json", 'w', encoding='utf-8') as f:
                 json.dump(self.results, f, ensure_ascii=False, indent=2, default=str)
         
-        # 5. Config 파일 복사 (서브디렉토리 생성 시에만)
+        # 4. Config 파일 복사 (서브디렉토리 생성 시에만)
         if self.config['output']['save_config_log'] and create_subdirectory:
             import shutil
             shutil.copy2(self.config_path, experiment_dir / "config.yaml")
@@ -575,8 +514,8 @@ class DataPreprocessingPipeline:
         feature_selection_enabled = 'feature_selection' in self.results['preprocessing_steps']
         
         report = f"""
-데이터 전처리 파이프라인 실행 결과 리포트
-==========================================
+데이터 전처리 파이프라인 실행 결과 리포트 (스케일링 제외)
+=========================================================
 
 실험 정보
 --------
@@ -607,16 +546,12 @@ class DataPreprocessingPipeline:
    - 적용 여부: {self.results['preprocessing_steps']['winsorization']['enabled']}
    - 하위 임계값: {self.results['preprocessing_steps']['winsorization']['lower_percentile']}
    - 상위 임계값: {self.results['preprocessing_steps']['winsorization']['upper_percentile']}
-
-4. 스케일링
-   - 방법: {self.results['preprocessing_steps']['scaling']['methods']}
-   - 기본 방법: {self.results['preprocessing_steps']['scaling']['default_method']}
 """
 
         # 피처 선택 정보 (활성화된 경우에만)
         if feature_selection_enabled:
             report += f"""
-5. 피처 선택 (라소 회귀)
+4. 피처 선택 (라소 회귀)
    - 원본 피처 수: {self.results['preprocessing_steps']['feature_selection']['original_features']}
    - 선택된 피처 수: {self.results['preprocessing_steps']['feature_selection']['selected_features']}
    - 선택된 Alpha: {self.results['preprocessing_steps']['feature_selection']['selected_alpha']}
@@ -636,7 +571,7 @@ class DataPreprocessingPipeline:
 """
         else:
             report += f"""
-5. 피처 선택
+4. 피처 선택
    - 상태: 비활성화됨
    - 모든 피처가 유지됨
 """
@@ -682,16 +617,13 @@ class DataPreprocessingPipeline:
             # 4. 윈저라이징
             train_df, val_df, test_df = self.apply_winsorization(train_df, val_df, test_df)
             
-            # 5. 스케일링
-            train_df, val_df, test_df = self.apply_scaling(train_df, val_df, test_df)
-            
-            # 6. 피처 선택
+            # 5. 피처 선택
             train_df, val_df, test_df = self.select_features_with_lasso(train_df, val_df, test_df)
             
-            # 7. 결과 저장
+            # 6. 결과 저장
             experiment_dir = self.save_results(train_df, val_df, test_df)
             
-            # 8. 리포트 생성
+            # 7. 리포트 생성
             self.generate_report(experiment_dir)
             
             self.logger.info("=== 데이터 전처리 파이프라인 완료 ===")
@@ -718,10 +650,16 @@ def main():
     pipeline = DataPreprocessingPipeline(args.config)
     experiment_dir = pipeline.run_pipeline()
     
-    print(f"\n✅ 전처리 완료!")
+    print(f"\n✅ 전처리 완료! (스케일링 제외)")
     print(f"📁 결과 저장 위치: {experiment_dir}")
-    print(f"📊 선택된 피처 수: {len(pipeline.results['selected_features'])}")
-    print(f"🎯 검증 R²: {pipeline.results['model_performance']['val_r2']:.4f}")
+    
+    # 피처 선택이 활성화된 경우에만 관련 정보 출력
+    if pipeline.results['selected_features']:
+        print(f"📊 선택된 피처 수: {len(pipeline.results['selected_features'])}")
+        print(f"🎯 검증 R²: {pipeline.results['model_performance']['val_r2']:.4f}")
+    else:
+        print(f"📊 피처 선택: 비활성화됨 (모든 피처 유지)")
+        print(f"🎯 데이터 처리: 완료")
 
 
 if __name__ == "__main__":

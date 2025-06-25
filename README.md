@@ -26,16 +26,16 @@
 │   │   ├── 📄 step2_advanced_financial_variables.py # 고급 재무변수 생성
 │   │   ├── 📄 step3_missing_analysis.py            # 결측치 분석
 │   │   ├── 📄 step4_final_dataset_creation.py      # 최종 데이터셋 생성
+│   │   ├── 📄 step5_advanced_financial_variables.py # 고급 재무변수 생성
+│   │   ├── 📄 step6_merge_fill_financial_data.py   # 🆕 데이터 병합 및 결측치 채우기
+│   │   ├── 📄 step7_standardize_and_label.py       # 🆕 표준화 및 부실 라벨링
 │   │   └── 📄 README.md                            # 데이터 처리 가이드
 │   ├── 📁 modeling/               # 🔥 머신러닝 모델링 (핵심)
-│   │   ├── 📄 master_model_runner.py               # 🚀 통합 모델링 엔진
-│   │   ├── 📄 run_master.py                        # 마스터 러너 실행
-│   │   ├── 📄 master_config.json                   # 중앙 설정 파일
-│   │   ├── 📄 ensemble_model.py                    # 🎭 앙상블 모델
-│   │   ├── 📁 config_templates/                    # 설정 템플릿 모음
-│   │   ├── 📄 logistic_regression_100.py           # 로지스틱 회귀
-│   │   ├── 📄 random_forest_100.py                 # 랜덤 포레스트
-│   │   ├── 📄 xgboost_100.py                       # XGBoost
+│   │   ├── 📄 modeling_pipeline.py                 # 🚀 통합 모델링 파이프라인
+│   │   ├── 📄 run_modeling_pipeline.py             # 파이프라인 실행 스크립트
+│   │   ├── 📄 ensemble_pipeline.py                 # 🎭 앙상블 파이프라인
+│   │   ├── 📁 old_master_system/                   # 기존 마스터 시스템 (백업)
+│   │   ├── 📁 old_individual_models/               # 기존 개별 모델들 (백업)
 │   │   └── 📄 README.md                            # 모델링 가이드
 │   ├── 📁 feature_engineering/    # 특성 공학
 │   │   ├── 📄 add_financial_variables.py           # 재무변수 추가
@@ -110,29 +110,44 @@ source .venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 ```
 
-### 2. **🔥 마스터 모델링 실행** (권장)
+### 2. **🔥 새로운 모델링 파이프라인 실행** (권장)
 ```bash
-# 통합 모델링 파이프라인 실행
+# 새로운 모델링 파이프라인 실행
 cd src/modeling
-python run_master.py
+python run_modeling_pipeline.py --config ../../config/modeling_config.yaml
+
+# 빠른 테스트 모드 (trial 수 감소)
+python run_modeling_pipeline.py --config ../../config/modeling_config.yaml --quick-test
+
+# 앙상블만 실행 (기존 모델들이 있는 경우)
+python run_modeling_pipeline.py --ensemble-only
 
 # 결과 확인
-ls ../../outputs/master_runs/
+ls ../../outputs/modeling_runs/
 ```
 
-### 3. **📊 대시보드 실행**
+### 3. **기존 시스템 (백업)**
+```bash
+# 기존 파일들은 old_* 디렉토리로 이동됨
+# 필요시 다음 위치에서 확인 가능:
+# src/modeling/old_master_system/
+# src/modeling/old_individual_models/
+```
+
+### 4. **📊 대시보드 실행**
 ```bash
 # 코드 리뷰 대시보드
 cd dashboard
 streamlit run code_review_dashboard.py
 ```
 
-### 4. **개별 모델 실행**
+### 5. **개별 모델 실행 (백업)**
 ```bash
-# 개별 모델 실행 (선택사항)
-cd src/modeling
+# 기존 개별 모델들은 old_individual_models/에 백업됨
+# 필요시 실행 가능:
+cd src/modeling/old_individual_models
 python logistic_regression_100.py    # 로지스틱 회귀
-python random_forest_100.py          # 랜덤 포레스트
+python RF_100.py                     # 랜덤 포레스트  
 python xgboost_100.py                # XGBoost
 ```
 
@@ -162,34 +177,33 @@ python xgboost_100.py                # XGBoost
 
 ## 🔧 **핵심 기술적 특징**
 
+### 🚀 **새로운 모델링 파이프라인**
+- **통합 설계**: 전처리와 유사한 파이프라인 구조로 일관성 확보
+- **설정 기반**: YAML/JSON 설정 파일로 모든 파라미터 관리
+- **모듈화**: 샘플링, 모델링, 앙상블을 독립적 모듈로 분리
+- **확장성**: 새로운 모델이나 샘플링 전략 쉽게 추가 가능
+- **로깅**: 체계적인 로깅 시스템으로 실행 과정 추적
+
 ### 🎭 **앙상블 모델링**
-- **가중치 전략**: 각 모델별 균등 분배 (11.11%)
-- **모델 다양성**: 3개 알고리즘 × 3개 데이터 처리 방식
+- **가중치 전략**: 검증 성능 기반 자동 가중치 계산
+- **다양한 방법**: Simple Average, Weighted Average, Stacking 지원
+- **모델 다양성**: 3개 알고리즘 × 다수 샘플링 전략
 - **안정성**: 개별 모델 실패 시에도 견고한 성능
 
 ### ⚡ **자동 임계값 최적화**
 - **개별 최적화**: 각 모델별 F1-Score 기준 최적 threshold 탐색
-- **범위 탐색**: 0.05~0.95 구간에서 0.05 단위 그리드 서치
+- **범위 탐색**: 0.05~0.5 구간에서 0.05 단위 그리드 서치
 - **성능 향상**: 기본 0.5 대비 평균 15% F1-Score 개선
+- **메트릭 선택**: F1, Precision, Recall, Balanced Accuracy 중 선택 가능
 
 ### 🛡️ **Data Leakage 방지**
 - **동적 SMOTE**: Cross-Validation 내부에서만 적용
-- **시계열 고려**: 연도별 순차적 데이터 분할
+- **Proper CV**: 각 fold마다 독립적인 샘플링 적용
 - **검증 분리**: Train/Validation/Test 완전 독립
+- **시계열 고려**: 데이터 분할 시 시간적 순서 유지
 
-### 🔄 **재현 가능성**
-- **설정 중앙화**: JSON 기반 하이퍼파라미터 관리
-- **시드 고정**: 모든 랜덤 프로세스 고정 (random_state=42)
-- **버전 관리**: 모델 및 결과 파일 타임스탬프 관리
 
 ## 📊 **분석 결과 하이라이트**
-
-### 🔍 **특성 중요도** (XGBoost 기준)
-1. **ROA** (총자산수익률): 0.089 - 수익성의 핵심
-2. **MVE_TL** (시가총액/총부채): 0.078 - 시장 평가 반영
-3. **EBIT_TA** (EBIT/총자산): 0.077 - 영업 효율성
-4. **SIGMA** (주가 변동성): 0.069 - 시장 위험 지표
-5. **TLTA** (총부채/총자산): 0.066 - 재무 레버리지
 
 ### 📈 **부실 예측 인사이트**
 - **수익성 지표**가 가장 강력한 예측 변수
@@ -197,11 +211,6 @@ python xgboost_100.py                # XGBoost
 - **부채 구조**보다 **현금 창출 능력**이 더 중요
 - **변동성 지표**가 리스크 측정에 효과적
 
-### 🎯 **실무 적용 가능성**
-- **투자 스크리닝**: 상위 20% 기업 선별 시 부실 기업 90% 회피
-- **포트폴리오 관리**: 리스크 가중 포트폴리오 구성
-- **신용 평가**: 기존 신용평가 모델 보완
-- **조기 경보**: 부실 징후 사전 탐지 시스템
 
 ## 🛠️ **기술 스택**
 
@@ -241,89 +250,7 @@ graph TD
     J --> K[앙상블 모델링]
     K --> L[최종 성능 평가]
     L --> M[결과 시각화]
-    M --> N[대시보드 배포]
 ```
-
-## 📚 **문서 가이드**
-
-### 📖 **주요 문서**
-- **📄 [최종 결과 보고서](FINAL_RESULTS_100_COMPLETE.md)**: 전체 분석 결과 종합
-- **📊 [데이터 가이드](data/final/README.md)**: 데이터셋 상세 설명
-- **🤖 [모델링 가이드](src/modeling/README.md)**: 모델링 프로세스 설명
-- **📈 [시각화 가이드](outputs/visualizations/README.md)**: 90개 이상 차트 설명
-
-### 🎯 **사용자별 가이드**
-- **연구자**: 데이터 분석 및 모델 개선
-- **개발자**: 코드 구조 및 확장 방법
-- **실무진**: 모델 결과 해석 및 활용
-- **학습자**: 전체 프로세스 이해
-
-## ⚠️ **주의사항**
-
-### 🔐 **데이터 보안**
-- 실제 기업명 포함으로 상업적 사용 시 주의
-- 개인정보보호법 및 금융 관련 규정 준수
-- 연구 및 교육 목적으로만 사용 권장
-
-### 📊 **모델 한계**
-- 과거 데이터 기반 예측으로 미래 보장 불가
-- 거시경제 변화, 규제 변화 미반영
-- 정성적 요인 (경영진 역량 등) 미포함
-
-### 🔧 **기술적 제약**
-- Python 3.8+ 환경 필요
-- 메모리 8GB 이상 권장 (대용량 데이터 처리)
-- GPU 가속 선택적 (XGBoost 성능 향상)
-
-## 🚀 **향후 개발 계획**
-
-### 📈 **모델 개선**
-- [ ] **딥러닝 모델**: LSTM, Transformer 기반 시계열 모델
-- [ ] **그래프 신경망**: 기업 관계망 기반 예측
-- [ ] **앙상블 고도화**: 스태킹, 블렌딩 기법 적용
-- [ ] **실시간 예측**: 스트리밍 데이터 처리
-
-### 🔧 **기술적 확장**
-- [ ] **클라우드 배포**: AWS/GCP 기반 서비스화
-- [ ] **API 개발**: RESTful API 서비스
-- [ ] **모바일 앱**: 간편 부실 진단 도구
-- [ ] **대시보드 고도화**: 실시간 모니터링
-
-### 📊 **데이터 확장**
-- [ ] **ESG 지표**: 환경, 사회, 지배구조 데이터
-- [ ] **거시경제**: GDP, 금리, 환율 등 연동
-- [ ] **뉴스 감성**: NLP 기반 시장 심리 분석
-- [ ] **실시간 데이터**: 주가, 거래량 실시간 연동
-
-## 🤝 **기여 방법**
-
-### 📝 **코드 기여**
-1. Fork 저장소
-2. Feature 브랜치 생성
-3. 코드 작성 및 테스트
-4. Pull Request 제출
-
-### 🐛 **버그 신고**
-- GitHub Issues 활용
-- 재현 가능한 예제 포함
-- 환경 정보 명시
-
-### 💡 **아이디어 제안**
-- 새로운 특성 공학 아이디어
-- 모델링 기법 개선 방안
-- 시각화 및 UI 개선
-
-## 📞 **문의 및 지원**
-
-### 🔗 **연락처**
-- **프로젝트 관리자**: [GitHub Profile]
-- **기술 문의**: GitHub Issues
-- **협업 제안**: Pull Request
-
-### 📚 **참고 자료**
-- **학술 논문**: Altman Z-Score, SMOTE 기법
-- **금융 이론**: 재무비율 분석, 신용 위험 모델
-- **기술 문서**: Scikit-learn, XGBoost 공식 문서
 
 ---
 
