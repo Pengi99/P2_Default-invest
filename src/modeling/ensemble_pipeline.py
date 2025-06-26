@@ -319,6 +319,18 @@ class EnsemblePipeline:
         
         return metrics
     
+    def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
+        """
+        시각화용 predict_proba 메서드
+        
+        Args:
+            X: 예측할 특성 데이터
+            
+        Returns:
+            np.ndarray: 앙상블 예측 확률 (시각화 호환을 위해 확률값만 반환)
+        """
+        return self.ensemble_predict_proba(X)
+
     def create_ensemble_report(self, output_dir):
         """앙상블 시각화 리포트 생성"""
         print("📊 앙상블 리포트 생성 중...")

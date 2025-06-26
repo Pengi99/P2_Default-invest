@@ -1,0 +1,180 @@
+2025-06-26 16:59:55,143 - ModelingPipeline - INFO - 모델링 파이프라인이 초기화되었습니다.
+2025-06-26 16:59:55,143 - ModelingPipeline - INFO - 실행 이름: default_modeling_run_20250626_165955
+2025-06-26 16:59:55,143 - ModelingPipeline - INFO - 출력 경로: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250626_165955
+2025-06-26 16:59:55,143 - ModelingPipeline - INFO - === 모델링 파이프라인 시작 ===
+2025-06-26 16:59:55,143 - ModelingPipeline - INFO - 데이터 로드 시작
+2025-06-26 16:59:55,174 - ModelingPipeline - INFO - Train: (11241, 16), 부실비율: 0.68%
+2025-06-26 16:59:55,175 - ModelingPipeline - INFO - Validation: (6749, 16), 부실비율: 0.68%
+2025-06-26 16:59:55,175 - ModelingPipeline - INFO - Test: (4495, 16), 부실비율: 0.69%
+2025-06-26 16:59:55,175 - ModelingPipeline - INFO - 모든 모델 실행 시작
+2025-06-26 16:59:55,175 - ModelingPipeline - INFO - Lasso 특성 선택 적용 (NORMAL)
+2025-06-26 16:59:55,210 - ModelingPipeline - INFO - 최적 alpha: 0.001000
+2025-06-26 16:59:55,210 - ModelingPipeline - INFO - 선택된 특성: 10/16
+2025-06-26 16:59:55,212 - ModelingPipeline - INFO - 활성화된 데이터 타입: ['normal', 'combined']
+2025-06-26 16:59:55,212 - ModelingPipeline - INFO - 활성화된 모델: ['logistic_regression', 'random_forest', 'xgboost']
+2025-06-26 16:59:55,212 - ModelingPipeline - INFO - NORMAL 데이터 처리
+2025-06-26 16:59:55,212 - ModelingPipeline - INFO - 스케일링 적용 시작 (NORMAL)
+2025-06-26 16:59:55,212 - ModelingPipeline - INFO - Standard 그룹 - 데이터에 없는 컬럼 (32개): ['총자산', '총부채', '총자본', '유동자산', '유동부채']...
+2025-06-26 16:59:55,215 - ModelingPipeline - INFO - Standard 스케일링 적용 완료: 1개 컬럼 처리
+2025-06-26 16:59:55,215 - ModelingPipeline - INFO - Robust 그룹 - 데이터에 없는 컬럼 (61개): ['매출액증가율', '총자본증가율', '유형자산증가율', '비유동생물자산증가율', '투자부동산증가율']...
+2025-06-26 16:59:55,219 - ModelingPipeline - INFO - Robust 스케일링 적용 완료: 4개 컬럼 처리
+2025-06-26 16:59:55,219 - ModelingPipeline - INFO - MinMax 그룹 - 데이터에 없는 컬럼 (65개): ['매출액총이익률', '매출액영업이익률', '매출액순이익률', '자기자본순이익률', '총자본영업이익률']...
+2025-06-26 16:59:55,222 - ModelingPipeline - INFO - MinMax 스케일링 적용 완료: 5개 컬럼 처리
+2025-06-26 16:59:55,222 - ModelingPipeline - INFO - 스케일링 완료 요약 (NORMAL):
+2025-06-26 16:59:55,222 - ModelingPipeline - INFO -   - 총 컬럼 수: 10
+2025-06-26 16:59:55,222 - ModelingPipeline - INFO -   - 스케일링 적용: 10개 컬럼
+2025-06-26 16:59:55,222 - ModelingPipeline - INFO -   - 스케일링 미적용: 0개 컬럼
+2025-06-26 16:59:55,222 - ModelingPipeline - INFO - logistic_regression 최적화 시작 (NORMAL)
+2025-06-26 16:59:55,328 - ModelingPipeline - INFO - Trial 1/30 - Current: 0.8521, Best: 0.8521
+2025-06-26 16:59:59,121 - ModelingPipeline - INFO - Trial 6/30 - Current: 0.5000, Best: 0.8604
+2025-06-26 17:00:01,781 - ModelingPipeline - INFO - Trial 11/30 - Current: 0.8605, Best: 0.8605
+2025-06-26 17:00:02,318 - ModelingPipeline - INFO - Trial 16/30 - Current: 0.8710, Best: 0.8710
+2025-06-26 17:00:02,891 - ModelingPipeline - INFO - Trial 21/30 - Current: 0.8522, Best: 0.8756
+2025-06-26 17:00:03,478 - ModelingPipeline - INFO - Trial 26/30 - Current: 0.8728, Best: 0.8920
+2025-06-26 17:00:05,157 - ModelingPipeline - INFO - Trial 30/30 - Current: 0.8713, Best: 0.8920
+2025-06-26 17:00:05,175 - ModelingPipeline - INFO - 최적 AUC: 0.8920
+2025-06-26 17:00:05,175 - ModelingPipeline - INFO - 최적 파라미터: {'C': 9.310204914978746, 'max_iter': 698, 'penalty': 'l2', 'solver': 'lbfgs', 'tol': 0.0001}
+2025-06-26 17:00:05,175 - ModelingPipeline - INFO - random_forest 최적화 시작 (NORMAL)
+2025-06-26 17:00:07,067 - ModelingPipeline - INFO - Trial 1/50 - Current: 0.9219, Best: 0.9219
+2025-06-26 17:00:12,943 - ModelingPipeline - INFO - Trial 6/50 - Current: 0.9368, Best: 0.9368
+2025-06-26 17:00:19,750 - ModelingPipeline - INFO - Trial 11/50 - Current: 0.9238, Best: 0.9368
+2025-06-26 17:00:26,035 - ModelingPipeline - INFO - Trial 16/50 - Current: 0.9123, Best: 0.9368
+2025-06-26 17:00:38,691 - ModelingPipeline - INFO - Trial 21/50 - Current: 0.9154, Best: 0.9368
+2025-06-26 17:00:43,491 - ModelingPipeline - INFO - Trial 26/50 - Current: 0.9316, Best: 0.9368
+2025-06-26 17:00:49,008 - ModelingPipeline - INFO - Trial 31/50 - Current: 0.9291, Best: 0.9383
+2025-06-26 17:00:53,229 - ModelingPipeline - INFO - Trial 36/50 - Current: 0.9290, Best: 0.9383
+2025-06-26 17:01:02,077 - ModelingPipeline - INFO - Trial 41/50 - Current: 0.9360, Best: 0.9383
+2025-06-26 17:01:05,242 - ModelingPipeline - INFO - Trial 46/50 - Current: 0.9384, Best: 0.9384
+2025-06-26 17:01:08,352 - ModelingPipeline - INFO - Trial 50/50 - Current: 0.9277, Best: 0.9384
+2025-06-26 17:01:08,903 - ModelingPipeline - INFO - 최적 AUC: 0.9384
+2025-06-26 17:01:08,904 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 113, 'max_depth': 14, 'min_samples_split': 11, 'min_samples_leaf': 3, 'max_features': 0.19335495389088647}
+2025-06-26 17:01:08,909 - ModelingPipeline - INFO - xgboost 최적화 시작 (NORMAL)
+2025-06-26 17:01:09,062 - ModelingPipeline - INFO - Trial 1/50 - Current: 0.8931, Best: 0.8931
+2025-06-26 17:01:09,616 - ModelingPipeline - INFO - Trial 6/50 - Current: 0.9272, Best: 0.9298
+2025-06-26 17:01:09,997 - ModelingPipeline - INFO - Trial 11/50 - Current: 0.9265, Best: 0.9298
+2025-06-26 17:01:10,597 - ModelingPipeline - INFO - Trial 16/50 - Current: 0.9274, Best: 0.9298
+2025-06-26 17:01:11,107 - ModelingPipeline - INFO - Trial 21/50 - Current: 0.9156, Best: 0.9298
+2025-06-26 17:01:11,782 - ModelingPipeline - INFO - Trial 26/50 - Current: 0.9212, Best: 0.9298
+2025-06-26 17:01:12,286 - ModelingPipeline - INFO - Trial 31/50 - Current: 0.9191, Best: 0.9298
+2025-06-26 17:01:12,765 - ModelingPipeline - INFO - Trial 36/50 - Current: 0.9170, Best: 0.9298
+2025-06-26 17:01:13,228 - ModelingPipeline - INFO - Trial 41/50 - Current: 0.9266, Best: 0.9298
+2025-06-26 17:01:13,618 - ModelingPipeline - INFO - Trial 46/50 - Current: 0.9285, Best: 0.9298
+2025-06-26 17:01:13,911 - ModelingPipeline - INFO - Trial 50/50 - Current: 0.9291, Best: 0.9298
+2025-06-26 17:01:14,077 - ModelingPipeline - INFO - 최적 AUC: 0.9298
+2025-06-26 17:01:14,077 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 198, 'max_depth': 3, 'learning_rate': 0.1861880070514171, 'subsample': 0.6682096494749166, 'colsample_bytree': 0.6260206371941118, 'reg_alpha': 9.488855372533333, 'reg_lambda': 9.690688297671034}
+2025-06-26 17:01:14,078 - ModelingPipeline - INFO - COMBINED 데이터 처리
+2025-06-26 17:01:14,090 - ModelingPipeline - INFO - COMBINED 샘플링 적용 완료: 4,836개 샘플
+2025-06-26 17:01:14,090 - ModelingPipeline - INFO - 스케일링 적용 시작 (COMBINED)
+2025-06-26 17:01:14,090 - ModelingPipeline - INFO - Standard 그룹 - 데이터에 없는 컬럼 (32개): ['총자산', '총부채', '총자본', '유동자산', '유동부채']...
+2025-06-26 17:01:14,093 - ModelingPipeline - INFO - Standard 스케일링 적용 완료: 1개 컬럼 처리
+2025-06-26 17:01:14,093 - ModelingPipeline - INFO - Robust 그룹 - 데이터에 없는 컬럼 (61개): ['매출액증가율', '총자본증가율', '유형자산증가율', '비유동생물자산증가율', '투자부동산증가율']...
+2025-06-26 17:01:14,096 - ModelingPipeline - INFO - Robust 스케일링 적용 완료: 4개 컬럼 처리
+2025-06-26 17:01:14,096 - ModelingPipeline - INFO - MinMax 그룹 - 데이터에 없는 컬럼 (65개): ['매출액총이익률', '매출액영업이익률', '매출액순이익률', '자기자본순이익률', '총자본영업이익률']...
+2025-06-26 17:01:14,099 - ModelingPipeline - INFO - MinMax 스케일링 적용 완료: 5개 컬럼 처리
+2025-06-26 17:01:14,099 - ModelingPipeline - INFO - 스케일링 완료 요약 (COMBINED):
+2025-06-26 17:01:14,099 - ModelingPipeline - INFO -   - 총 컬럼 수: 10
+2025-06-26 17:01:14,099 - ModelingPipeline - INFO -   - 스케일링 적용: 10개 컬럼
+2025-06-26 17:01:14,099 - ModelingPipeline - INFO -   - 스케일링 미적용: 0개 컬럼
+2025-06-26 17:01:14,099 - ModelingPipeline - INFO - logistic_regression 최적화 시작 (COMBINED)
+2025-06-26 17:01:14,160 - ModelingPipeline - INFO - Trial 1/30 - Current: 0.9357, Best: 0.9357
+2025-06-26 17:01:15,949 - ModelingPipeline - INFO - Trial 6/30 - Current: 0.5000, Best: 0.9372
+2025-06-26 17:01:17,269 - ModelingPipeline - INFO - Trial 11/30 - Current: 0.9401, Best: 0.9401
+2025-06-26 17:01:17,649 - ModelingPipeline - INFO - Trial 16/30 - Current: 0.9419, Best: 0.9419
+2025-06-26 17:01:17,943 - ModelingPipeline - INFO - Trial 21/30 - Current: 0.9357, Best: 0.9419
+2025-06-26 17:01:18,239 - ModelingPipeline - INFO - Trial 26/30 - Current: 0.9401, Best: 0.9419
+2025-06-26 17:01:19,078 - ModelingPipeline - INFO - Trial 30/30 - Current: 0.9357, Best: 0.9419
+2025-06-26 17:01:19,086 - ModelingPipeline - INFO - 최적 AUC: 0.9419
+2025-06-26 17:01:19,086 - ModelingPipeline - INFO - 최적 파라미터: {'C': 2.64867843460245, 'max_iter': 1995, 'penalty': 'l2', 'solver': 'lbfgs', 'tol': 0.0001}
+2025-06-26 17:01:19,086 - ModelingPipeline - INFO - random_forest 최적화 시작 (COMBINED)
+2025-06-26 17:01:19,454 - ModelingPipeline - INFO - Trial 1/50 - Current: 0.9947, Best: 0.9947
+2025-06-26 17:01:21,561 - ModelingPipeline - INFO - Trial 6/50 - Current: 0.9918, Best: 0.9948
+2025-06-26 17:01:26,044 - ModelingPipeline - INFO - Trial 11/50 - Current: 0.9953, Best: 0.9953
+2025-06-26 17:01:32,140 - ModelingPipeline - INFO - Trial 16/50 - Current: 0.9954, Best: 0.9954
+2025-06-26 17:01:40,249 - ModelingPipeline - INFO - Trial 21/50 - Current: 0.9939, Best: 0.9954
+2025-06-26 17:01:48,003 - ModelingPipeline - INFO - Trial 26/50 - Current: 0.9954, Best: 0.9959
+2025-06-26 17:01:56,816 - ModelingPipeline - INFO - Trial 31/50 - Current: 0.9945, Best: 0.9959
+2025-06-26 17:02:06,125 - ModelingPipeline - INFO - Trial 36/50 - Current: 0.9952, Best: 0.9959
+2025-06-26 17:02:11,555 - ModelingPipeline - INFO - Trial 41/50 - Current: 0.9952, Best: 0.9959
+2025-06-26 17:02:13,369 - ModelingPipeline - INFO - Trial 46/50 - Current: 0.9962, Best: 0.9965
+2025-06-26 17:02:14,429 - ModelingPipeline - INFO - Trial 50/50 - Current: 0.9960, Best: 0.9967
+2025-06-26 17:02:14,775 - ModelingPipeline - INFO - 최적 AUC: 0.9967
+2025-06-26 17:02:14,776 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 109, 'max_depth': 16, 'min_samples_split': 3, 'min_samples_leaf': 1, 'max_features': 0.11376671526713356}
+2025-06-26 17:02:14,858 - ModelingPipeline - INFO - xgboost 최적화 시작 (COMBINED)
+2025-06-26 17:02:15,056 - ModelingPipeline - INFO - Trial 1/50 - Current: 0.9959, Best: 0.9959
+2025-06-26 17:02:15,512 - ModelingPipeline - INFO - Trial 6/50 - Current: 0.9955, Best: 0.9959
+2025-06-26 17:02:15,912 - ModelingPipeline - INFO - Trial 11/50 - Current: 0.9961, Best: 0.9961
+2025-06-26 17:02:16,401 - ModelingPipeline - INFO - Trial 16/50 - Current: 0.9952, Best: 0.9961
+2025-06-26 17:02:16,900 - ModelingPipeline - INFO - Trial 21/50 - Current: 0.9959, Best: 0.9961
+2025-06-26 17:02:17,457 - ModelingPipeline - INFO - Trial 26/50 - Current: 0.9961, Best: 0.9961
+2025-06-26 17:02:18,182 - ModelingPipeline - INFO - Trial 31/50 - Current: 0.9959, Best: 0.9963
+2025-06-26 17:02:18,915 - ModelingPipeline - INFO - Trial 36/50 - Current: 0.9962, Best: 0.9963
+2025-06-26 17:02:19,585 - ModelingPipeline - INFO - Trial 41/50 - Current: 0.9961, Best: 0.9963
+2025-06-26 17:02:20,348 - ModelingPipeline - INFO - Trial 46/50 - Current: 0.9956, Best: 0.9963
+2025-06-26 17:02:20,928 - ModelingPipeline - INFO - Trial 50/50 - Current: 0.9956, Best: 0.9963
+2025-06-26 17:02:21,421 - ModelingPipeline - INFO - 최적 AUC: 0.9963
+2025-06-26 17:02:21,421 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 248, 'max_depth': 7, 'learning_rate': 0.15940728984862826, 'subsample': 0.8349337504426227, 'colsample_bytree': 0.8128566105134372, 'reg_alpha': 1.5171667167504859, 'reg_lambda': 4.845493271526157}
+2025-06-26 17:02:21,422 - ModelingPipeline - INFO - 모든 모델 평가 및 Threshold 최적화
+2025-06-26 17:02:21,422 - ModelingPipeline - INFO - logistic_regression_normal 최적 Threshold 탐색
+2025-06-26 17:02:21,455 - ModelingPipeline - INFO - 최종 선택: 0.350 (F1: 0.1818)
+2025-06-26 17:02:21,476 - ModelingPipeline - INFO - logistic_regression_normal 최종 평가 (Threshold: 0.350):
+2025-06-26 17:02:21,476 - ModelingPipeline - INFO - 검증 - AUC: 0.8405, F1: 0.1818
+2025-06-26 17:02:21,476 - ModelingPipeline - INFO - 테스트 - AUC: 0.8075, F1: 0.0351
+2025-06-26 17:02:21,476 - ModelingPipeline - INFO - random_forest_normal 최적 Threshold 탐색
+2025-06-26 17:02:21,521 - ModelingPipeline - INFO - 최종 선택: 0.150 (F1: 0.2970)
+2025-06-26 17:02:21,613 - ModelingPipeline - INFO - random_forest_normal 최종 평가 (Threshold: 0.150):
+2025-06-26 17:02:21,613 - ModelingPipeline - INFO - 검증 - AUC: 0.9473, F1: 0.2970
+2025-06-26 17:02:21,613 - ModelingPipeline - INFO - 테스트 - AUC: 0.8932, F1: 0.2812
+2025-06-26 17:02:21,613 - ModelingPipeline - INFO - xgboost_normal 최적 Threshold 탐색
+2025-06-26 17:02:21,636 - ModelingPipeline - INFO - 최종 선택: 0.150 (F1: 0.2881)
+2025-06-26 17:02:21,659 - ModelingPipeline - INFO - xgboost_normal 최종 평가 (Threshold: 0.150):
+2025-06-26 17:02:21,659 - ModelingPipeline - INFO - 검증 - AUC: 0.9497, F1: 0.2881
+2025-06-26 17:02:21,659 - ModelingPipeline - INFO - 테스트 - AUC: 0.9032, F1: 0.3548
+2025-06-26 17:02:21,659 - ModelingPipeline - INFO - logistic_regression_combined 최적 Threshold 탐색
+2025-06-26 17:02:21,688 - ModelingPipeline - INFO - 최종 선택: 0.450 (F1: 0.1119)
+2025-06-26 17:02:21,707 - ModelingPipeline - INFO - logistic_regression_combined 최종 평가 (Threshold: 0.450):
+2025-06-26 17:02:21,708 - ModelingPipeline - INFO - 검증 - AUC: 0.8864, F1: 0.1119
+2025-06-26 17:02:21,708 - ModelingPipeline - INFO - 테스트 - AUC: 0.8300, F1: 0.1075
+2025-06-26 17:02:21,708 - ModelingPipeline - INFO - random_forest_combined 최적 Threshold 탐색
+2025-06-26 17:02:21,764 - ModelingPipeline - INFO - 최종 선택: 0.450 (F1: 0.2211)
+2025-06-26 17:02:21,840 - ModelingPipeline - INFO - random_forest_combined 최종 평가 (Threshold: 0.450):
+2025-06-26 17:02:21,841 - ModelingPipeline - INFO - 검증 - AUC: 0.9377, F1: 0.2211
+2025-06-26 17:02:21,841 - ModelingPipeline - INFO - 테스트 - AUC: 0.8976, F1: 0.2105
+2025-06-26 17:02:21,841 - ModelingPipeline - INFO - xgboost_combined 최적 Threshold 탐색
+2025-06-26 17:02:21,874 - ModelingPipeline - INFO - 최종 선택: 0.300 (F1: 0.2051)
+2025-06-26 17:02:21,909 - ModelingPipeline - INFO - xgboost_combined 최종 평가 (Threshold: 0.300):
+2025-06-26 17:02:21,909 - ModelingPipeline - INFO - 검증 - AUC: 0.9400, F1: 0.2051
+2025-06-26 17:02:21,909 - ModelingPipeline - INFO - 테스트 - AUC: 0.8912, F1: 0.1931
+2025-06-26 17:02:21,910 - ModelingPipeline - INFO - 앙상블 모델 실행 시작
+2025-06-26 17:02:21,910 - ModelingPipeline - INFO - 앙상블에 추가: logistic_regression_normal
+2025-06-26 17:02:21,910 - ModelingPipeline - INFO - 앙상블에 추가: logistic_regression_combined
+2025-06-26 17:02:21,910 - ModelingPipeline - INFO - 앙상블에 추가: random_forest_normal
+2025-06-26 17:02:21,910 - ModelingPipeline - INFO - 앙상블에 추가: random_forest_combined
+2025-06-26 17:02:21,910 - ModelingPipeline - INFO - 앙상블에 추가: xgboost_normal
+2025-06-26 17:02:21,910 - ModelingPipeline - INFO - 앙상블에 추가: xgboost_combined
+2025-06-26 17:02:22,127 - ModelingPipeline - INFO - 앙상블 모델 완료 - Test AUC: 0.8703, F1: 0.2857
+2025-06-26 17:02:22,166 - ModelingPipeline - INFO - 앙상블 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250626_165955/models/ensemble_model_model.joblib
+2025-06-26 17:02:22,166 - ModelingPipeline - INFO - 시각화 생성 시작
+2025-06-26 17:02:26,580 - ModelingPipeline - INFO - Train vs Test 비교 시각화 완료
+2025-06-26 17:02:26,581 - ModelingPipeline - INFO - 시각화 생성 완료
+2025-06-26 17:02:26,581 - ModelingPipeline - INFO - 결과 저장 시작
+2025-06-26 17:02:26,582 - ModelingPipeline - INFO - logistic_regression_normal 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250626_165955/models/logistic_regression_normal_model.joblib
+2025-06-26 17:02:26,600 - ModelingPipeline - INFO - random_forest_normal 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250626_165955/models/random_forest_normal_model.joblib
+2025-06-26 17:02:26,602 - ModelingPipeline - INFO - xgboost_normal 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250626_165955/models/xgboost_normal_model.joblib
+2025-06-26 17:02:26,602 - ModelingPipeline - INFO - logistic_regression_combined 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250626_165955/models/logistic_regression_combined_model.joblib
+2025-06-26 17:02:26,619 - ModelingPipeline - INFO - random_forest_combined 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250626_165955/models/random_forest_combined_model.joblib
+2025-06-26 17:02:26,622 - ModelingPipeline - INFO - xgboost_combined 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250626_165955/models/xgboost_combined_model.joblib
+2025-06-26 17:02:26,659 - ModelingPipeline - INFO - ensemble_model 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250626_165955/models/ensemble_model_model.joblib
+2025-06-26 17:02:26,882 - ModelingPipeline - INFO - 전체 결과 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250626_165955/results/modeling_results.json
+2025-06-26 17:02:26,882 - ModelingPipeline - INFO - 설정 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250626_165955/modeling_config.json
+2025-06-26 17:02:26,887 - ModelingPipeline - INFO - 실행 결과 요약:
+2025-06-26 17:02:26,891 - ModelingPipeline - INFO - 
+                 Model        Data_Type  Optimal_Threshold  CV_AUC  Val_AUC  Val_F1  Test_AUC  Test_Precision  Test_Recall  Test_F1  Test_Balanced_Acc  Average_Precision
+0  logistic_regression           NORMAL               0.35  0.8920   0.8405  0.1818    0.8075          0.0385       0.0323   0.0351             0.5133             0.0545
+1        random_forest           NORMAL               0.15  0.9384   0.9473  0.2970    0.8932          0.2727       0.2903   0.2812             0.6425             0.2443
+2              xgboost           NORMAL               0.15  0.9298   0.9497  0.2881    0.9032          0.3548       0.3548   0.3548             0.6752             0.2696
+3  logistic_regression         COMBINED               0.45  0.9419   0.8864  0.1119    0.8300          0.0587       0.6452   0.1075             0.7866             0.0889
+4        random_forest         COMBINED               0.45  0.9967   0.9377  0.2211    0.8976          0.1446       0.3871   0.2105             0.6856             0.1308
+5              xgboost         COMBINED               0.30  0.9963   0.9400  0.2051    0.8912          0.1228       0.4516   0.1931             0.7146             0.1644
+6             ensemble  COMBINED_MODELS               0.40  0.9967   0.8703  0.2764    0.8703          0.2812       0.2903   0.2857             0.6426             0.2177
+2025-06-26 17:02:26,891 - ModelingPipeline - INFO - 요약 테이블 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250626_165955/results/summary_table.csv
+2025-06-26 17:02:26,892 - ModelingPipeline - INFO - === 모델링 파이프라인 완료 ===

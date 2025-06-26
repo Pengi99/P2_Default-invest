@@ -3,7 +3,7 @@
 
 # 데이터 경로
 data:
-  input_path: "data/final/FS_ratio_flow_labeled.csv"
+  input_path: "data/processed/FS_filtered.csv"
   output_dir: "data/final"
   
 # 데이터 분할 설정
@@ -42,26 +42,10 @@ feature_engineering:
   # 타겟 변수
   target_column: "default"
 
-# 피처 선택 (라소 회귀)
-feature_selection:
-  enabled: false
-  method: "lasso"
-  lasso:
-    # 라소 회귀 설정
-    alpha_range: [0.001, 0.01, 0.1, 1.0, 10.0]  # alpha 후보값들
-    cv_folds: 5              # 교차검증 폴드 수
-    max_iter: 1000           # 최대 반복 횟수
-    random_state: 42
-    # 선택할 최대 피처 수 (선택사항)
-    max_features: null       # null이면 제한 없음
-    # alpha 선택 기준
-    alpha_selection: "1se"   # "min" 또는 "1se" (1-standard-error rule)
-
 # 출력 설정
 output:
   # 저장할 파일들
   save_processed_data: true
-  save_feature_selector: true
   save_config_log: true
   
   # 파일 이름 형식
@@ -86,8 +70,6 @@ output:
     - "missing_data_heatmap"
     - "feature_distribution"
     - "correlation_matrix"
-    - "feature_importance"
-    - "lasso_path"
 
 # 로깅 설정
 logging:
@@ -100,7 +82,7 @@ experiment:
   # 실험 이름 (자동 생성하거나 수동 설정)
   name: null  # null이면 파일을 직접 data/final에 저장
   # 실험 설명
-  description: "기본 전처리 파이프라인 (스케일링 제외)"
+  description: "기본 전처리 파이프라인 (스케일링 및 피처 선택 제외)"
   # 버전
   version: "1.1"
   # 서브디렉토리 생성 여부 (false면 data/final에 직접 저장)
@@ -109,7 +91,7 @@ experiment:
 # 성능 최적화
 performance:
   # 멀티프로세싱 사용 여부
-  use_multiprocessing: false
+  use_multiprocessing: true
   # 프로세스 수 (null이면 CPU 코어 수)
   n_jobs: null
   # 메모리 최적화

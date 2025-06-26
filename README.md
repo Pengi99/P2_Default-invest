@@ -32,7 +32,6 @@
 │   │   └── 📄 README.md                            # 데이터 처리 가이드
 │   ├── 📁 modeling/               # 🔥 머신러닝 모델링 (핵심)
 │   │   ├── 📄 modeling_pipeline.py                 # 🚀 통합 모델링 파이프라인
-│   │   ├── 📄 run_modeling_pipeline.py             # 파이프라인 실행 스크립트
 │   │   ├── 📄 ensemble_pipeline.py                 # 🎭 앙상블 파이프라인
 │   │   ├── 📁 old_master_system/                   # 기존 마스터 시스템 (백업)
 │   │   ├── 📁 old_individual_models/               # 기존 개별 모델들 (백업)
@@ -68,6 +67,9 @@
 │   │   ├── 📁 comprehensive/     # 종합 분석 차트
 │   │   └── 📁 default_group_analysis/ # Default 그룹별 분석
 │   └── 📄 README.md               # 결과 분석 가이드
+├── 📁 examples/                   # 🚀 실행 스크립트
+│   ├── 📄 run_preprocessing.py                 # 전처리 파이프라인 실행
+│   └── 📄 run_modeling.py                      # 모델링 파이프라인 실행
 ├── 📁 dashboard/                  # 🎨 대화형 웹 대시보드
 │   ├── 📄 code_review_dashboard.py             # 코드 리뷰 대시보드
 │   ├── 📄 model_performance_dashboard.py       # 모델 성능 대시보드 (예정)
@@ -110,20 +112,23 @@ source .venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 ```
 
-### 2. **🔥 새로운 모델링 파이프라인 실행** (권장)
+### 2. **🔥 모델링 파이프라인 실행** (권장)
 ```bash
-# 새로운 모델링 파이프라인 실행
-cd src/modeling
-python run_modeling_pipeline.py --config ../../config/modeling_config.yaml
+# 전처리 파이프라인 실행
+cd examples
+python run_preprocessing.py
+
+# 모델링 파이프라인 실행
+python run_modeling.py --config config/modeling_config.yaml
 
 # 빠른 테스트 모드 (trial 수 감소)
-python run_modeling_pipeline.py --config ../../config/modeling_config.yaml --quick-test
+python run_modeling.py --config config/modeling_config.yaml --quick-test
 
 # 앙상블만 실행 (기존 모델들이 있는 경우)
-python run_modeling_pipeline.py --ensemble-only
+python run_modeling.py --ensemble-only
 
 # 결과 확인
-ls ../../outputs/modeling_runs/
+ls ../outputs/master_runs/
 ```
 
 ### 3. **기존 시스템 (백업)**

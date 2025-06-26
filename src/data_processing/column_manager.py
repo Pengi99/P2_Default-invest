@@ -14,6 +14,7 @@ from typing import List, Dict, Union, Optional, Callable
 import logging
 from pathlib import Path
 import re
+import yaml
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -232,64 +233,11 @@ class ColumnManager:
         
         return self
     
-    def rename_columns(self, mapping: Dict[str, str]) -> 'ColumnManager':
-        """
-        컬럼명 변경
-        
-        Args:
-            mapping: {기존명: 새이름} 딕셔너리
-            
-        Returns:
-            ColumnManager 인스턴스
-        """
-        # 존재하는 컬럼만 변경
-        existing_mapping = {old: new for old, new in mapping.items() 
-                           if old in self.df.columns}
-        missing_cols = [old for old in mapping.keys() if old not in self.df.columns]
-        
-        if missing_cols:
-            logger.warning(f"존재하지 않는 컬럼 (무시됨): {missing_cols}")
-        
-        if existing_mapping:
-            self.df = self.df.rename(columns=existing_mapping)
-            self.column_history.append(f"컬럼명 변경: {list(existing_mapping.keys())}")
-            logger.info(f"{len(existing_mapping)}개 컬럼명 변경 완료")
-        
-        return self
+
     
-    def add_prefix(self, prefix: str, columns: Optional[List[str]] = None) -> 'ColumnManager':
-        """
-        컬럼에 접두사 추가
-        
-        Args:
-            prefix: 접두사
-            columns: 대상 컬럼 (None이면 모든 컬럼)
-            
-        Returns:
-            ColumnManager 인스턴스
-        """
-        if columns is None:
-            columns = list(self.df.columns)
-        
-        mapping = {col: f"{prefix}{col}" for col in columns if col in self.df.columns}
-        return self.rename_columns(mapping)
+
     
-    def add_suffix(self, suffix: str, columns: Optional[List[str]] = None) -> 'ColumnManager':
-        """
-        컬럼에 접미사 추가
-        
-        Args:
-            suffix: 접미사
-            columns: 대상 컬럼 (None이면 모든 컬럼)
-            
-        Returns:
-            ColumnManager 인스턴스
-        """
-        if columns is None:
-            columns = list(self.df.columns)
-        
-        mapping = {col: f"{col}{suffix}" for col in columns if col in self.df.columns}
-        return self.rename_columns(mapping)
+
     
     # ===========================================
     # 금융 데이터 특화 기능
@@ -360,75 +308,58 @@ class ColumnManager:
         
         return self
     
-    def sort_columns(self, reverse: bool = False) -> 'ColumnManager':
-        """
-        컬럼명 알파벳 순 정렬
-        
-        Args:
-            reverse: 역순 정렬 여부
-            
-        Returns:
-            ColumnManager 인스턴스
-        """
-        sorted_cols = sorted(self.df.columns, reverse=reverse)
-        self.df = self.df[sorted_cols]
-        
-        self.column_history.append(f"컬럼 정렬 (역순={reverse})")
-        logger.info("컬럼 정렬 완료")
-        
-        return self
+
     
     # ===========================================
     # 조건부 작업
     # ===========================================
     
-    def filter_by_missing_rate(self, max_missing_rate: float = 0.5) -> 'ColumnManager':
-        """
-        결측치 비율에 따른 컬럼 필터링
-        
-        Args:
-            max_missing_rate: 최대 허용 결측치 비율
-            
-        Returns:
-            ColumnManager 인스턴스
-        """
-        missing_rates = self.df.isnull().mean()
-        keep_cols = missing_rates[missing_rates <= max_missing_rate].index.tolist()
-        
-        removed_count = len(self.df.columns) - len(keep_cols)
-        self.df = self.df[keep_cols]
-        
-        self.column_history.append(f"결측치 필터링: {removed_count}개 제거")
-        logger.info(f"결측치 비율 {max_missing_rate} 초과 컬럼 {removed_count}개 제거")
-        
-        return self
+
     
-    def filter_by_variance(self, min_variance: float = 1e-10) -> 'ColumnManager':
+    # ===========================================
+    # YAML 기반 컬럼 관리
+    # ===========================================
+    
+    def load_column_config(self, yaml_path: str) -> 'ColumnManager':
         """
-        분산에 따른 컬럼 필터링
+        YAML 파일에서 컬럼 설정 로드 및 적용
         
         Args:
-            min_variance: 최소 분산
+            yaml_path: YAML 설정 파일 경로
             
         Returns:
             ColumnManager 인스턴스
         """
-        # 숫자 컬럼만 대상
-        numeric_cols = self.df.select_dtypes(include=[np.number]).columns
-        variances = self.df[numeric_cols].var()
+        try:
+            with open(yaml_path, 'r', encoding='utf-8') as f:
+                config = yaml.safe_load(f)
+            
+            logger.info(f"YAML 설정 파일 로드: {yaml_path}")
+            
+            # 백업 생성
+            self.backup()
+            
+            # 설정 적용
+            self._apply_yaml_config(config)
+            
+            return self
+            
+        except Exception as e:
+            logger.error(f"YAML 설정 로드 실패: {e}")
+            raise
+    
+    def _apply_yaml_config(self, config: Dict) -> None:
+        """YAML 설정 적용 (간단 버전)"""
         
-        keep_cols = variances[variances >= min_variance].index.tolist()
-        non_numeric_cols = [col for col in self.df.columns if col not in numeric_cols]
+        # 1. 명시적 컬럼 제거
+        if 'drop_columns' in config and config['drop_columns']:
+            self.drop_columns(config['drop_columns'])
         
-        final_cols = keep_cols + non_numeric_cols
-        removed_count = len(numeric_cols) - len(keep_cols)
-        
-        self.df = self.df[final_cols]
-        
-        self.column_history.append(f"분산 필터링: {removed_count}개 제거")
-        logger.info(f"분산 {min_variance} 미만 컬럼 {removed_count}개 제거")
-        
-        return self
+        # 2. 명시적 컬럼 유지
+        if 'keep_columns' in config and config['keep_columns']:
+            self.select_columns(config['keep_columns'])
+    
+
     
     # ===========================================
     # 저장 및 내보내기
@@ -512,53 +443,191 @@ def load_and_manage(filepath: str) -> ColumnManager:
     return ColumnManager(df)
 
 
-# ===========================================
-# 사용 예시
-# ===========================================
-
-if __name__ == "__main__":
-    # 사용 예시
-    print("ColumnManager 사용 예시")
-    print("=" * 50)
+def create_column_config_template(output_path: str = "column_config.yaml") -> None:
+    """
+    컬럼 관리 YAML 설정 파일 템플릿 생성 (간단 버전)
     
-    # 샘플 데이터 생성
-    sample_data = {
-        '총자산': [1000, 2000, 1500],
-        '매출액': [500, 800, 600],
-        '매출액증가율': [0.1, 0.2, -0.05],
-        '부채비율': [0.6, 0.4, 0.7],
-        '회사명': ['A', 'B', 'C'],
-        '기타데이터': [1, 2, 3]
+    Args:
+        output_path: 출력 파일 경로
+    """
+    template = {
+        'config': {
+            'description': '컬럼 관리 설정 파일',
+            'version': '1.0',
+            'author': 'ColumnManager'
+        },
+        
+        # 살릴 컬럼들 (명시적 지정)
+        'keep_columns': [
+            '총자산',
+            '매출액', 
+            '당기순이익',
+            '영업이익',
+            '부채비율',
+            '유동비율'
+        ],
+        
+        # 죽일 컬럼들 (명시적 지정)
+        'drop_columns': [
+            '회사명',
+            '거래소코드',
+            '회계년도'
+        ]
     }
     
-    df = pd.DataFrame(sample_data)
+    try:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            yaml.dump(template, f, allow_unicode=True, default_flow_style=False, indent=2)
+        
+        print(f"✅ 컬럼 설정 템플릿 생성 완료: {output_path}")
+        print(f"📝 파일을 편집하여 원하는 컬럼 설정을 만드세요!")
+        
+    except Exception as e:
+        print(f"❌ 템플릿 생성 실패: {e}")
+
+
+def apply_column_config_from_yaml(df: pd.DataFrame, yaml_path: str) -> pd.DataFrame:
+    """
+    YAML 설정을 데이터프레임에 바로 적용
     
-    # ColumnManager 사용
+    Args:
+        df: 원본 데이터프레임
+        yaml_path: YAML 설정 파일 경로
+        
+    Returns:
+        처리된 데이터프레임
+    """
     cm = ColumnManager(df)
+    return cm.load_column_config(yaml_path).get_dataframe()
+
+
+# ===========================================
+# 실행 함수
+# ===========================================
+
+
+def process_fs_data():
+    """FS.csv 파일을 처리하여 FS_filtered.csv로 저장"""
+    print("📊 FS.csv 데이터 처리 시작")
+    print("=" * 60)
     
-    print("1. 초기 상태:")
-    cm.info()
+    # 파일 경로 설정 (프로젝트 루트 기준으로 절대 경로 사용)
+    project_root = Path(__file__).parent.parent.parent
+    input_file = project_root / 'data' / 'processed' / 'FS.csv'
+    output_file = project_root / 'data' / 'processed' / 'FS_filtered.csv'
+    config_file = project_root / 'config' / 'column_config.yaml'
     
-    print("\n2. 금융 비율 컬럼 조회:")
-    print(cm.get_financial_ratios())
+    try:
+        # 1. 데이터 로드
+        print(f"\n🔄 데이터 로드 중: {input_file}")
+        df = pd.read_csv(input_file)
+        print(f"✅ 원본 데이터 로드 완료: {df.shape}")
+        print(f"   총 컬럼 수: {len(df.columns)}")
+        
+        # 2. ColumnManager 생성
+        cm = ColumnManager(df, backup=True)
+        
+        # 3. 기본 정보 출력
+        print(f"\n📋 데이터 기본 정보:")
+        cm.info()
+        
+        # 4. 금융 변수 분류
+        print(f"\n🎯 금융 변수 자동 분류:")
+        classification = cm.separate_by_type()
+        for category, columns in classification.items():
+            print(f"  {category}: {len(columns)}개 컬럼")
+            if len(columns) <= 5:
+                print(f"    {columns}")
+            else:
+                print(f"    {columns[:5]}... (외 {len(columns)-5}개)")
+        
+        # 5. 컬럼 설정 파일 확인 및 적용
+        if Path(config_file).exists():
+            print(f"\n📋 YAML 설정 파일 적용: {config_file}")
+            cm.load_column_config(config_file)
+            print(f"✅ 설정 적용 완료: {len(cm.list_columns())}개 컬럼 유지")
+        else:
+            print(f"\n⚠️ 설정 파일이 없습니다: {config_file}")
+            print("📝 기본 필터링을 적용합니다...")
+            
+            # 기본 필터링: 메타 정보 제거
+            meta_columns = []
+            for col in df.columns:
+                if any(keyword in col.lower() for keyword in ['회사명', '코드', '년도', '날짜', 'id']):
+                    meta_columns.append(col)
+            
+            if meta_columns:
+                print(f"   메타 컬럼 제거: {meta_columns}")
+                cm.drop_columns(meta_columns)
+            
+            # 결측치가 너무 많은 컬럼 제거 (90% 이상)
+            high_missing_cols = []
+            for col in cm.list_columns():
+                missing_rate = cm.df[col].isnull().sum() / len(cm.df)
+                if missing_rate > 0.9:
+                    high_missing_cols.append(col)
+            
+            if high_missing_cols:
+                print(f"   고결측 컬럼 제거 (90%+): {len(high_missing_cols)}개")
+                cm.drop_columns(high_missing_cols)
+        
+        # 6. 최종 결과 정보
+        final_columns = cm.list_columns()
+        print(f"\n📊 최종 결과:")
+        print(f"   원본 컬럼 수: {len(df.columns)}")
+        print(f"   필터링 후: {len(final_columns)}")
+        print(f"   제거된 컬럼: {len(df.columns) - len(final_columns)}")
+        
+        # 7. 변경 이력 출력
+        print(f"\n📈 변경 이력:")
+        cm.show_history()
+        
+        # 8. 결과 저장
+        print(f"\n💾 결과 저장 중: {output_file}")
+        cm.save(output_file, encoding='utf-8-sig')
+        
+        # 9. 저장된 파일 확인
+        saved_df = pd.read_csv(output_file)
+        print(f"✅ 저장 완료: {saved_df.shape}")
+        
+        # 10. 최종 컬럼 목록 출력 (처음 20개만)
+        print(f"\n📝 최종 컬럼 목록 (처음 20개):")
+        for i, col in enumerate(final_columns[:20], 1):
+            print(f"   {i:2d}. {col}")
+        if len(final_columns) > 20:
+            print(f"   ... 외 {len(final_columns)-20}개 컬럼")
+        
+        print(f"\n🎉 FS.csv 처리 완료!")
+        print(f"📁 출력 파일: {output_file}")
+        
+        return True
+        
+    except FileNotFoundError as e:
+        print(f"❌ 파일을 찾을 수 없습니다: {e}")
+        print(f"💡 다음 위치에 FS.csv 파일이 있는지 확인하세요: {Path(input_file).absolute()}")
+        return False
+        
+    except Exception as e:
+        print(f"❌ 처리 중 오류 발생: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
+if __name__ == "__main__":
+    print("🚀 ColumnManager - FS.csv 처리 도구")
+    print("=" * 60)
     
-    print("\n3. 성장률 컬럼 조회:")
-    print(cm.get_growth_rates())
-    
-    print("\n4. 절대값 컬럼 조회:")
-    print(cm.get_absolute_values())
-    
-    # 체인 방식으로 여러 작업 수행
-    result = (cm
-              .backup()  # 백업
-              .add_column('새컬럼', lambda x: x['총자산'] * 2)  # 컬럼 추가
-              .rename_columns({'기타데이터': '기타_데이터'})  # 이름 변경
-              .add_prefix('FIN_', ['총자산', '매출액'])  # 접두사 추가
-              .sort_columns()  # 정렬
-              )
-    
-    print("\n5. 작업 후 컬럼:")
-    print(result.list_columns())
-    
-    print("\n6. 변경 이력:")
-    result.show_history() 
+    try:
+        success = process_fs_data()
+        if success:
+            print("\n✨ 작업이 성공적으로 완료되었습니다!")
+        else:
+            print("\n💥 작업이 실패했습니다.")
+            
+    except KeyboardInterrupt:
+        print("\n\n👋 종료합니다.")
+    except Exception as e:
+        print(f"\n❌ 오류 발생: {e}")
+        print("💡 FS.csv 처리를 시도합니다.")
+        process_fs_data() 

@@ -4,11 +4,11 @@
 
 기능:
 1. 데이터 로드 및 5:3:2 분할
-2. 결측치 처리 (50% 이상 결측 행 삭제 + median 대체)
-3. 윈저라이징 (양 옆 0.05%)
-4. 라소 회귀 피처 선택
+2. 결측치 처리 (20% 이상 결측 행 삭제 + median 대체)
+3. 윈저라이징 (양 옆 0.5%)
 
 Config를 통한 커스터마이징 지원
+(스케일링 및 피처 선택 제외)
 """
 
 import pandas as pd
@@ -25,9 +25,7 @@ warnings.filterwarnings('ignore')
 
 # 필요한 라이브러리들
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LassoCV, Lasso
 from sklearn.impute import SimpleImputer, KNNImputer
-from sklearn.metrics import mean_squared_error, r2_score
 from scipy import stats
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -38,7 +36,7 @@ class DataPreprocessingPipeline:
     데이터 전처리 파이프라인 클래스
     
     Config 파일을 통해 모든 설정을 관리하며,
-    데이터 로드부터 피처 선택까지 전체 과정을 수행 (스케일링 제외)
+    데이터 로드부터 윈저라이징까지 전체 과정을 수행 (스케일링 및 피처 선택 제외)
     """
     
     def __init__(self, config_path: str):
@@ -59,15 +57,10 @@ class DataPreprocessingPipeline:
         self.results = {
             'experiment_info': {},
             'data_info': {},
-            'preprocessing_steps': {},
-            'model_performance': {},
-            'selected_features': []
+            'preprocessing_steps': {}
         }
         
-        # 피처 선택 모델 저장용
-        self.feature_selector = None
-        
-        self.logger.info("데이터 전처리 파이프라인이 초기화되었습니다 (스케일링 제외).")
+        self.logger.info("데이터 전처리 파이프라인이 초기화되었습니다 (스케일링 및 피처 선택 제외).")
     
     def _load_config(self) -> Dict:
         """Config 파일 로드"""
@@ -288,106 +281,7 @@ class DataPreprocessingPipeline:
         
         return train_df, val_df, test_df
     
-    def select_features_with_lasso(self, train_df: pd.DataFrame, val_df: pd.DataFrame, test_df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-        """라소 회귀를 이용한 피처 선택"""
-        if not self.config['feature_selection']['enabled']:
-            self.logger.info("피처 선택이 비활성화되어 있습니다.")
-            return train_df, val_df, test_df
-        
-        self.logger.info("라소 회귀 피처 선택 시작")
-        
-        # 피처와 타겟 분리
-        exclude_cols = self.config['feature_engineering']['exclude_columns'] + [self.config['feature_engineering']['target_column']]
-        feature_cols = [col for col in train_df.columns if col not in exclude_cols]
-        target_col = self.config['feature_engineering']['target_column']
-        
-        X_train = train_df[feature_cols]
-        y_train = train_df[target_col]
-        X_val = val_df[feature_cols]
-        y_val = val_df[target_col]
-        X_test = test_df[feature_cols]
-        y_test = test_df[target_col]
-        
-        # 라소 회귀 설정
-        lasso_config = self.config['feature_selection']['lasso']
-        alphas = lasso_config['alpha_range']
-        cv_folds = lasso_config['cv_folds']
-        max_iter = lasso_config['max_iter']
-        random_state = lasso_config['random_state']
-        
-        # LassoCV로 최적 alpha 찾기
-        lasso_cv = LassoCV(
-            alphas=alphas,
-            cv=cv_folds,
-            max_iter=max_iter,
-            random_state=random_state,
-            n_jobs=self.config['performance'].get('n_jobs', 1)
-        )
-        
-        lasso_cv.fit(X_train, y_train)
-        
-        # 1se rule 적용할지 결정
-        if lasso_config['alpha_selection'] == "1se":
-            # 1-standard-error rule
-            mean_scores = lasso_cv.mse_path_.mean(axis=1)
-            std_scores = lasso_cv.mse_path_.std(axis=1)
-            
-            best_idx = np.argmin(mean_scores)
-            best_score = mean_scores[best_idx]
-            best_std = std_scores[best_idx]
-            
-            # 1se 임계값 이하인 alpha 중 가장 큰 값 선택
-            threshold = best_score + best_std
-            valid_indices = np.where(mean_scores <= threshold)[0]
-            selected_alpha_idx = valid_indices[0]  # 가장 큰 alpha (첫 번째 인덱스)
-            selected_alpha = alphas[selected_alpha_idx]
-        else:
-            selected_alpha = lasso_cv.alpha_
-        
-        # 선택된 alpha로 최종 모델 학습
-        lasso = Lasso(alpha=selected_alpha, max_iter=max_iter, random_state=random_state)
-        lasso.fit(X_train, y_train)
-        
-        # 선택된 피처들 (계수가 0이 아닌 피처들)
-        selected_features = [feature_cols[i] for i in range(len(feature_cols)) if lasso.coef_[i] != 0]
-        
-        self.logger.info(f"선택된 피처 수: {len(selected_features)} / {len(feature_cols)}")
-        
-        # 피처 선택 적용
-        all_selected_cols = selected_features + [target_col] + self.config['feature_engineering']['exclude_columns']
-        all_selected_cols = [col for col in all_selected_cols if col in train_df.columns]
-        
-        train_selected = train_df[all_selected_cols]
-        val_selected = val_df[all_selected_cols]
-        test_selected = test_df[all_selected_cols]
-        
-        # 모델 성능 평가
-        train_pred = lasso.predict(X_train[selected_features])
-        val_pred = lasso.predict(X_val[selected_features])
-        test_pred = lasso.predict(X_test[selected_features])
-        
-        # 결과 저장
-        self.feature_selector = lasso
-        self.results['selected_features'] = selected_features
-        
-        self.results['preprocessing_steps']['feature_selection'] = {
-            'method': 'lasso',
-            'selected_alpha': selected_alpha,
-            'original_features': len(feature_cols),
-            'selected_features': len(selected_features),
-            'feature_names': selected_features
-        }
-        
-        self.results['model_performance'] = {
-            'train_mse': mean_squared_error(y_train, train_pred),
-            'val_mse': mean_squared_error(y_val, val_pred),
-            'test_mse': mean_squared_error(y_test, test_pred),
-            'train_r2': r2_score(y_train, train_pred),
-            'val_r2': r2_score(y_val, val_pred),
-            'test_r2': r2_score(y_test, test_pred)
-        }
-        
-        return train_selected, val_selected, test_selected
+
     
     def save_results(self, train_df: pd.DataFrame, val_df: pd.DataFrame, test_df: pd.DataFrame):
         """결과 저장"""
@@ -416,12 +310,9 @@ class DataPreprocessingPipeline:
         if self.config['output']['save_processed_data']:
             self._save_processed_data(train_df, val_df, test_df, experiment_dir)
         
-        # 2. 피처 선택 모델 저장
-        if self.config['output']['save_feature_selector'] and self.feature_selector is not None:
-            with open(experiment_dir / "feature_selector.pkl", 'wb') as f:
-                pickle.dump(self.feature_selector, f)
+
         
-        # 3. 실험 결과 저장
+        # 2. 실험 결과 저장
         experiment_name = "preprocessing" if not create_subdirectory else self.config['experiment']['name']
         self.results['experiment_info'] = {
             'name': experiment_name,
@@ -437,7 +328,7 @@ class DataPreprocessingPipeline:
             with open(experiment_dir / "experiment_results.json", 'w', encoding='utf-8') as f:
                 json.dump(self.results, f, ensure_ascii=False, indent=2, default=str)
         
-        # 4. Config 파일 복사 (서브디렉토리 생성 시에만)
+        # 3. Config 파일 복사 (서브디렉토리 생성 시에만)
         if self.config['output']['save_config_log'] and create_subdirectory:
             import shutil
             shutil.copy2(self.config_path, experiment_dir / "config.yaml")
@@ -510,12 +401,9 @@ class DataPreprocessingPipeline:
     def _create_report_content(self) -> str:
         """리포트 내용 생성"""
         
-        # 피처 선택 정보
-        feature_selection_enabled = 'feature_selection' in self.results['preprocessing_steps']
-        
         report = f"""
-데이터 전처리 파이프라인 실행 결과 리포트 (스케일링 제외)
-=========================================================
+데이터 전처리 파이프라인 실행 결과 리포트 (스케일링 및 피처 선택 제외)
+=================================================================
 
 실험 정보
 --------
@@ -546,34 +434,11 @@ class DataPreprocessingPipeline:
    - 적용 여부: {self.results['preprocessing_steps']['winsorization']['enabled']}
    - 하위 임계값: {self.results['preprocessing_steps']['winsorization']['lower_percentile']}
    - 상위 임계값: {self.results['preprocessing_steps']['winsorization']['upper_percentile']}
-"""
 
-        # 피처 선택 정보 (활성화된 경우에만)
-        if feature_selection_enabled:
-            report += f"""
-4. 피처 선택 (라소 회귀)
-   - 원본 피처 수: {self.results['preprocessing_steps']['feature_selection']['original_features']}
-   - 선택된 피처 수: {self.results['preprocessing_steps']['feature_selection']['selected_features']}
-   - 선택된 Alpha: {self.results['preprocessing_steps']['feature_selection']['selected_alpha']}
-
-모델 성능
+처리 완료
 --------
-- Train MSE: {self.results['model_performance']['train_mse']:.6f}
-- Validation MSE: {self.results['model_performance']['val_mse']:.6f}
-- Test MSE: {self.results['model_performance']['test_mse']:.6f}
-- Train R²: {self.results['model_performance']['train_r2']:.6f}
-- Validation R²: {self.results['model_performance']['val_r2']:.6f}
-- Test R²: {self.results['model_performance']['test_r2']:.6f}
-
-선택된 피처 목록
---------------
-{chr(10).join(f"- {feature}" for feature in self.results['selected_features'])}
-"""
-        else:
-            report += f"""
-4. 피처 선택
-   - 상태: 비활성화됨
-   - 모든 피처가 유지됨
+- 모든 피처가 유지됨 (피처 선택 없음)
+- 데이터가 모델링 준비 완료
 """
 
         return report
@@ -617,13 +482,10 @@ class DataPreprocessingPipeline:
             # 4. 윈저라이징
             train_df, val_df, test_df = self.apply_winsorization(train_df, val_df, test_df)
             
-            # 5. 피처 선택
-            train_df, val_df, test_df = self.select_features_with_lasso(train_df, val_df, test_df)
-            
-            # 6. 결과 저장
+            # 5. 결과 저장
             experiment_dir = self.save_results(train_df, val_df, test_df)
             
-            # 7. 리포트 생성
+            # 6. 리포트 생성
             self.generate_report(experiment_dir)
             
             self.logger.info("=== 데이터 전처리 파이프라인 완료 ===")
@@ -650,16 +512,10 @@ def main():
     pipeline = DataPreprocessingPipeline(args.config)
     experiment_dir = pipeline.run_pipeline()
     
-    print(f"\n✅ 전처리 완료! (스케일링 제외)")
+    print(f"\n✅ 전처리 완료! (스케일링 및 피처 선택 제외)")
     print(f"📁 결과 저장 위치: {experiment_dir}")
-    
-    # 피처 선택이 활성화된 경우에만 관련 정보 출력
-    if pipeline.results['selected_features']:
-        print(f"📊 선택된 피처 수: {len(pipeline.results['selected_features'])}")
-        print(f"🎯 검증 R²: {pipeline.results['model_performance']['val_r2']:.4f}")
-    else:
-        print(f"📊 피처 선택: 비활성화됨 (모든 피처 유지)")
-        print(f"🎯 데이터 처리: 완료")
+    print(f"📊 모든 피처 유지됨")
+    print(f"🎯 데이터 처리: 완료")
 
 
 if __name__ == "__main__":

@@ -31,23 +31,106 @@ sampling:
       description: "원본 데이터 (샘플링 없음)"
     
     smote:
-      enabled: true
+      enabled: false
       description: "BorderlineSMOTE 오버샘플링"
-      sampling_strategy: 0.3  # 부실 클래스 비율 목표
+      sampling_strategy: 0.1  # 부실 클래스 비율 목표 (원래 0.7% → 10%로 증가)
       k_neighbors: 5
       m_neighbors: 10
+      kind: "borderline-1"  # borderline-1, borderline-2, svm
+      random_state: 42
     
     undersampling:
-      enabled: false
+      enabled: true
       description: "언더샘플링"
       method: "random"  # random, edited_nearest_neighbours, tomek
-      sampling_strategy: 0.5  # 정상 클래스 유지 비율
+      sampling_strategy: 0.1  # 정상 클래스 유지 비율 (70% 제거, 30% 유지)
+      random_state: 42
     
     combined:
       enabled: false
       description: "SMOTE + 언더샘플링 조합"
-      smote_ratio: 0.3
-      undersampling_ratio: 0.5
+      # SMOTE 설정
+      smote:
+        sampling_strategy: 0.01  # 부실 클래스 비율 목표 (원래 0.7% → 20%로 증가)
+        k_neighbors: 5
+        m_neighbors: 10
+        kind: "borderline-1"  # borderline-1, borderline-2, svm
+      # 언더샘플링 설정  
+      undersampling:
+        method: "random"  # random, edited_nearest_neighbours, tomek
+        sampling_strategy: 0.1  # 정상 클래스 유지 비율 (50% 유지)
+        random_state: 42
+
+
+# 특성 선택 설정
+feature_selection:
+  enabled: true
+  lasso:
+    alphas: [0.001, 0.01, 0.1, 1.0, 10.0, 100.0]
+    cv_folds: 5
+    threshold: 0.00001  # median, mean, 또는 숫자값
+
+# 모델 설정
+models:
+  logistic_regression:
+    enabled: true
+    penalty: ["l2"]
+    l2_solvers: ["newton-cg", "lbfgs"]  # 가장 안정적인 solver들만 사용
+    C_range: [0.01, 100]  # 수렴 안정성을 위해 범위 축소
+    max_iter_range: [100, 1000]  # 충분한 반복 횟수 보장
+    l1_ratio_range: [0.1, 0.9]  # elasticnet용
+    n_trials: 100  # trial 수 감소로 빠른 수렴
+  
+  random_forest:
+    enabled: true
+    n_estimators_range: [10, 300]
+    max_depth_range: [3, 20]
+    min_samples_split_range: [2, 20]
+    min_samples_leaf_range: [1, 10]
+    max_features_range: [0.1, 1.0]
+    n_trials: 100
+  
+  xgboost:
+    enabled: true
+    n_estimators_range: [10, 300]
+    max_depth_range: [3, 10]
+    learning_rate_range: [0.01, 0.3]
+    subsample_range: [0.6, 1.0]
+    colsample_bytree_range: [0.6, 1.0]
+    reg_alpha_range: [0.0, 10.0]
+    reg_lambda_range: [1.0, 10.0]
+    n_trials: 100
+
+# Threshold 최적화 설정
+threshold_optimization:
+  enabled: true
+  metric_priority: "f1"  # f1, precision, recall, balanced_accuracy
+
+# 앙상블 설정
+ensemble:
+  enabled: true
+  method: "weighted_average"  # simple_average, weighted_average, stacking
+  auto_weight: true  # 검증 성능 기반 자동 가중치
+  models: ["logistic_regression", "random_forest", "xgboost"]
+  data_types: ["normal", "combined"]  # 현재 활성화된 데이터 타입에 맞춤
+  threshold_optimization:
+    enabled: true
+    metric_priority: "f1"
+
+# 출력 설정
+output:
+  base_dir: "outputs/modeling_runs"
+  save_models: true
+  save_results: true
+  generate_visualizations: true
+  report_format: ["txt", "html"]
+
+# 성능 설정
+performance:
+  n_jobs: -1  # 병렬 처리 코어 수 (-1: 모든 코어)
+
+# 랜덤 시드
+random_state: 42
 
 # 스케일링 설정
 scaling:
@@ -154,8 +237,6 @@ scaling:
       - "노동장비율"
       - "기계장비율"
       - "자본집약도"
-    
-    MinMax:  # 최소-최대 스케일링 적용할 컬럼명들 (비율 변수들, 0-1 범위로 제한)
       - "매출액총이익률"
       - "매출액영업이익률"
       - "매출액순이익률"
@@ -226,73 +307,5 @@ scaling:
       - "자본분배율"
       - "이윤분배율"
       - "EBITDA매출액비율"
-
-# 특성 선택 설정
-feature_selection:
-  enabled: true
-  lasso:
-    alphas: [0.001, 0.01, 0.1, 1.0, 10.0, 100.0]
-    cv_folds: 5
-    threshold: "median"  # median, mean, 또는 숫자값
-
-# 모델 설정
-models:
-  logistic_regression:
-    enabled: true
-    penalty: ["l1", "l2", "elasticnet"]
-    l2_solvers: ["lbfgs", "liblinear", "newton-cg", "sag", "saga"]
-    C_range: [0.001, 100.0]  # log scale
-    max_iter_range: [100, 1000]
-    l1_ratio_range: [0.1, 0.9]  # elasticnet용
-    n_trials: 50
-  
-  random_forest:
-    enabled: true
-    n_estimators_range: [50, 300]
-    max_depth_range: [3, 20]
-    min_samples_split_range: [2, 20]
-    min_samples_leaf_range: [1, 10]
-    max_features_range: [0.1, 1.0]
-    n_trials: 50
-  
-  xgboost:
-    enabled: true
-    n_estimators_range: [50, 300]
-    max_depth_range: [3, 10]
-    learning_rate_range: [0.01, 0.3]
-    subsample_range: [0.6, 1.0]
-    colsample_bytree_range: [0.6, 1.0]
-    reg_alpha_range: [0.0, 10.0]
-    reg_lambda_range: [1.0, 10.0]
-    n_trials: 50
-
-# Threshold 최적화 설정
-threshold_optimization:
-  enabled: true
-  metric_priority: "f1"  # f1, precision, recall, balanced_accuracy
-
-# 앙상블 설정
-ensemble:
-  enabled: true
-  method: "weighted_average"  # simple_average, weighted_average, stacking
-  auto_weight: true  # 검증 성능 기반 자동 가중치
-  models: ["logistic_regression", "random_forest", "xgboost"]
-  data_types: ["normal", "smote"]
-  threshold_optimization:
-    enabled: true
-    metric_priority: "f1"
-
-# 출력 설정
-output:
-  base_dir: "outputs/modeling_runs"
-  save_models: true
-  save_results: true
-  generate_visualizations: true
-  report_format: ["txt", "html"]
-
-# 성능 설정
-performance:
-  n_jobs: 1  # 병렬 처리 코어 수 (-1: 모든 코어)
-
-# 랜덤 시드
-random_state: 42
+    
+    MinMax:  # 최소-최대 스케일링 적용할 컬럼명들 (비율 변수들, 0-1 범위로 제한)

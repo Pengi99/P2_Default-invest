@@ -40,20 +40,11 @@ def main():
     print(f"   Validation: {pipeline.results['preprocessing_steps']['data_split']['val_shape']}")
     print(f"   Test: {pipeline.results['preprocessing_steps']['data_split']['test_shape']}")
     
-    # 피처 선택 결과 (활성화된 경우에만)
-    if 'feature_selection' in pipeline.results['preprocessing_steps']:
-        print(f"\n🎯 피처 선택 결과:")
-        print(f"   원본 피처 수: {pipeline.results['preprocessing_steps']['feature_selection']['original_features']}")
-        print(f"   선택된 피처 수: {pipeline.results['preprocessing_steps']['feature_selection']['selected_features']}")
-        print(f"   선택률: {pipeline.results['preprocessing_steps']['feature_selection']['selected_features'] / pipeline.results['preprocessing_steps']['feature_selection']['original_features'] * 100:.1f}%")
-        
-        print(f"\n📈 모델 성능:")
-        print(f"   검증 R²: {pipeline.results['model_performance']['val_r2']:.4f}")
-        print(f"   테스트 R²: {pipeline.results['model_performance']['test_r2']:.4f}")
-    else:
-        print(f"\n🎯 피처 선택:")
-        print(f"   상태: 비활성화됨")
-        print(f"   모든 피처가 유지됨")
+    print(f"\n🔧 전처리 단계:")
+    print(f"   결측치 처리: {pipeline.results['preprocessing_steps']['missing_data']['method']}")
+    print(f"   윈저라이징: {'활성화' if pipeline.results['preprocessing_steps']['winsorization']['enabled'] else '비활성화'}")
+    print(f"   피처 선택: 비활성화됨 (모든 피처 유지)")
+    print(f"   스케일링: 비활성화됨 (원본 값 유지)")
     
     print(f"\n📝 생성된 파일들:")
     files = [
@@ -63,14 +54,8 @@ def main():
         "y_val.csv",
         "X_test.csv", 
         "y_test.csv",
-        "scaler_standard.pkl",
-        "scaler_robust.pkl",
         "preprocessing_report.txt"
     ]
-    
-    # 피처 선택이 활성화된 경우에만 feature_selector.pkl 체크
-    if 'feature_selection' in pipeline.results['preprocessing_steps']:
-        files.append("feature_selector.pkl")
     
     for file in files:
         file_path = Path(experiment_dir) / file
@@ -79,26 +64,31 @@ def main():
         else:
             print(f"   ❌ {file}")
     
-    # 피처 선택이 활성화된 경우에만 선택된 피처 목록 출력
-    if 'feature_selection' in pipeline.results['preprocessing_steps'] and pipeline.results['selected_features']:
-        print(f"\n🔍 선택된 주요 피처들 (상위 10개):")
-        selected_features = pipeline.results['selected_features'][:10]
-        for i, feature in enumerate(selected_features, 1):
-            print(f"   {i:2d}. {feature}")
+    # 피처 정보 출력 (데이터에서 직접 확인)
+    try:
+        import pandas as pd
         
-        if len(pipeline.results['selected_features']) > 10:
-            print(f"   ... 외 {len(pipeline.results['selected_features']) - 10}개")
-    else:
+        # 실제 저장된 파일에서 피처 정보 가져오기
+        X_train_path = Path(experiment_dir) / "X_train.csv"
+        if X_train_path.exists():
+            X_train = pd.read_csv(X_train_path)
+            feature_cols = list(X_train.columns)
+            
+            print(f"\n🔍 피처 정보:")
+            print(f"   전체 피처 수: {len(feature_cols)}개")
+            print(f"   주요 피처들 (처음 10개):")
+            for i, feature in enumerate(feature_cols[:10], 1):
+                print(f"   {i:2d}. {feature}")
+            
+            if len(feature_cols) > 10:
+                print(f"   ... 외 {len(feature_cols) - 10}개")
+        else:
+            print(f"\n🔍 피처 정보:")
+            print(f"   피처 파일을 찾을 수 없어 정보를 표시할 수 없습니다.")
+            
+    except Exception as e:
         print(f"\n🔍 피처 정보:")
-        # 스케일링 단계에서 피처 컬럼 정보 가져오기
-        feature_cols = pipeline.results['preprocessing_steps']['scaling']['feature_columns']
-        print(f"   전체 피처 수: {len(feature_cols)}개")
-        print(f"   주요 피처들 (처음 10개):")
-        for i, feature in enumerate(feature_cols[:10], 1):
-            print(f"   {i:2d}. {feature}")
-        
-        if len(feature_cols) > 10:
-            print(f"   ... 외 {len(feature_cols) - 10}개")
+        print(f"   피처 정보 로드 중 오류: {e}")
     
     return experiment_dir
 
