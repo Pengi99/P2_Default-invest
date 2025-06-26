@@ -64,4 +64,9 @@
 
 ## 5. 생성된 파일
 - 시각화: /Users/jojongho/KDT/P2_Default-invest/outputs/analysis/default_group_analysis/visualizations/에 6개 차트 파일
-- 통계 데이터: /Users/jojongho/KDT/P2_Default-invest/outputs/analysis/default_group_analysis/reports/에 4개 CSV 파일
+- 통계 데이터: /Users/jojongho/KDT/P2_Default-invest/outputs/analysis/default_group_analysis/reports/에 5개 CSV 파일
+  - all_companies_statistics.csv: 전체 기업 기초 통계량
+  - normal_companies_statistics.csv: 정상 기업 기초 통계량
+  - default_companies_statistics.csv: 부실 기업 기초 통계량
+  - mean_comparison_analysis.csv: 평균값 비교 분석
+  - std_comparison_analysis.csv: 표준편차 비교 분석

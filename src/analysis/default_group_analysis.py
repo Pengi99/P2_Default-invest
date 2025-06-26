@@ -85,8 +85,13 @@ print(f"부실 기업 (Default=1): {len(default_df):,}개")
 print("\n3️⃣ 각 그룹별 기초 통계량 계산")
 print("="*50)
 
+# 전체 기업 통계량
+print("📊 전체 기업 통계량:")
+all_stats = df[feature_columns].describe()
+print(all_stats.round(4))
+
 # 정상 기업 통계량
-print("📊 정상 기업 (Default=0) 통계량:")
+print("\n📊 정상 기업 (Default=0) 통계량:")
 normal_stats = normal_df[feature_columns].describe()
 print(normal_stats.round(4))
 
@@ -397,6 +402,7 @@ print("\n6️⃣ 결과 저장")
 print("="*50)
 
 # 기초 통계량 저장
+all_stats.to_csv(reports_dir / 'all_companies_statistics.csv', encoding='utf-8-sig')
 normal_stats.to_csv(reports_dir / 'normal_companies_statistics.csv', encoding='utf-8-sig')
 default_stats.to_csv(reports_dir / 'default_companies_statistics.csv', encoding='utf-8-sig')
 
@@ -459,7 +465,12 @@ report_content += f"""
 
 ## 5. 생성된 파일
 - 시각화: {viz_dir}/에 6개 차트 파일
-- 통계 데이터: {reports_dir}/에 4개 CSV 파일
+- 통계 데이터: {reports_dir}/에 5개 CSV 파일
+  - all_companies_statistics.csv: 전체 기업 기초 통계량
+  - normal_companies_statistics.csv: 정상 기업 기초 통계량
+  - default_companies_statistics.csv: 부실 기업 기초 통계량
+  - mean_comparison_analysis.csv: 평균값 비교 분석
+  - std_comparison_analysis.csv: 표준편차 비교 분석
 """
 
 # 리포트 저장
@@ -467,6 +478,7 @@ with open(reports_dir / 'default_group_analysis_report.txt', 'w', encoding='utf-
     f.write(report_content)
 
 print(f"✅ 분석 완료!")
+print(f"📊 전체기업 통계: {reports_dir / 'all_companies_statistics.csv'}")
 print(f"📊 정상기업 통계: {reports_dir / 'normal_companies_statistics.csv'}")
 print(f"📊 부실기업 통계: {reports_dir / 'default_companies_statistics.csv'}")
 print(f"📊 평균 비교 분석: {reports_dir / 'mean_comparison_analysis.csv'}")
