@@ -114,49 +114,113 @@ class DataPreprocessingPipeline:
         return df
     
     def split_data(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-        """데이터를 5:3:2로 분할"""
-        self.logger.info("데이터 분할 시작 (5:3:2)")
+        """데이터 분할 (시계열 또는 랜덤)"""
+        split_method = self.config['data_split']['split_method']
         
+        if split_method == 'timeseries':
+            return self._split_data_timeseries(df)
+        elif split_method == 'random':
+            return self._split_data_random(df)
+        else:
+            raise ValueError(f"지원하지 않는 분할 방식: {split_method}")
+    
+    def _split_data_timeseries(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        """시계열 기반 데이터 분할"""
+        self.logger.info("시계열 기반 데이터 분할 시작")
+        
+        time_col = self.config['data_split']['timeseries']['time_column']
+        train_end_year = self.config['data_split']['timeseries']['train_end_year']
+        val_end_year = self.config['data_split']['timeseries']['val_end_year']
         target_col = self.config['feature_engineering']['target_column']
         
+        # 시간 컬럼이 존재하는지 확인
+        if time_col not in df.columns:
+            raise ValueError(f"시간 컬럼 '{time_col}'이 데이터에 존재하지 않습니다.")
+        
+        # 년도별 분할
+        train_df = df[df[time_col] <= train_end_year].copy()
+        val_df = df[(df[time_col] > train_end_year) & (df[time_col] <= val_end_year)].copy()
+        test_df = df[df[time_col] > val_end_year].copy()
+        
+        # 분할 결과 확인
+        if len(train_df) == 0:
+            raise ValueError(f"Train 데이터가 비어있습니다. train_end_year({train_end_year})를 확인하세요.")
+        if len(val_df) == 0:
+            raise ValueError(f"Validation 데이터가 비어있습니다. val_end_year({val_end_year})를 확인하세요.")
+        if len(test_df) == 0:
+            raise ValueError(f"Test 데이터가 비어있습니다. val_end_year({val_end_year}) 이후 데이터를 확인하세요.")
+        
+        # 시간 범위 로깅
+        train_years = sorted(train_df[time_col].unique())
+        val_years = sorted(val_df[time_col].unique())
+        test_years = sorted(test_df[time_col].unique())
+        
+        self.logger.info(f"Train: {train_df.shape} ({train_years[0]}-{train_years[-1]}년)")
+        self.logger.info(f"Val: {val_df.shape} ({val_years[0]}-{val_years[-1]}년)")
+        self.logger.info(f"Test: {test_df.shape} ({test_years[0]}-{test_years[-1]}년)")
+        
+        # 분할 정보 저장
+        self.results['preprocessing_steps']['data_split'] = {
+            'method': 'timeseries',
+            'train_shape': train_df.shape,
+            'val_shape': val_df.shape,
+            'test_shape': test_df.shape,
+            'train_years': train_years,
+            'val_years': val_years,
+            'test_years': test_years,
+            'train_target_dist': train_df[target_col].value_counts().to_dict(),
+            'val_target_dist': val_df[target_col].value_counts().to_dict(),
+            'test_target_dist': test_df[target_col].value_counts().to_dict()
+        }
+        
+        return train_df, val_df, test_df
+    
+    def _split_data_random(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        """랜덤 기반 데이터 분할 (기존 방식)"""
+        self.logger.info("랜덤 기반 데이터 분할 시작 (5:3:2)")
+        
+        target_col = self.config['feature_engineering']['target_column']
+        random_config = self.config['data_split']['random']
+        
         # 먼저 train과 temp로 분할 (5:5)
-        if self.config['data_split']['stratify']:
+        if random_config['stratify']:
             train_df, temp_df = train_test_split(
                 df, 
                 test_size=0.5,  # 50%를 temp로
-                random_state=self.config['data_split']['random_state'],
+                random_state=random_config['random_state'],
                 stratify=df[target_col]
             )
         else:
             train_df, temp_df = train_test_split(
                 df,
                 test_size=0.5,
-                random_state=self.config['data_split']['random_state']
+                random_state=random_config['random_state']
             )
         
         # temp를 val과 test로 분할 (3:2)
-        val_ratio = self.config['data_split']['val_ratio']
-        test_ratio = self.config['data_split']['test_ratio']
+        val_ratio = random_config['val_ratio']
+        test_ratio = random_config['test_ratio']
         val_size = val_ratio / (val_ratio + test_ratio)  # temp 내에서의 val 비율
         
-        if self.config['data_split']['stratify']:
+        if random_config['stratify']:
             val_df, test_df = train_test_split(
                 temp_df,
                 test_size=(1-val_size),
-                random_state=self.config['data_split']['random_state'],
+                random_state=random_config['random_state'],
                 stratify=temp_df[target_col]
             )
         else:
             val_df, test_df = train_test_split(
                 temp_df,
                 test_size=(1-val_size),
-                random_state=self.config['data_split']['random_state']
+                random_state=random_config['random_state']
             )
         
         self.logger.info(f"Train: {train_df.shape}, Val: {val_df.shape}, Test: {test_df.shape}")
         
         # 분할 정보 저장
         self.results['preprocessing_steps']['data_split'] = {
+            'method': 'random',
             'train_shape': train_df.shape,
             'val_shape': val_df.shape,
             'test_shape': test_df.shape,
@@ -401,6 +465,23 @@ class DataPreprocessingPipeline:
     def _create_report_content(self) -> str:
         """리포트 내용 생성"""
         
+        split_info = self.results['preprocessing_steps']['data_split']
+        split_method = split_info['method']
+        
+        # 데이터 분할 정보 생성
+        if split_method == 'timeseries':
+            split_details = f"""1. 데이터 분할 (시계열 기반)
+   - 방법: 시계열 분할
+   - Train: {split_info['train_shape']} ({split_info['train_years'][0]}-{split_info['train_years'][-1]}년)
+   - Validation: {split_info['val_shape']} ({split_info['val_years'][0]}-{split_info['val_years'][-1]}년)
+   - Test: {split_info['test_shape']} ({split_info['test_years'][0]}-{split_info['test_years'][-1]}년)"""
+        else:
+            split_details = f"""1. 데이터 분할 (랜덤 기반)
+   - 방법: 랜덤 분할 (5:3:2)
+   - Train: {split_info['train_shape']}
+   - Validation: {split_info['val_shape']}
+   - Test: {split_info['test_shape']}"""
+        
         report = f"""
 데이터 전처리 파이프라인 실행 결과 리포트 (스케일링 및 피처 선택 제외)
 =================================================================
@@ -420,10 +501,7 @@ class DataPreprocessingPipeline:
 전처리 단계별 결과
 ----------------
 
-1. 데이터 분할 (5:3:2)
-   - Train: {self.results['preprocessing_steps']['data_split']['train_shape']}
-   - Validation: {self.results['preprocessing_steps']['data_split']['val_shape']}
-   - Test: {self.results['preprocessing_steps']['data_split']['test_shape']}
+{split_details}
 
 2. 결측치 처리
    - 방법: {self.results['preprocessing_steps']['missing_data']['method']}
@@ -515,7 +593,7 @@ def main():
     print(f"\n✅ 전처리 완료! (스케일링 및 피처 선택 제외)")
     print(f"📁 결과 저장 위치: {experiment_dir}")
     print(f"📊 모든 피처 유지됨")
-    print(f"🎯 데이터 처리: 완료")
+        print(f"🎯 데이터 처리: 완료")
 
 
 if __name__ == "__main__":

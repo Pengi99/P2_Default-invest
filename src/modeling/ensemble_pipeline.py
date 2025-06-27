@@ -76,7 +76,9 @@ class EnsemblePipeline:
             equal_weight = 1.0 / len(self.models)
             return {model_key: equal_weight for model_key in self.models.keys()}
         
-        print("🔍 검증 데이터 기반 가중치 계산 중...")
+        # YAML에서 가중치 계산 메트릭 읽기
+        weight_metric = self.ensemble_config.get('weight_metric', 'roc_auc')
+        print(f"🔍 검증 데이터 기반 가중치 계산 중... (메트릭: {weight_metric.upper()})")
         
         model_scores = {}
         
@@ -85,11 +87,22 @@ class EnsemblePipeline:
                 # 검증 데이터로 예측
                 y_pred_proba = model.predict_proba(X_val)[:, 1]
                 
-                # AUC 스코어 계산
-                auc_score = roc_auc_score(y_val, y_pred_proba)
-                model_scores[model_key] = auc_score
+                # 설정된 메트릭에 따라 점수 계산
+                if weight_metric == 'f1':
+                    # F1의 경우 임계값 0.3 기준으로 계산
+                    y_pred = (y_pred_proba >= 0.3).astype(int)
+                    score = f1_score(y_val, y_pred, zero_division=0)
+                elif weight_metric == 'average_precision':
+                    score = average_precision_score(y_val, y_pred_proba)
+                elif weight_metric == 'balanced_accuracy':
+                    y_pred = (y_pred_proba >= 0.5).astype(int)
+                    score = balanced_accuracy_score(y_val, y_pred)
+                else:  # roc_auc (기본값)
+                    score = roc_auc_score(y_val, y_pred_proba)
                 
-                print(f"  📊 {model_key}: AUC = {auc_score:.4f}")
+                model_scores[model_key] = score
+                
+                print(f"  📊 {model_key}: {weight_metric.upper()} = {score:.4f}")
                 
             except Exception as e:
                 print(f"  ⚠️ {model_key} 평가 실패: {e}")
@@ -330,7 +343,7 @@ class EnsemblePipeline:
             np.ndarray: 앙상블 예측 확률 (시각화 호환을 위해 확률값만 반환)
         """
         return self.ensemble_predict_proba(X)
-
+    
     def create_ensemble_report(self, output_dir):
         """앙상블 시각화 리포트 생성"""
         print("📊 앙상블 리포트 생성 중...")

@@ -271,5 +271,88 @@ graph TD
 
 ---
 
-*이 프로젝트는 한국 금융시장 분석을 위한 교육 및 연구 목적으로 제작되었습니다.*  
-*상업적 사용 시 관련 법규를 준수하시기 바랍니다.*
+# 부실 예측 모델링 프로젝트 워크플로우
+
+본 문서는 재무 데이터를 활용한 부실 예측 모델링 프로젝트의 전체 워크플로우를 설명합니다.
+
+> **표기법 가이드**
+> - `실행 파일 및 설정 파일`
+> - `[데이터 파일]`
+> - `{핵심 기법 및 알고리즘}`
+
+---
+
+## 1. 데이터 병합 및 라벨링 (Data Merging & Labeling)
+
+초기 재무제표 데이터를 통합하고 모델링에 사용 가능한 형태로 가공하는 단계입니다.
+
+#### 1.1. 결측치 보강 및 필터링
+- **Process**: `[개별.csv]` 데이터를 사용하여 `[연결.csv]`의 결측치를 보강하고, 12월 결산 법인 데이터만 필터링하여 `[FS_temp.csv]`를 생성합니다.
+- **Script**: `src/data_processing/merge_fill_financial_data.py`
+
+#### 1.2. 최종 데이터셋 생성
+- **Process**: `[FS_temp.csv]`의 컬럼 단위를 통일하고, `[value_fail.csv]`의 부실 정보를 바탕으로 `default` 라벨을 생성하여 최종 분석 데이터셋인 `[FS.csv]`를 완성합니다.
+
+---
+
+## 2. 탐색적 데이터 분석 (EDA)
+
+데이터의 특성을 파악하고 전처리 및 모델링 전략을 수립하기 위한 분석 단계입니다.
+
+- **`analyze_scaling_needs.py`**: 각 변수의 분포를 분석하여 적절한 `{스케일링}` 기법의 필요성을 평가합니다.
+- **`default_group_analysis.py`**: 부실/정상 그룹 간 재무 비율의 통계적 차이를 분석하여 부실 예측에 유의미한 변수를 탐색합니다.
+- **`missing_data_default_analysis.py`**: 결측치 비율에 따른 부실 라벨 분포 변화를 분석하여 결측치 처리 전략의 기준을 수립합니다.
+
+---
+
+## 3. 특성 선택 (Feature Selection)
+
+모델링에 사용할 최종 변수를 선별하는 단계입니다.
+
+- **Process**: 모델의 성능과 해석력을 높이기 위해 재무 비율 변수 중심으로 특성을 선택합니다. 절대값 변수, 시장 관련 지표, 다중공선성이 높은 변수 등을 제거합니다.
+- **Script**: `src/data_processing/column_manager.py`
+- **Config**: `config/column_config.yaml`
+
+---
+
+## 4. 데이터 전처리 (Data Preprocessing)
+
+모델 훈련을 위해 데이터를 최종적으로 가공하는 파이프라인입니다.
+
+- **Process**:
+    1.  **데이터 분할 (Data Splitting)**: 시계열을 고려하여 훈련:검증:테스트 세트를 `{5:3:2}` 비율로 분할합니다.
+    2.  **결측치 처리 (Missing Value Imputation)**: 행별 `{결측치 20% 이상}` 데이터를 제거하고, 남은 결측치는 `{중앙값(Median)}`으로 대체합니다.
+    3.  **이상치 처리 (Outlier Handling)**: `{윈저라이징(Winsorizing)}` 기법을 사용하여 데이터 양쪽 끝 `{0.1%}`를 대체하여 극단값의 영향을 줄입니다.
+- **Script**: `examples/run_preprocessing.py` (내부적으로 `src/preprocessing/data_pipeline.py` 사용)
+- **Config**: `config/preprocessing_config.yaml`
+
+---
+
+## 5. 모델링 (Modeling)
+
+전처리된 데이터를 사용하여 부실 예측 모델을 훈련하고 최적화하는 단계입니다.
+
+- **Process**:
+    1.  **모델 훈련**: `{Logistic Regression}`, `{Random Forest}`, `{XGBoost}`, `{Ensemble}` 모델을 훈련합니다.
+    2.  **K-Fold 교차 검증**: 데이터 유출을 방지하기 위해 각 Fold 내부에서 아래의 전처리 과정을 순차적으로 적용합니다.
+        1.  **스케일링**: `{StandardScaler}`, `{RobustScaler}`, `{MinMaxScaler}`, `{Log Transformation}`을 적용합니다.
+        2.  **샘플링**: 데이터 불균형 해소를 위해 `{Borderline-SMOTE}`(오버샘플링)와 `{Tomek Links}`(언더샘플링)를 조합하여 적용합니다.
+    3.  **임계값 최적화**: 검증 데이터셋을 사용하여 F1-Score를 최대화하는 최적의 분류 `{임계값(Threshold)}`을 탐색합니다.
+- **Scripts**:
+    - `examples/run_modeling.py`
+    - `src/modeling/modeling_pipeline.py`
+    - `src/modeling/ensemble_pipeline.py`
+- **Config**: `config/modeling_config.yaml`
+
+---
+
+## 6. 결과 (Results)
+
+모델링 파이프라인 실행 결과는 아래 경로에 저장됩니다.
+
+- **Path**: `outputs/modeling_runs/{run_name}/`
+- **Contents**:
+    - `[results/summary_table.csv]`: 모델별 최종 성능 요약표
+    - `[visualizations/]`: ROC/PR 곡선, 특성 중요도 등 분석 차트
+    - `[models/]`: 훈련된 모델 파일 (`.joblib`)
+    - `[logs/]`: 상세 실행 로그

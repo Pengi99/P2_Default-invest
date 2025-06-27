@@ -8,11 +8,23 @@ data:
   
 # 데이터 분할 설정
 data_split:
-  train_ratio: 0.5    # 50%
-  val_ratio: 0.3      # 30%
-  test_ratio: 0.2     # 20%
-  random_state: 42
-  stratify: true      # 타겟 변수 기준 층화 샘플링
+  # 분할 방식: 'random' 또는 'timeseries'
+  split_method: "timeseries"
+  
+  # 시계열 분할 설정 (split_method가 'timeseries'일 때 사용)
+  timeseries:
+    time_column: "회계년도"  # 시간 기준 컬럼
+    train_end_year: 2017     # Train 데이터 마지막 년도 (포함)
+    val_end_year: 2020       # Validation 데이터 마지막 년도 (포함)
+    # Test는 val_end_year + 1부터 끝까지
+  
+  # 랜덤 분할 설정 (split_method가 'random'일 때 사용)
+  random:
+    train_ratio: 0.5    # 50%
+    val_ratio: 0.3      # 30%
+    test_ratio: 0.2     # 20%
+    random_state: 42
+    stratify: true      # 타겟 변수 기준 층화 샘플링
 
 # 결측치 처리 설정
 missing_data:
@@ -29,8 +41,8 @@ outlier_treatment:
   method: "winsorization"  # winsorization, iqr, zscore
   # 윈저라이징 설정
   winsorization:
-    lower_percentile: 0.005   # 하위 0.5%
-    upper_percentile: 0.995   # 상위 0.5% (양 옆 0.005씩)
+    lower_percentile: 0.001   # 하위 0.1%
+    upper_percentile: 0.999   # 상위 0.1% (양 옆 0.001씩)
   
 # 피처 엔지니어링
 feature_engineering:
@@ -82,9 +94,9 @@ experiment:
   # 실험 이름 (자동 생성하거나 수동 설정)
   name: null  # null이면 파일을 직접 data/final에 저장
   # 실험 설명
-  description: "기본 전처리 파이프라인 (스케일링 및 피처 선택 제외)"
+  description: "기본 전처리 파이프라인 (시계열 분할 적용, 스케일링 및 피처 선택 제외)"
   # 버전
-  version: "1.1"
+  version: "1.2"
   # 서브디렉토리 생성 여부 (false면 data/final에 직접 저장)
   create_subdirectory: false
 

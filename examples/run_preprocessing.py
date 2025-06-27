@@ -74,14 +74,14 @@ def main():
             X_train = pd.read_csv(X_train_path)
             feature_cols = list(X_train.columns)
             
-            print(f"\n🔍 피처 정보:")
-            print(f"   전체 피처 수: {len(feature_cols)}개")
-            print(f"   주요 피처들 (처음 10개):")
-            for i, feature in enumerate(feature_cols[:10], 1):
-                print(f"   {i:2d}. {feature}")
-            
-            if len(feature_cols) > 10:
-                print(f"   ... 외 {len(feature_cols) - 10}개")
+        print(f"\n🔍 피처 정보:")
+        print(f"   전체 피처 수: {len(feature_cols)}개")
+        print(f"   주요 피처들 (처음 10개):")
+        for i, feature in enumerate(feature_cols[:10], 1):
+            print(f"   {i:2d}. {feature}")
+        
+        if len(feature_cols) > 10:
+            print(f"   ... 외 {len(feature_cols) - 10}개")
         else:
             print(f"\n🔍 피처 정보:")
             print(f"   피처 파일을 찾을 수 없어 정보를 표시할 수 없습니다.")

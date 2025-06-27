@@ -247,9 +247,9 @@ all_vars_sorted = minmax_mean_comparison.sort_values('차이_절댓값', ascendi
 
 for i, var in enumerate(all_vars_sorted, 1):
     print(f"  {i:3d}/{len(all_vars_sorted)}: {var}")
-    
+
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
-    
+
     # 변수 타입 확인
     var_type = '절댓값' if var in absolute_value_vars else '비율/배수'
     
@@ -273,13 +273,13 @@ for i, var in enumerate(all_vars_sorted, 1):
     ax1.set_title(f'{var}\n평균값 비교 ({title_suffix})', fontweight='bold', fontsize=11)
     ax1.set_ylabel('평균값')
     ax1.grid(True, alpha=0.3)
-    
+
     # 값 표시
     for bar, val in zip(bars, [normal_val, default_val]):
         height = bar.get_height()
         ax1.text(bar.get_x() + bar.get_width()/2., height + abs(height)*0.02,
                f'{val:.4f}', ha='center', va='bottom', fontsize=10, fontweight='bold')
-    
+
     # 2. 차이값 표시
     color = 'red' if diff_val > 0 else 'blue'
     bar = ax2.bar(['차이 (부실-정상)'], [diff_val], color=color, alpha=0.8, edgecolor='black')
@@ -287,8 +287,8 @@ for i, var in enumerate(all_vars_sorted, 1):
     ax2.set_ylabel('차이값')
     ax2.grid(True, alpha=0.3)
     ax2.axhline(y=0, color='black', linestyle='-', alpha=0.5)
-    
-    # 차이값 표시
+
+# 차이값 표시
     height = bar[0].get_height()
     ax2.text(bar[0].get_x() + bar[0].get_width()/2., height + (abs(height)*0.02 if height >= 0 else -abs(height)*0.02),
            f'{height:+.4f}', ha='center', va='bottom' if height >= 0 else 'top', 
@@ -306,7 +306,7 @@ for i, var in enumerate(all_vars_sorted, 1):
         ax3.set_title(f'분포 비교 (박스플롯)', fontweight='bold', fontsize=11)
         ax3.set_ylabel('값')
         ax3.grid(True, alpha=0.3)
-    
+
     # 4. 히스토그램
     if len(data_normal) > 0 and len(data_default) > 0:
         # 이상치 제거를 위한 범위 설정
@@ -333,17 +333,17 @@ for i, var in enumerate(all_vars_sorted, 1):
             ax4.set_ylabel('밀도')
             ax4.legend()
             ax4.grid(True, alpha=0.3)
-    
+
     # 전체 제목 및 정보
     fig.suptitle(f'{var} ({var_type} 변수)\n순위: {i}/{len(all_vars_sorted)} (MinMax 차이 기준)', 
                 fontsize=14, fontweight='bold')
-    
-    plt.tight_layout()
+
+plt.tight_layout()
     
     # 파일명 안전하게 처리
     safe_filename = var.replace('/', '_').replace('\\', '_').replace(':', '_').replace('*', '_').replace('?', '_').replace('"', '_').replace('<', '_').replace('>', '_').replace('|', '_')
     plt.savefig(individual_viz_dir / f'{i:03d}_{safe_filename}.png', dpi=300, bbox_inches='tight')
-    plt.close()
+plt.close()
 
 
 
@@ -354,14 +354,14 @@ top_50_vars = all_vars_sorted[:50]
 # 10개씩 5개 그룹으로 나누어 생성
 for group_idx in range(0, len(top_50_vars), 10):
     group_vars = top_50_vars[group_idx:group_idx+10]
-    
+
     fig, axes = plt.subplots(2, 5, figsize=(25, 12))
-    axes = axes.flatten()
-    
+axes = axes.flatten()
+
     for i, var in enumerate(group_vars):
-        data_normal = normal_df[var].dropna()
-        data_default = default_df[var].dropna()
-        
+    data_normal = normal_df[var].dropna()
+    data_default = default_df[var].dropna()
+    
         if len(data_normal) > 0 and len(data_default) > 0:
             box_data = [data_normal, data_default]
             bp = axes[i].boxplot(box_data, labels=['정상', '부실'], patch_artist=True)
@@ -370,19 +370,19 @@ for group_idx in range(0, len(top_50_vars), 10):
             
             var_type = '절댓값' if var in absolute_value_vars else '비율'
             axes[i].set_title(f'{var}\n({var_type})', fontsize=10)
-            axes[i].grid(True, alpha=0.3)
-            axes[i].tick_params(axis='both', which='major', labelsize=8)
-    
+    axes[i].grid(True, alpha=0.3)
+    axes[i].tick_params(axis='both', which='major', labelsize=8)
+
     # 빈 서브플롯 숨기기
     for i in range(len(group_vars), len(axes)):
         axes[i].set_visible(False)
     
     plt.suptitle(f'박스플롯 비교 - 순위 {group_idx+1}~{min(group_idx+10, len(top_50_vars))}', 
                 fontsize=16, fontweight='bold')
-    plt.tight_layout()
+plt.tight_layout()
     plt.savefig(boxplot_viz_dir / f'boxplots_rank_{group_idx+1:02d}_{min(group_idx+10, len(top_50_vars)):02d}.png', 
                dpi=300, bbox_inches='tight')
-    plt.close()
+plt.close()
 
 # 7-3. 히스토그램 모음 생성 (상위 30개 변수)
 print("히스토그램 모음 생성 중...")
@@ -391,10 +391,10 @@ top_30_vars = all_vars_sorted[:30]
 # 6개씩 5개 그룹으로 나누어 생성
 for group_idx in range(0, len(top_30_vars), 6):
     group_vars = top_30_vars[group_idx:group_idx+6]
-    
-    fig, axes = plt.subplots(2, 3, figsize=(18, 12))
-    axes = axes.flatten()
-    
+
+fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+axes = axes.flatten()
+
     for i, var in enumerate(group_vars):
         data_normal = normal_df[var].dropna()
         data_default = default_df[var].dropna()
@@ -463,7 +463,7 @@ for i, var in enumerate(top_20_vars_scatter, 1):
         ax1.set_ylabel('값')
         ax1.legend()
         ax1.grid(True, alpha=0.3)
-        
+
         # 2. 확률밀도 추정 (KDE)
         try:
             from scipy import stats
@@ -485,7 +485,7 @@ for i, var in enumerate(top_20_vars_scatter, 1):
                     # KDE 계산
                     kde_normal = stats.gaussian_kde(data_normal_clean)
                     kde_default = stats.gaussian_kde(data_default_clean)
-                    
+
                     # x 범위 설정
                     x_min = min(data_normal_clean.min(), data_default_clean.min())
                     x_max = max(data_normal_clean.max(), data_default_clean.max())
@@ -501,7 +501,7 @@ for i, var in enumerate(top_20_vars_scatter, 1):
                     ax2.set_xlabel('값')
                     ax2.set_ylabel('확률밀도')
                     ax2.legend()
-                    ax2.grid(True, alpha=0.3)
+ax2.grid(True, alpha=0.3)
                 except (np.linalg.LinAlgError, ValueError) as e:
                     ax2.text(0.5, 0.5, f'KDE 생성 불가\n(데이터 특이성)\n{str(e)[:50]}...', 
                             ha='center', va='center', transform=ax2.transAxes, fontsize=10)
@@ -518,7 +518,7 @@ for i, var in enumerate(top_20_vars_scatter, 1):
     # 파일명 안전하게 처리
     safe_filename = var.replace('/', '_').replace('\\', '_').replace(':', '_').replace('*', '_').replace('?', '_').replace('"', '_').replace('<', '_').replace('>', '_').replace('|', '_')
     plt.savefig(scatter_viz_dir / f'{i:02d}_{safe_filename}_scatter.png', dpi=300, bbox_inches='tight')
-    plt.close()
+plt.close()
 
 print(f"\n📈 시각화 완료!")
 print(f"   📁 individual_charts/: 모든 변수별 개별 차트 ({len(all_vars_sorted)}개)")

@@ -34,9 +34,9 @@ plt.rcParams['font.family'] = 'AppleGothic' if plt.matplotlib.get_backend() != '
 plt.rcParams['axes.unicode_minus'] = False
 
 # 모델링 관련 라이브러리
-from sklearn.linear_model import LogisticRegression, LassoCV
+from sklearn.linear_model import LogisticRegression, LassoCV, LogisticRegressionCV
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_validate
 from sklearn.metrics import (
     roc_auc_score, precision_score, recall_score, f1_score,
     classification_report, confusion_matrix, roc_curve, auc,
@@ -46,9 +46,10 @@ from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler
 import xgboost as xgb
 import optuna
 from optuna.samplers import TPESampler
+# Permutation Importance와 SHAP는 각 메서드 내에서 import
 
 # 샘플링 라이브러리
-from imblearn.over_sampling import BorderlineSMOTE
+from imblearn.over_sampling import BorderlineSMOTE, SMOTE
 from imblearn.under_sampling import RandomUnderSampler, EditedNearestNeighbours, TomekLinks
 
 
@@ -210,14 +211,46 @@ class ModelingPipeline:
         config = self.config['sampling']['data_types'][data_type]
         
         if data_type == 'smote':
+            # 양성 샘플 수 확인
+            n_minority = (y == 1).sum()
+            k_neighbors = config.get('k_neighbors', 5)
+            
+            # 양성 샘플이 k_neighbors보다 적으면 조정
+            if n_minority <= k_neighbors:
+                if n_minority <= 1:
+                    self.logger.warning(f"SMOTE 적용 불가: 양성 샘플이 {n_minority}개뿐. 원본 데이터 반환")
+                    return X, y
+                k_neighbors = max(1, n_minority - 1)
+                self.logger.warning(f"k_neighbors를 {k_neighbors}로 조정 (양성 샘플: {n_minority}개)")
+            
+            try:
+                # BorderlineSMOTE 시도
             smote = BorderlineSMOTE(
                 sampling_strategy=config['sampling_strategy'],
-                random_state=config.get('random_state', self.config['random_state']),
-                k_neighbors=config.get('k_neighbors', 5),
-                m_neighbors=config.get('m_neighbors', 10),
-                kind=config.get('kind', 'borderline-1')
-            )
-            return smote.fit_resample(X, y)
+                    random_state=config.get('random_state', self.config['random_state']),
+                    k_neighbors=k_neighbors,
+                    m_neighbors=min(config.get('m_neighbors', 10), k_neighbors),
+                    kind=config.get('kind', 'borderline-1')
+                )
+                X_resampled, y_resampled = smote.fit_resample(X, y)
+                return pd.DataFrame(X_resampled, columns=X.columns), pd.Series(y_resampled)
+                
+            except Exception as e:
+                self.logger.warning(f"BorderlineSMOTE 실패 ({e}), 일반 SMOTE로 대체")
+                try:
+                    # 일반 SMOTE로 대체
+                    from imblearn.over_sampling import SMOTE
+                    smote = SMOTE(
+                        sampling_strategy=config['sampling_strategy'],
+                        random_state=config.get('random_state', self.config['random_state']),
+                        k_neighbors=k_neighbors
+                    )
+                    X_resampled, y_resampled = smote.fit_resample(X, y)
+                    return pd.DataFrame(X_resampled, columns=X.columns), pd.Series(y_resampled)
+                    
+                except Exception as e2:
+                    self.logger.warning(f"일반 SMOTE도 실패 ({e2}), 원본 데이터 반환")
+                    return X, y
         
         elif data_type == 'undersampling':
             method = config.get('method', 'random')
@@ -243,19 +276,51 @@ class ModelingPipeline:
                     random_state=config.get('random_state', self.config['random_state'])
                 )
             
-            return undersampler.fit_resample(X, y)
+            X_resampled, y_resampled = undersampler.fit_resample(X, y)
+            return pd.DataFrame(X_resampled, columns=X.columns), pd.Series(y_resampled)
         
         elif data_type == 'combined':
             # 1단계: SMOTE 적용
             smote_config = config['smote']
+            
+            # 양성 샘플 수 확인
+            n_minority = (y == 1).sum()
+            k_neighbors = smote_config.get('k_neighbors', 5)
+            
+            # 양성 샘플이 k_neighbors보다 적으면 조정
+            if n_minority <= k_neighbors:
+                if n_minority <= 1:
+                    self.logger.warning(f"Combined SMOTE 적용 불가: 양성 샘플이 {n_minority}개뿐. 원본 데이터 반환")
+                    return X, y
+                k_neighbors = max(1, n_minority - 1)
+                self.logger.warning(f"Combined k_neighbors를 {k_neighbors}로 조정 (양성 샘플: {n_minority}개)")
+            
+            try:
+                # BorderlineSMOTE 시도
             smote = BorderlineSMOTE(
-                sampling_strategy=smote_config['sampling_strategy'],
-                random_state=smote_config.get('random_state', self.config['random_state']),
-                k_neighbors=smote_config.get('k_neighbors', 5),
-                m_neighbors=smote_config.get('m_neighbors', 10),
-                kind=smote_config.get('kind', 'borderline-1')
+                    sampling_strategy=smote_config['sampling_strategy'],
+                    random_state=smote_config.get('random_state', self.config['random_state']),
+                    k_neighbors=k_neighbors,
+                    m_neighbors=min(smote_config.get('m_neighbors', 10), k_neighbors),
+                    kind=smote_config.get('kind', 'borderline-1')
             )
             X_smote, y_smote = smote.fit_resample(X, y)
+                
+            except Exception as e:
+                self.logger.warning(f"Combined BorderlineSMOTE 실패 ({e}), 일반 SMOTE로 대체")
+                try:
+                    # 일반 SMOTE로 대체
+                    from imblearn.over_sampling import SMOTE
+                    smote = SMOTE(
+                        sampling_strategy=smote_config['sampling_strategy'],
+                        random_state=smote_config.get('random_state', self.config['random_state']),
+                        k_neighbors=k_neighbors
+                    )
+                    X_smote, y_smote = smote.fit_resample(X, y)
+                    
+                except Exception as e2:
+                    self.logger.warning(f"Combined 일반 SMOTE도 실패 ({e2}), 원본 데이터로 언더샘플링만 적용")
+                    X_smote, y_smote = X, y
             
             # 2단계: 언더샘플링 적용
             undersampling_config = config['undersampling']
@@ -263,7 +328,7 @@ class ModelingPipeline:
             # 언더샘플링 방법에 따른 선택
             method = undersampling_config.get('method', 'random')
             if method == 'random':
-                undersampler = RandomUnderSampler(
+            undersampler = RandomUnderSampler(
                     sampling_strategy=undersampling_config['sampling_strategy'],
                     random_state=undersampling_config.get('random_state', self.config['random_state'])
                 )
@@ -285,7 +350,7 @@ class ModelingPipeline:
             
             X_combined, y_combined = undersampler.fit_resample(X_smote, y_smote)
             
-            return X_combined, y_combined
+            return pd.DataFrame(X_combined, columns=X.columns), pd.Series(y_combined)
         
         else:
             self.logger.warning(f"알 수 없는 데이터 타입: {data_type}, 원본 데이터 반환")
@@ -293,7 +358,7 @@ class ModelingPipeline:
     
     def apply_scaling(self, X_train: pd.DataFrame, X_val: pd.DataFrame, X_test: pd.DataFrame, data_type: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, Dict]:
         """
-        컬럼별 스케일링 적용 (존재하지 않는 컬럼은 자동으로 건너뛰기)
+        컬럼별 스케일링 적용 (Log 변환 포함, 존재하지 않는 컬럼은 자동으로 건너뛰기)
         
         Args:
             X_train: 훈련 데이터
@@ -320,7 +385,7 @@ class ModelingPipeline:
             if not columns:
                 self.logger.info(f"{scaler_type} 그룹에 설정된 컬럼이 없습니다")
                 continue
-            
+                
             # 실제 존재하는 컬럼과 존재하지 않는 컬럼 구분
             existing_columns = [col for col in columns if col in total_available_columns]
             missing_columns = [col for col in columns if col not in total_available_columns]
@@ -345,31 +410,41 @@ class ModelingPipeline:
                 continue
             
             try:
-                # 스케일러 생성
-                if scaler_type.lower() == 'standard':
-                    scaler = StandardScaler()
-                elif scaler_type.lower() == 'robust':
-                    scaler = RobustScaler()
-                elif scaler_type.lower() == 'minmax':
-                    scaler = MinMaxScaler()
+                # 스케일러 생성 및 적용
+                if scaler_type.lower() == 'log':
+                    # 로그 변환 처리
+                    self._apply_log_transform(X_train, X_val, X_test, existing_columns, scaler_type)
+                    scalers[scaler_type] = {
+                        'scaler': 'log_transform',
+                        'columns': existing_columns,
+                        'missing_columns': missing_columns
+                    }
                 else:
-                    self.logger.warning(f"지원하지 않는 스케일링 방법: {scaler_type}, Standard 스케일링을 사용합니다")
-                    scaler = StandardScaler()
-                
-                # 훈련 데이터로 스케일러 피팅
-                scaler.fit(X_train[existing_columns])
-                
-                # 스케일링 적용
-                X_train.loc[:, existing_columns] = scaler.transform(X_train[existing_columns])
-                X_val.loc[:, existing_columns] = scaler.transform(X_val[existing_columns])
-                X_test.loc[:, existing_columns] = scaler.transform(X_test[existing_columns])
-                
-                # 스케일러 정보 저장
-                scalers[scaler_type] = {
-                    'scaler': scaler,
-                    'columns': existing_columns,
-                    'missing_columns': missing_columns
-                }
+                    # 기존 스케일러들
+            if scaler_type.lower() == 'standard':
+                scaler = StandardScaler()
+            elif scaler_type.lower() == 'robust':
+                scaler = RobustScaler()
+            elif scaler_type.lower() == 'minmax':
+                scaler = MinMaxScaler()
+            else:
+                        self.logger.warning(f"지원하지 않는 스케일링 방법: {scaler_type}, Standard 스케일링을 사용합니다")
+                scaler = StandardScaler()
+            
+            # 훈련 데이터로 스케일러 피팅
+            scaler.fit(X_train[existing_columns])
+            
+            # 스케일링 적용
+            X_train.loc[:, existing_columns] = scaler.transform(X_train[existing_columns])
+            X_val.loc[:, existing_columns] = scaler.transform(X_val[existing_columns])
+            X_test.loc[:, existing_columns] = scaler.transform(X_test[existing_columns])
+            
+                    # 스케일러 정보 저장
+            scalers[scaler_type] = {
+                'scaler': scaler,
+                        'columns': existing_columns,
+                        'missing_columns': missing_columns
+                    }
                 
                 # 처리된 컬럼 추적
                 total_processed_columns.update(existing_columns)
@@ -415,32 +490,149 @@ class ModelingPipeline:
         
         return X_train, X_val, X_test, scalers
     
-    def apply_lasso_feature_selection(self, data_type: str = 'normal'):
-        """Lasso 특성 선택 적용"""
+    def _apply_log_transform(self, X_train: pd.DataFrame, X_val: pd.DataFrame, X_test: pd.DataFrame, columns: List[str], scaler_type: str):
+        """
+        로그 변환 적용 (음수/0 값 처리 포함)
+        
+        Args:
+            X_train, X_val, X_test: 데이터프레임들
+            columns: 변환할 컬럼 리스트
+            scaler_type: 스케일러 타입 (로깅용)
+        """
+        for col in columns:
+            for df_name, df in [('Train', X_train), ('Val', X_val), ('Test', X_test)]:
+                # 음수 또는 0 값 확인
+                min_val = df[col].min()
+                
+                if min_val <= 0:
+                    # 음수나 0이 있는 경우 shift 적용 (최소값을 1로 만들기)
+                    shift_value = 1 - min_val
+                    self.logger.info(f"{scaler_type} - {col} ({df_name}): 최소값 {min_val:.4f}, shift {shift_value:.4f} 적용")
+                    df[col] = np.log1p(df[col] + shift_value)  # log1p = log(1+x)
+                else:
+                    # 양수만 있는 경우 직접 로그 변환
+                    df[col] = np.log1p(df[col])  # log1p는 수치적으로 더 안정적
+    
+    def apply_feature_selection(self, data_type: str = 'normal'):
+        """이진 분류용 특성 선택 적용"""
         if not self.config['feature_selection']['enabled']:
+            self.logger.info("특성 선택이 비활성화되어 있습니다.")
             return
         
-        self.logger.info(f"Lasso 특성 선택 적용 ({data_type.upper()})")
+        method = self.config['feature_selection'].get('method', 'logistic_regression_cv')
+        self.logger.info(f"특성 선택 방법: {method.upper()} ({data_type.upper()})")
         
         X_train = self.data[data_type]['X_train']
         y_train = self.data[data_type]['y_train']
+        
+        if method == 'logistic_regression_cv':
+            selected_features, selection_results = self._apply_logistic_regression_cv_selection(X_train, y_train)
+        elif method == 'lasso_cv':
+            # 기존 LassoCV 방법 (연속 회귀용이지만 참고용으로 유지)
+            selected_features, selection_results = self._apply_lasso_cv_selection(X_train, y_train)
+        elif method == 'permutation_importance':
+            selected_features, selection_results = self._apply_permutation_importance_selection(X_train, y_train)
+        elif method == 'shap':
+            selected_features, selection_results = self._apply_shap_selection(X_train, y_train)
+        else:
+            self.logger.warning(f"지원하지 않는 특성 선택 방법: {method}, LogisticRegressionCV 사용")
+            selected_features, selection_results = self._apply_logistic_regression_cv_selection(X_train, y_train)
+        
+        # 모든 데이터 타입에 동일한 특성 적용
+        enabled_data_types = [dt for dt, config in self.config['sampling']['data_types'].items() if config['enabled']]
+        for dt in enabled_data_types:
+            for split in ['X_train', 'X_val', 'X_test']:
+                self.data[dt][split] = self.data[dt][split][selected_features]
+        
+        self.logger.info(f"선택된 특성: {len(selected_features)}/{len(X_train.columns)}")
+        
+        # 결과 저장
+        self.results['modeling_steps']['feature_selection'] = selection_results
+        
+        # 파일로 저장
+        with open(self.output_dir / 'results' / f'{method}_selection.json', 'w', encoding='utf-8') as f:
+            json.dump(selection_results, f, indent=2, ensure_ascii=False)
+    
+    def _apply_logistic_regression_cv_selection(self, X_train: pd.DataFrame, y_train: pd.Series):
+        """LogisticRegressionCV를 이용한 특성 선택 (이진 분류 전용)"""
+        from sklearn.linear_model import LogisticRegressionCV
+        from sklearn.preprocessing import StandardScaler
+        
+        config = self.config['feature_selection']['logistic_regression_cv']
+        
+        # 스케일링 (L1 정규화를 위해 필수)
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        
+        # LogisticRegressionCV
+        logistic_cv = LogisticRegressionCV(
+            Cs=config['Cs'],
+            cv=config['cv_folds'],
+            penalty=config['penalty'],
+            solver=config['solver'],
+            max_iter=config['max_iter'],
+            scoring=config.get('scoring', 'roc_auc'),
+            random_state=self.config['random_state'],
+            n_jobs=self.config.get('performance', {}).get('n_jobs', 1)
+        )
+        
+        logistic_cv.fit(X_train_scaled, y_train)
+        
+        # 특성 선택
+        threshold = config['threshold']
+        coefficients = logistic_cv.coef_[0]  # 이진 분류의 경우 (1, n_features)
+        
+        if threshold == 'median':
+            threshold_value = np.median(np.abs(coefficients[coefficients != 0]))
+        elif threshold == 'mean':
+            threshold_value = np.mean(np.abs(coefficients[coefficients != 0]))
+        else:
+            threshold_value = float(threshold)
+        
+        selected_mask = np.abs(coefficients) >= threshold_value
+        selected_features = X_train.columns[selected_mask].tolist()
+        
+        self.logger.info(f"최적 C: {logistic_cv.C_[0]:.6f}")
+        self.logger.info(f"CV 점수: {logistic_cv.scores_[1].mean():.4f} (±{logistic_cv.scores_[1].std():.4f})")
+        
+        # 결과 저장
+        selection_results = {
+            'method': 'logistic_regression_cv',
+            'optimal_C': float(logistic_cv.C_[0]),
+            'cv_scores_mean': float(logistic_cv.scores_[1].mean()),
+            'cv_scores_std': float(logistic_cv.scores_[1].std()),
+            'threshold_value': float(threshold_value),
+            'original_features': len(X_train.columns),
+            'selected_features': len(selected_features),
+            'selected_feature_names': selected_features,
+            'feature_coefficients': dict(zip(X_train.columns, coefficients)),
+            'penalty': config['penalty'],
+            'solver': config['solver']
+        }
+        
+        return selected_features, selection_results
+    
+    def _apply_lasso_cv_selection(self, X_train: pd.DataFrame, y_train: pd.Series):
+        """기존 LassoCV 방법 (연속 회귀용)"""
+        from sklearn.preprocessing import StandardScaler
+        
+        config = self.config['feature_selection']['lasso_cv']
         
         # 스케일링
         scaler = StandardScaler()
         X_train_scaled = scaler.fit_transform(X_train)
         
         # Lasso CV
-        lasso_config = self.config['feature_selection']['lasso']
         lasso_cv = LassoCV(
-            alphas=lasso_config['alphas'],
-            cv=lasso_config['cv_folds'],
+            alphas=config['alphas'],
+            cv=config['cv_folds'],
             random_state=self.config['random_state'],
             n_jobs=self.config.get('performance', {}).get('n_jobs', 1)
         )
         lasso_cv.fit(X_train_scaled, y_train)
         
         # 특성 선택
-        threshold = lasso_config['threshold']
+        threshold = config['threshold']
         if threshold == 'median':
             threshold_value = np.median(np.abs(lasso_cv.coef_[lasso_cv.coef_ != 0]))
         elif threshold == 'mean':
@@ -452,16 +644,10 @@ class ModelingPipeline:
         selected_features = X_train.columns[selected_mask].tolist()
         
         self.logger.info(f"최적 alpha: {lasso_cv.alpha_:.6f}")
-        self.logger.info(f"선택된 특성: {len(selected_features)}/{len(X_train.columns)}")
-        
-        # 모든 데이터 타입에 동일한 특성 적용
-        enabled_data_types = [dt for dt, config in self.config['sampling']['data_types'].items() if config['enabled']]
-        for dt in enabled_data_types:
-            for split in ['X_train', 'X_val', 'X_test']:
-                self.data[dt][split] = self.data[dt][split][selected_features]
         
         # 결과 저장
-        lasso_results = {
+        selection_results = {
+            'method': 'lasso_cv',
             'optimal_alpha': float(lasso_cv.alpha_),
             'threshold_value': float(threshold_value),
             'original_features': len(X_train.columns),
@@ -470,11 +656,268 @@ class ModelingPipeline:
             'feature_coefficients': dict(zip(X_train.columns, lasso_cv.coef_))
         }
         
-        self.results['modeling_steps']['feature_selection'] = lasso_results
+        return selected_features, selection_results
+    
+    def _apply_permutation_importance_selection(self, X_train: pd.DataFrame, y_train: pd.Series):
+        """Permutation Importance를 이용한 특성 선택"""
+        from sklearn.inspection import permutation_importance
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.ensemble import RandomForestClassifier
+        from sklearn.preprocessing import StandardScaler
+        import xgboost as xgb
         
-        # 파일로 저장
-        with open(self.output_dir / 'results' / 'lasso_selection.json', 'w', encoding='utf-8') as f:
-            json.dump(lasso_results, f, indent=2, ensure_ascii=False)
+        config = self.config['feature_selection']['permutation_importance']
+        estimator_name = config.get('base_estimator', 'random_forest')
+        
+        self.logger.info(f"Permutation Importance 기본 모델: {estimator_name}")
+        
+        # 기본 추정기 생성
+        estimator_params = config.get('estimator_params', {}).get(estimator_name, {})
+        
+        if estimator_name == 'random_forest':
+            estimator = RandomForestClassifier(
+                random_state=self.config['random_state'],
+                n_jobs=-1,
+                **estimator_params
+            )
+            X_train_processed = X_train.values
+        elif estimator_name == 'logistic_regression':
+            # 로지스틱 회귀는 스케일링 필요
+            scaler = StandardScaler()
+            X_train_processed = scaler.fit_transform(X_train)
+            estimator = LogisticRegression(
+                random_state=self.config['random_state'],
+                **estimator_params
+            )
+        elif estimator_name == 'xgboost':
+            estimator = xgb.XGBClassifier(
+                objective='binary:logistic',
+                eval_metric='auc',
+                random_state=self.config['random_state'],
+                n_jobs=-1,
+                verbosity=0,
+                **estimator_params
+            )
+            X_train_processed = X_train.values
+        else:
+            raise ValueError(f"지원하지 않는 estimator: {estimator_name}")
+        
+        # 모델 훈련
+        self.logger.info("기본 모델 훈련 중...")
+        estimator.fit(X_train_processed, y_train)
+        
+        # Permutation Importance 계산
+        self.logger.info("Permutation Importance 계산 중...")
+        perm_importance = permutation_importance(
+            estimator, X_train_processed, y_train,
+            n_repeats=config.get('n_repeats', 10),
+            random_state=config.get('random_state', self.config['random_state']),
+            scoring=config.get('scoring', 'roc_auc'),
+            n_jobs=self.config.get('performance', {}).get('n_jobs', 1)
+        )
+        
+        # 특성 선택
+        threshold = config['threshold']
+        importance_scores = perm_importance.importances_mean
+        
+        if threshold == 'median':
+            threshold_value = np.median(importance_scores[importance_scores > 0])
+        elif threshold == 'mean':
+            threshold_value = np.mean(importance_scores[importance_scores > 0])
+        else:
+            threshold_value = float(threshold)
+        
+        selected_mask = importance_scores >= threshold_value
+        selected_features = X_train.columns[selected_mask].tolist()
+        
+        # max_features 제한 적용
+        max_features = config.get('max_features')
+        if max_features and len(selected_features) > max_features:
+            # 중요도 순으로 정렬하여 상위 max_features개만 선택
+            feature_importance_pairs = list(zip(X_train.columns, importance_scores))
+            feature_importance_pairs.sort(key=lambda x: x[1], reverse=True)
+            selected_features = [pair[0] for pair in feature_importance_pairs[:max_features]]
+        
+        self.logger.info(f"임계값: {threshold_value:.6f}")
+        self.logger.info(f"평균 중요도: {importance_scores.mean():.6f} (±{perm_importance.importances_std.mean():.6f})")
+        
+        # 결과 저장
+        selection_results = {
+            'method': 'permutation_importance',
+            'base_estimator': estimator_name,
+            'n_repeats': config.get('n_repeats', 10),
+            'scoring': config.get('scoring', 'roc_auc'),
+            'threshold_value': float(threshold_value),
+            'original_features': len(X_train.columns),
+            'selected_features': len(selected_features),
+            'selected_feature_names': selected_features,
+            'feature_importances': dict(zip(X_train.columns, importance_scores)),
+            'feature_importances_std': dict(zip(X_train.columns, perm_importance.importances_std)),
+            'estimator_params': estimator_params
+        }
+        
+        return selected_features, selection_results
+    
+    def _apply_shap_selection(self, X_train: pd.DataFrame, y_train: pd.Series):
+        """SHAP를 이용한 특성 선택"""
+        try:
+            import shap
+        except ImportError:
+            raise ImportError("SHAP 패키지가 설치되지 않았습니다. 'pip install shap' 명령으로 설치해주세요.")
+        
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.ensemble import RandomForestClassifier
+        from sklearn.preprocessing import StandardScaler
+        import xgboost as xgb
+        
+        config = self.config['feature_selection']['shap']
+        estimator_name = config.get('base_estimator', 'random_forest')
+        
+        self.logger.info(f"SHAP 기본 모델: {estimator_name}")
+        
+        # 기본 추정기 생성
+        estimator_params = config.get('estimator_params', {}).get(estimator_name, {})
+        
+        if estimator_name == 'random_forest':
+            estimator = RandomForestClassifier(
+                random_state=self.config['random_state'],
+                n_jobs=-1,
+                **estimator_params
+            )
+            X_train_processed = X_train
+        elif estimator_name == 'logistic_regression':
+            # 로지스틱 회귀는 스케일링 필요
+            scaler = StandardScaler()
+            X_train_scaled = scaler.fit_transform(X_train)
+            X_train_processed = pd.DataFrame(X_train_scaled, columns=X_train.columns, index=X_train.index)
+            estimator = LogisticRegression(
+                random_state=self.config['random_state'],
+                **estimator_params
+            )
+        elif estimator_name == 'xgboost':
+            estimator = xgb.XGBClassifier(
+                objective='binary:logistic',
+                eval_metric='auc',
+                random_state=self.config['random_state'],
+                n_jobs=-1,
+                verbosity=0,
+                **estimator_params
+            )
+            X_train_processed = X_train
+        else:
+            raise ValueError(f"지원하지 않는 estimator: {estimator_name}")
+        
+        # 모델 훈련
+        self.logger.info("기본 모델 훈련 중...")
+        estimator.fit(X_train_processed, y_train)
+        
+        # 샘플 크기 조정 (SHAP 계산 속도 개선)
+        sample_size = config.get('sample_size', 1000)
+        if len(X_train_processed) > sample_size:
+            sample_indices = np.random.choice(len(X_train_processed), sample_size, replace=False)
+            X_sample = X_train_processed.iloc[sample_indices]
+        else:
+            X_sample = X_train_processed
+        
+        # SHAP Explainer 생성
+        self.logger.info("SHAP Explainer 생성 중...")
+        explainer_type = config.get('explainer_type', 'auto')
+        
+        try:
+            if explainer_type == 'auto':
+                # 모델 타입에 따라 자동 선택
+                if estimator_name == 'random_forest':
+                    explainer = shap.TreeExplainer(estimator)
+                elif estimator_name == 'xgboost':
+                    explainer = shap.TreeExplainer(estimator)
+                else:  # logistic_regression
+                    explainer = shap.LinearExplainer(estimator, X_sample)
+            elif explainer_type == 'tree':
+                explainer = shap.TreeExplainer(estimator)
+            elif explainer_type == 'linear':
+                explainer = shap.LinearExplainer(estimator, X_sample)
+            elif explainer_type == 'kernel':
+                explainer = shap.KernelExplainer(estimator.predict_proba, X_sample.iloc[:100])  # 작은 배경 샘플
+            elif explainer_type == 'permutation':
+                explainer = shap.PermutationExplainer(estimator.predict_proba, X_sample.iloc[:100])
+            else:
+                raise ValueError(f"지원하지 않는 explainer_type: {explainer_type}")
+        except Exception as e:
+            self.logger.warning(f"지정된 explainer 생성 실패 ({e}), Permutation Explainer로 대체")
+            explainer = shap.PermutationExplainer(estimator.predict_proba, X_sample.iloc[:100])
+        
+        # SHAP 값 계산
+        self.logger.info("SHAP 값 계산 중...")
+        try:
+            if explainer_type in ['kernel', 'permutation']:
+                shap_values = explainer(X_sample)
+                if hasattr(shap_values, 'values') and len(shap_values.values.shape) == 3:
+                    # 이진 분류의 경우 양성 클래스 SHAP 값 사용
+                    shap_values_array = shap_values.values[:, :, 1]
+                else:
+                    shap_values_array = shap_values.values
+            else:
+                shap_values = explainer.shap_values(X_sample)
+                if isinstance(shap_values, list):
+                    # 이진 분류의 경우 양성 클래스 SHAP 값 사용
+                    shap_values_array = shap_values[1]
+                else:
+                    shap_values_array = shap_values
+        except Exception as e:
+            self.logger.warning(f"SHAP 값 계산 실패 ({e}), 기본 feature importance 사용")
+            if hasattr(estimator, 'feature_importances_'):
+                shap_values_array = estimator.feature_importances_.reshape(1, -1)
+            else:
+                # 로지스틱 회귀의 경우 계수의 절댓값 사용
+                shap_values_array = np.abs(estimator.coef_).reshape(1, -1)
+        
+        # 특성별 평균 절댓값 SHAP 값 계산
+        mean_abs_shap = np.mean(np.abs(shap_values_array), axis=0)
+        
+        # 특성 선택
+        threshold = config['threshold']
+        
+        if threshold == 'median':
+            threshold_value = np.median(mean_abs_shap[mean_abs_shap > 0])
+        elif threshold == 'mean':
+            threshold_value = np.mean(mean_abs_shap[mean_abs_shap > 0])
+        else:
+            threshold_value = float(threshold)
+        
+        selected_mask = mean_abs_shap >= threshold_value
+        selected_features = X_train.columns[selected_mask].tolist()
+        
+        # max_features 제한 적용
+        max_features = config.get('max_features')
+        if max_features and len(selected_features) > max_features:
+            # SHAP 값 순으로 정렬하여 상위 max_features개만 선택
+            feature_shap_pairs = list(zip(X_train.columns, mean_abs_shap))
+            feature_shap_pairs.sort(key=lambda x: x[1], reverse=True)
+            selected_features = [pair[0] for pair in feature_shap_pairs[:max_features]]
+        
+        self.logger.info(f"임계값: {threshold_value:.6f}")
+        self.logger.info(f"평균 |SHAP|: {mean_abs_shap.mean():.6f} (±{mean_abs_shap.std():.6f})")
+        
+        # 결과 저장
+        selection_results = {
+            'method': 'shap',
+            'base_estimator': estimator_name,
+            'explainer_type': explainer_type,
+            'sample_size': len(X_sample),
+            'threshold_value': float(threshold_value),
+            'original_features': len(X_train.columns),
+            'selected_features': len(selected_features),
+            'selected_feature_names': selected_features,
+            'mean_abs_shap_values': dict(zip(X_train.columns, mean_abs_shap)),
+            'estimator_params': estimator_params
+        }
+        
+        return selected_features, selection_results
+    
+    # 기존 메서드명 호환성을 위한 별칭
+    def apply_lasso_feature_selection(self, data_type: str = 'normal'):
+        """기존 메서드명 호환성을 위한 별칭"""
+        return self.apply_feature_selection(data_type)
     
     def optimize_model(self, model_name: str, data_type: str):
         """모델 최적화"""
@@ -495,6 +938,13 @@ class ModelingPipeline:
     def _optimize_logistic_regression(self, X_train: pd.DataFrame, y_train: pd.Series, data_type: str):
         """로지스틱 회귀 최적화"""
         config = self.config['models']['logistic_regression']
+        optimization_config = self.config['models'].get('optimization', {})
+        primary_metric = optimization_config.get('primary_metric', 'roc_auc')
+        
+        # Config에서 class_weight 설정 가져오기
+        class_weight = config.get('class_weight', 'balanced')
+        self.logger.info(f"Logistic Regression 클래스 불균형 가중치: class_weight={class_weight}")
+        self.logger.info(f"최적화 메트릭: {primary_metric.upper()}")
         
         def objective(trial):
             # penalty와 solver 조합 선택 (수렴성이 좋은 조합 우선)
@@ -517,20 +967,14 @@ class ModelingPipeline:
             penalty, solver = combination.split('_', 1)
             
             C = trial.suggest_float('C', *config['C_range'], log=True)
-            
-            # solver별로 적절한 max_iter 설정
-            if solver in ['newton-cg', 'lbfgs']:
-                max_iter = trial.suggest_int('max_iter', 500, 2000)  # 더 많은 반복
-            elif solver == 'liblinear':
-                max_iter = trial.suggest_int('max_iter', 300, 1500)
-            else:  # saga
-                max_iter = trial.suggest_int('max_iter', 1000, 3000)  # SAGA는 더 많이 필요
+            max_iter = trial.suggest_int('max_iter', *config['max_iter_range'])
             
             params = {
                 'penalty': penalty,
                 'C': C,
                 'solver': solver,
                 'max_iter': max_iter,
+                'class_weight': class_weight,  # Config에서 가져온 클래스 가중치 적용
                 'random_state': self.config['random_state'],
                 'tol': 1e-4  # 수렴 기준 완화
             }
@@ -541,20 +985,10 @@ class ModelingPipeline:
             model = LogisticRegression(**params)
             
             try:
-                # Cross validation (이미 전처리된 데이터 사용)
-                skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.config['random_state'])
-                
-                # 모든 경고를 캐치하여 처리 (LineSearchWarning, ConvergenceWarning 포함)
-                with warnings.catch_warnings(record=True) as w:
-                    warnings.simplefilter("always")
-                    scores = cross_val_score(model, X_train, y_train, cv=skf, scoring='roc_auc', n_jobs=1)  # n_jobs=1로 안정성 증대
-                    
-                    # 수렴 관련 경고가 있으면 낮은 점수 반환
-                    for warning in w:
-                        if 'converge' in str(warning.message).lower() or 'line search' in str(warning.message).lower():
-                            return 0.5
-                
-                return scores.mean()
+                # Cross validation with proper sampling (데이터 누수 방지)
+                scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=5, scoring=primary_metric)
+            
+            return scores.mean()
                 
             except (Warning, Exception):
                 # 모든 예외에 대해 낮은 점수 반환
@@ -580,61 +1014,23 @@ class ModelingPipeline:
         best_params['penalty'] = penalty
         best_params['solver'] = solver
         best_params['tol'] = 1e-4
+        best_params['class_weight'] = class_weight  # Config에서 가져온 클래스 가중치 적용
         
         model = LogisticRegression(**best_params)
         
-        # 모델 훈련 (수렴하지 않을 경우 max_iter 증가 및 파라미터 조정)
-        retry_count = 0
-        max_retries = 3
+        # 최종 모델 훈련: 전체 훈련 데이터에 스케일링 → 샘플링 적용
+        X_train_scaled, _, _, scalers = self.apply_scaling(
+            X_train.copy(),
+            X_train.copy(),  # 더미 데이터
+            X_train.copy(),  # 더미 데이터
+            data_type
+        )
         
-        while retry_count < max_retries:
-            try:
-                with warnings.catch_warnings(record=True) as w:
-                    warnings.simplefilter("always")
-                    model.fit(X_train, y_train)
-                    
-                    # 경고가 있는지 확인
-                    has_convergence_warning = any(
-                        'converge' in str(warning.message).lower() or 'line search' in str(warning.message).lower()
-                        for warning in w
-                    )
-                    
-                    if not has_convergence_warning:
-                        break  # 경고가 없으면 성공
-                    else:
-                        raise Warning("Convergence warning detected")
-                        
-            except (Warning, Exception) as e:
-                retry_count += 1
-                if retry_count >= max_retries:
-                    self.logger.warning(f"최대 재시도 횟수 도달. 현재 모델을 사용합니다. (최종 에러: {e})")
-                    break
-                
-                self.logger.warning(f"수렴 실패 (재시도 {retry_count}/{max_retries}). 파라미터를 조정합니다.")
-                
-                # 파라미터 조정 전략
-                if retry_count == 1:
-                    # 1차 시도: max_iter 증가 및 tolerance 완화
-                    best_params['max_iter'] = min(best_params.get('max_iter', 1000) * 2, 10000)
-                    best_params['tol'] = 1e-3
-                elif retry_count == 2:
-                    # 2차 시도: 더 안정적인 solver로 변경
-                    if best_params['solver'] in ['saga', 'liblinear']:
-                        best_params['solver'] = 'lbfgs'
-                        if best_params['penalty'] == 'l1':
-                            best_params['penalty'] = 'l2'  # lbfgs는 l1을 지원하지 않음
-                    best_params['max_iter'] = 5000
-                    best_params['tol'] = 1e-2
-                elif retry_count == 3:
-                    # 3차 시도: 가장 안정적인 설정
-                    best_params.update({
-                        'solver': 'newton-cg',
-                        'penalty': 'l2',
-                        'max_iter': 10000,
-                        'tol': 1e-2
-                    })
-                
-                model = LogisticRegression(**best_params)
+        X_train_final, y_train_final = self.apply_sampling_strategy(
+            X_train_scaled, y_train, data_type
+        )
+        
+        model.fit(X_train_final, y_train_final)
         
         self.logger.info(f"최적 AUC: {study.best_value:.4f}")
         self.logger.info(f"최적 파라미터: {best_params}")
@@ -644,6 +1040,13 @@ class ModelingPipeline:
     def _optimize_random_forest(self, X_train: pd.DataFrame, y_train: pd.Series, data_type: str):
         """랜덤 포레스트 최적화"""
         config = self.config['models']['random_forest']
+        optimization_config = self.config['models'].get('optimization', {})
+        primary_metric = optimization_config.get('primary_metric', 'roc_auc')
+        
+        # Config에서 class_weight 설정 가져오기
+        class_weight = config.get('class_weight', 'balanced')
+        self.logger.info(f"Random Forest 클래스 불균형 가중치: class_weight={class_weight}")
+        self.logger.info(f"최적화 메트릭: {primary_metric.upper()}")
         
         def objective(trial):
             params = {
@@ -652,15 +1055,15 @@ class ModelingPipeline:
                 'min_samples_split': trial.suggest_int('min_samples_split', *config['min_samples_split_range']),
                 'min_samples_leaf': trial.suggest_int('min_samples_leaf', *config['min_samples_leaf_range']),
                 'max_features': trial.suggest_float('max_features', *config['max_features_range']),
+                'class_weight': class_weight,  # Config에서 가져온 클래스 가중치 적용
                 'random_state': self.config['random_state'],
                 'n_jobs': -1
             }
             
             model = RandomForestClassifier(**params)
             
-            # Cross validation (이미 전처리된 데이터 사용)
-            skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.config['random_state'])
-            scores = cross_val_score(model, X_train, y_train, cv=skf, scoring='roc_auc', n_jobs=-1)
+            # Cross validation with proper sampling (데이터 누수 방지)
+            scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=5, scoring=primary_metric)
             
             return scores.mean()
         
@@ -676,10 +1079,22 @@ class ModelingPipeline:
         
         # 최적 모델 훈련
         best_params = study.best_params
+        best_params['class_weight'] = class_weight  # Config에서 가져온 클래스 가중치 적용
         model = RandomForestClassifier(**best_params)
         
-        # 모델 훈련 (이미 전처리된 데이터 사용)
-        model.fit(X_train, y_train)
+        # 최종 모델 훈련: 전체 훈련 데이터에 스케일링 → 샘플링 적용
+        X_train_scaled, _, _, scalers = self.apply_scaling(
+            X_train.copy(),
+            X_train.copy(),  # 더미 데이터
+            X_train.copy(),  # 더미 데이터
+            data_type
+        )
+        
+        X_train_final, y_train_final = self.apply_sampling_strategy(
+            X_train_scaled, y_train, data_type
+        )
+        
+        model.fit(X_train_final, y_train_final)
         
         self.logger.info(f"최적 AUC: {study.best_value:.4f}")
         self.logger.info(f"최적 파라미터: {best_params}")
@@ -689,6 +1104,31 @@ class ModelingPipeline:
     def _optimize_xgboost(self, X_train: pd.DataFrame, y_train: pd.Series, data_type: str):
         """XGBoost 최적화"""
         config = self.config['models']['xgboost']
+        optimization_config = self.config['models'].get('optimization', {})
+        primary_metric = optimization_config.get('primary_metric', 'roc_auc')
+        
+        # Config에서 클래스 불균형 처리 방식 가져오기
+        class_weight_mode = config.get('class_weight_mode', 'scale_pos_weight')
+        scale_pos_weight_setting = config.get('scale_pos_weight', 'auto')
+        
+        # scale_pos_weight 계산
+        if scale_pos_weight_setting == 'auto':
+            # 자동 계산: negative / positive
+            n_neg = (y_train == 0).sum()
+            n_pos = (y_train == 1).sum()
+            scale_pos_weight = n_neg / n_pos if n_pos > 0 else 1.0
+        elif scale_pos_weight_setting == 'balanced':
+            # balanced와 동일한 방식
+            n_neg = (y_train == 0).sum()
+            n_pos = (y_train == 1).sum()
+            scale_pos_weight = n_neg / n_pos if n_pos > 0 else 1.0
+        else:
+            # 직접 지정된 숫자값
+            scale_pos_weight = float(scale_pos_weight_setting)
+        
+        self.logger.info(f"XGBoost 클래스 불균형 처리: {class_weight_mode}")
+        self.logger.info(f"scale_pos_weight = {scale_pos_weight:.2f} (설정: {scale_pos_weight_setting})")
+        self.logger.info(f"최적화 메트릭: {primary_metric.upper()}")
         
         def objective(trial):
             params = {
@@ -701,6 +1141,7 @@ class ModelingPipeline:
                 'colsample_bytree': trial.suggest_float('colsample_bytree', *config['colsample_bytree_range']),
                 'reg_alpha': trial.suggest_float('reg_alpha', *config['reg_alpha_range']),
                 'reg_lambda': trial.suggest_float('reg_lambda', *config['reg_lambda_range']),
+                'scale_pos_weight': scale_pos_weight,  # Config에서 계산된 불균형 가중치
                 'random_state': self.config['random_state'],
                 'n_jobs': -1,
                 'verbosity': 0
@@ -708,9 +1149,8 @@ class ModelingPipeline:
             
             model = xgb.XGBClassifier(**params)
             
-            # Cross validation (이미 전처리된 데이터 사용)
-            skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.config['random_state'])
-            scores = cross_val_score(model, X_train, y_train, cv=skf, scoring='roc_auc', n_jobs=-1)
+            # Cross validation with proper sampling (데이터 누수 방지)
+            scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=5, scoring=primary_metric)
             
             return scores.mean()
         
@@ -726,20 +1166,32 @@ class ModelingPipeline:
         
         # 최적 모델 훈련
         best_params = study.best_params
+        best_params['scale_pos_weight'] = scale_pos_weight  # Config에서 계산된 클래스 가중치 적용
         model = xgb.XGBClassifier(**best_params)
         
-        # 모델 훈련 (이미 전처리된 데이터 사용)
-        model.fit(X_train, y_train)
+        # 최종 모델 훈련: 전체 훈련 데이터에 스케일링 → 샘플링 적용
+        X_train_scaled, _, _, scalers = self.apply_scaling(
+            X_train.copy(),
+            X_train.copy(),  # 더미 데이터
+            X_train.copy(),  # 더미 데이터
+            data_type
+        )
+        
+        X_train_final, y_train_final = self.apply_sampling_strategy(
+            X_train_scaled, y_train, data_type
+        )
+        
+        model.fit(X_train_final, y_train_final)
         
         self.logger.info(f"최적 AUC: {study.best_value:.4f}")
         self.logger.info(f"최적 파라미터: {best_params}")
         
         return model, best_params, study.best_value
     
-    def _proper_cv_with_sampling(self, model, X: pd.DataFrame, y: pd.Series, data_type: str, cv_folds: int = 5):
+    def _proper_cv_with_sampling(self, model, X: pd.DataFrame, y: pd.Series, data_type: str, cv_folds: int = 5, scoring='roc_auc'):
         """
         샘플링 Data Leakage를 방지하는 올바른 Cross Validation
-        각 CV fold마다 샘플링을 별도로 적용
+        각 CV fold마다 스케일링 → 샘플링을 순서대로 적용
         """
         skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=self.config['random_state'])
         scores = []
@@ -749,48 +1201,136 @@ class ModelingPipeline:
             X_fold_train, X_fold_val = X.iloc[train_idx], X.iloc[val_idx]
             y_fold_train, y_fold_val = y.iloc[train_idx], y.iloc[val_idx]
             
-            # 훈련 fold에만 샘플링 적용 (Data Leakage 방지)
             try:
+                # 1단계: 스케일링 적용 (훈련 fold에서 fit, 검증 fold에서 transform)
+                X_fold_train_scaled, X_fold_val_scaled, _, scalers = self.apply_scaling(
+                    X_fold_train.copy(),
+                    X_fold_val.copy(), 
+                    X_fold_val.copy(),  # 더미 테스트 데이터 (사용 안 함)
+                    data_type
+                )
+                
+                # 2단계: 샘플링 적용 (스케일링된 훈련 데이터에만)
                 X_fold_train_resampled, y_fold_train_resampled = self.apply_sampling_strategy(
-                    X_fold_train, y_fold_train, data_type
+                    X_fold_train_scaled, y_fold_train, data_type
                 )
                 
                 # 모델 복사 및 훈련
                 model_copy = model.__class__(**model.get_params())
                 model_copy.fit(X_fold_train_resampled, y_fold_train_resampled)
                 
-                # 검증 fold에서 평가 (원본 데이터만 사용)
-                y_pred_proba = model_copy.predict_proba(X_fold_val)[:, 1]
+                # 검증 fold에서 평가 (스케일링된 검증 데이터 사용)
+                y_pred_proba = model_copy.predict_proba(X_fold_val_scaled)[:, 1]
+                
+                # 다양한 평가 메트릭 계산
+                if scoring == 'roc_auc':
                 score = roc_auc_score(y_fold_val, y_pred_proba)
+                elif scoring == 'average_precision':
+                    score = average_precision_score(y_fold_val, y_pred_proba)
+                elif scoring == 'f1':
+                    # F1의 경우 임계값 0.5 사용
+                    y_pred = (y_pred_proba >= 0.5).astype(int)
+                    score = f1_score(y_fold_val, y_pred, zero_division=0)
+                else:
+                    score = roc_auc_score(y_fold_val, y_pred_proba)  # 기본값
+                
                 scores.append(score)
                 
             except Exception as e:
-                self.logger.warning(f"Fold {fold+1} {data_type.upper()} 적용 실패: {e}")
-                # 샘플링 실패 시 원본 데이터로 훈련
+                self.logger.warning(f"Fold {fold+1} {data_type.upper()} 처리 실패: {e}")
+                # 처리 실패 시 원본 데이터로 훈련
                 model_copy = model.__class__(**model.get_params())
                 model_copy.fit(X_fold_train, y_fold_train)
                 y_pred_proba = model_copy.predict_proba(X_fold_val)[:, 1]
+                
+                if scoring == 'roc_auc':
                 score = roc_auc_score(y_fold_val, y_pred_proba)
+                elif scoring == 'average_precision':
+                    score = average_precision_score(y_fold_val, y_pred_proba)
+                elif scoring == 'f1':
+                    y_pred = (y_pred_proba >= 0.5).astype(int)
+                    score = f1_score(y_fold_val, y_pred, zero_division=0)
+                else:
+                    score = roc_auc_score(y_fold_val, y_pred_proba)
+                
                 scores.append(score)
         
         return np.array(scores)
     
-    def find_optimal_threshold(self, model_key: str):
-        """각 모델별 최적 threshold 찾기"""
-        self.logger.info(f"{model_key} 최적 Threshold 탐색")
+    def _calculate_cv_metrics(self, model, X_train: pd.DataFrame, y_train: pd.Series, data_type: str) -> Dict[str, float]:
+        """
+        다양한 CV 메트릭 계산 (데이터 누수 방지)
+        """
+        metrics = {}
         
+        # ROC AUC
+        auc_scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=5, scoring='roc_auc')
+        metrics['cv_auc_mean'] = float(auc_scores.mean())
+        metrics['cv_auc_std'] = float(auc_scores.std())
+        
+        # Average Precision
+        ap_scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=5, scoring='average_precision')
+        metrics['cv_average_precision_mean'] = float(ap_scores.mean())
+        metrics['cv_average_precision_std'] = float(ap_scores.std())
+        
+        # F1 Score
+        f1_scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=5, scoring='f1')
+        metrics['cv_f1_mean'] = float(f1_scores.mean())
+        metrics['cv_f1_std'] = float(f1_scores.std())
+        
+        self.logger.info(f"CV 메트릭 - AUC: {metrics['cv_auc_mean']:.4f} (±{metrics['cv_auc_std']:.4f})")
+        self.logger.info(f"CV 메트릭 - AP: {metrics['cv_average_precision_mean']:.4f} (±{metrics['cv_average_precision_std']:.4f})")
+        self.logger.info(f"CV 메트릭 - F1: {metrics['cv_f1_mean']:.4f} (±{metrics['cv_f1_std']:.4f})")
+        
+        return metrics
+    
+
+    
+    def evaluate_model(self, model_key: str):
+        """모델 평가 (최적 threshold 사용)"""
         model = self.models[model_key]
         data_type = self.model_results[model_key]['data_type']
         
+        # 원본 데이터 가져오기
+        X_train = self.data[data_type]['X_train']
+        y_train = self.data[data_type]['y_train']
         X_val = self.data[data_type]['X_val']
         y_val = self.data[data_type]['y_val']
+        X_test = self.data[data_type]['X_test']
+        y_test = self.data[data_type]['y_test']
         
-        # 검증 데이터에 대한 예측 확률
-        y_val_proba = model.predict_proba(X_val)[:, 1]
+        # 평가용 데이터 전처리 (모델 훈련과 동일한 방식)
+        # 1단계: 스케일링 적용 (훈련 데이터로 fit, 검증/테스트 데이터로 transform)
+        X_train_scaled, X_val_scaled, X_test_scaled, scalers = self.apply_scaling(
+            X_train.copy(),
+            X_val.copy(),
+            X_test.copy(),
+            data_type
+        )
         
-        # 다양한 threshold에서의 성능 계산
-        thresholds = np.arange(0.05, 0.5, 0.05)
+        # 2단계: 훈련 데이터에만 샘플링 적용 (평가 데이터는 원본 유지)
+        X_train_final, y_train_final = self.apply_sampling_strategy(
+            X_train_scaled, y_train, data_type
+        )
+        
+        # 최적 threshold 찾기 (스케일링된 검증 데이터 사용)
+        y_val_proba = model.predict_proba(X_val_scaled)[:, 1]
+        
+        # 임계값 범위 설정 (config에서 가져오기)
+        threshold_config = self.config.get('threshold_optimization', {}).get('search_range', {})
+        pos_rate = y_val.mean()
+        
+        # 동적 임계값 범위 계산
+        low_threshold = max(threshold_config.get('low', 0.0005), pos_rate/5)
+        high_threshold = threshold_config.get('high', 0.30)
+        n_grid = threshold_config.get('n_grid', 300)
+        
+        # 임계값 배열 생성
+        thresholds = np.linspace(low_threshold, high_threshold, n_grid)
         threshold_results = []
+        
+        self.logger.info(f"{model_key} 최적 Threshold 탐색")
+        self.logger.info(f"임계값 범위: {low_threshold:.4f} ~ {high_threshold:.4f} ({n_grid}개 점)")
         
         for threshold in thresholds:
             y_val_pred = (y_val_proba >= threshold).astype(int)
@@ -812,8 +1352,9 @@ class ModelingPipeline:
         
         if not threshold_results:
             self.logger.warning("최적 threshold 찾기 실패, 기본값 0.5 사용")
-            return 0.5, {}
-        
+            optimal_threshold = 0.5
+            threshold_analysis = {}
+        else:
         # 결과를 DataFrame으로 변환
         threshold_df = pd.DataFrame(threshold_results)
         
@@ -831,28 +1372,28 @@ class ModelingPipeline:
         
         # 우선순위 메트릭으로 최종 threshold 선택
         if metric_priority in optimal_thresholds:
-            final_threshold = optimal_thresholds[metric_priority]['threshold']
+                optimal_threshold = optimal_thresholds[metric_priority]['threshold']
             final_value = optimal_thresholds[metric_priority]['value']
         else:
-            final_threshold = optimal_thresholds['f1']['threshold']
+                optimal_threshold = optimal_thresholds['f1']['threshold']
             final_value = optimal_thresholds['f1']['value']
         
-        self.logger.info(f"최종 선택: {final_threshold:.3f} ({metric_priority.upper()}: {final_value:.4f})")
+            self.logger.info(f"최종 선택: {optimal_threshold:.3f} ({metric_priority.upper()}: {final_value:.4f})")
         
         # Precision-Recall 곡선 데이터 저장
         precision_vals, recall_vals, pr_thresholds = precision_recall_curve(y_val, y_val_proba)
         
-        # 시각화를 위한 임계값별 성능 데이터 추가
+            # 시각화를 위한 임계값별 성능 데이터 추가
         threshold_analysis = {
             'all_thresholds': threshold_results,
             'optimal_by_metric': optimal_thresholds,
-            'final_threshold': final_threshold,
+                'final_threshold': optimal_threshold,
             'final_metric': metric_priority,
             'final_value': final_value,
-            'thresholds': [t['threshold'] for t in threshold_results],
-            'f1_scores': [t['f1'] for t in threshold_results],
-            'precisions': [t['precision'] for t in threshold_results],
-            'recalls': [t['recall'] for t in threshold_results],
+                'thresholds': [t['threshold'] for t in threshold_results],
+                'f1_scores': [t['f1'] for t in threshold_results],
+                'precisions': [t['precision'] for t in threshold_results],
+                'recalls': [t['recall'] for t in threshold_results],
             'pr_curve': {
                 'precision': precision_vals.tolist(),
                 'recall': recall_vals.tolist(),
@@ -860,44 +1401,26 @@ class ModelingPipeline:
             }
         }
         
-        return final_threshold, threshold_analysis
-    
-    def evaluate_model(self, model_key: str):
-        """모델 평가 (최적 threshold 사용)"""
-        # 최적 threshold 찾기
-        optimal_threshold, threshold_analysis = self.find_optimal_threshold(model_key)
-        
-        model = self.models[model_key]
-        data_type = self.model_results[model_key]['data_type']
-        
-        X_train = self.data[data_type]['X_train']
-        y_train = self.data[data_type]['y_train']
-        X_val = self.data[data_type]['X_val']
-        y_val = self.data[data_type]['y_val']
-        X_test = self.data[data_type]['X_test']
-        y_test = self.data[data_type]['y_test']
-        
-        # 예측 (최적 threshold 사용)
-        y_train_proba = model.predict_proba(X_train)[:, 1]
+        # 예측 (최적 threshold 사용, 스케일링된 데이터 사용)
+        y_train_proba = model.predict_proba(X_train_final)[:, 1]
         y_train_pred = (y_train_proba >= optimal_threshold).astype(int)
         
-        y_val_proba = model.predict_proba(X_val)[:, 1]
         y_val_pred = (y_val_proba >= optimal_threshold).astype(int)
         
-        y_test_proba = model.predict_proba(X_test)[:, 1]
+        y_test_proba = model.predict_proba(X_test_scaled)[:, 1]
         y_test_pred = (y_test_proba >= optimal_threshold).astype(int)
         
-        # 훈련 성능
+        # 훈련 성능 (샘플링된 데이터 기준)
         train_metrics = {
-            'auc': roc_auc_score(y_train, y_train_proba),
-            'precision': precision_score(y_train, y_train_pred, zero_division=0),
-            'recall': recall_score(y_train, y_train_pred, zero_division=0),
-            'f1': f1_score(y_train, y_train_pred, zero_division=0),
-            'balanced_accuracy': balanced_accuracy_score(y_train, y_train_pred),
-            'average_precision': average_precision_score(y_train, y_train_proba)
+            'auc': roc_auc_score(y_train_final, y_train_proba),
+            'precision': precision_score(y_train_final, y_train_pred, zero_division=0),
+            'recall': recall_score(y_train_final, y_train_pred, zero_division=0),
+            'f1': f1_score(y_train_final, y_train_pred, zero_division=0),
+            'balanced_accuracy': balanced_accuracy_score(y_train_final, y_train_pred),
+            'average_precision': average_precision_score(y_train_final, y_train_proba)
         }
         
-        # 검증 성능
+        # 검증 성능 (원본 라벨 기준)
         val_metrics = {
             'auc': roc_auc_score(y_val, y_val_proba),
             'precision': precision_score(y_val, y_val_pred, zero_division=0),
@@ -907,7 +1430,7 @@ class ModelingPipeline:
             'average_precision': average_precision_score(y_val, y_val_proba)
         }
         
-        # 테스트 성능
+        # 테스트 성능 (원본 라벨 기준)
         test_metrics = {
             'auc': roc_auc_score(y_test, y_test_proba),
             'precision': precision_score(y_test, y_test_pred, zero_division=0),
@@ -939,13 +1462,14 @@ class ModelingPipeline:
         """모든 모델 실행"""
         self.logger.info("모든 모델 실행 시작")
         
-        # Lasso 특성 선택
+        # 특성 선택 (이진 분류용)
         if self.config['feature_selection']['enabled']:
-            self.apply_lasso_feature_selection('normal')
+            self.apply_feature_selection('normal')
         
         # 활성화된 데이터 타입 확인
         enabled_data_types = [dt for dt, config in self.config['sampling']['data_types'].items() if config['enabled']]
-        enabled_models = [model for model, config in self.config['models'].items() if config['enabled']]
+        enabled_models = [model for model, config in self.config['models'].items() 
+                         if isinstance(config, dict) and config.get('enabled', False)]
         
         self.logger.info(f"활성화된 데이터 타입: {enabled_data_types}")
         self.logger.info(f"활성화된 모델: {enabled_models}")
@@ -954,46 +1478,25 @@ class ModelingPipeline:
         for data_type in enabled_data_types:
             self.logger.info(f"{data_type.upper()} 데이터 처리")
             
-            # 샘플링 적용 (SMOTE 등)
-            if data_type != 'normal':
-                X_train_resampled, y_train_resampled = self.apply_sampling_strategy(
-                    self.data[data_type]['X_train'], 
-                    self.data[data_type]['y_train'], 
-                    data_type
-                )
-                self.data[data_type]['X_train'] = X_train_resampled
-                self.data[data_type]['y_train'] = y_train_resampled
-                self.logger.info(f"{data_type.upper()} 샘플링 적용 완료: {len(X_train_resampled):,}개 샘플")
-            
-            # 스케일링 적용 (SMOTE 후)
-            X_train_scaled, X_val_scaled, X_test_scaled, scalers = self.apply_scaling(
-                self.data[data_type]['X_train'].copy(),
-                self.data[data_type]['X_val'].copy(), 
-                self.data[data_type]['X_test'].copy(),
-                data_type
-            )
-            
-            # 스케일링된 데이터로 업데이트
-            self.data[data_type]['X_train'] = X_train_scaled
-            self.data[data_type]['X_val'] = X_val_scaled  
-            self.data[data_type]['X_test'] = X_test_scaled
-            
-            # 스케일러 정보 저장
-            if scalers:
-                self.results['modeling_steps'][f'scaling_{data_type}'] = {
-                    'scalers_info': {
-                        k: {
-                            'applied_columns': v['columns'],
-                            'missing_columns': v.get('missing_columns', [])
-                        } for k, v in scalers.items()
-                    }
+            # 원본 데이터 사용 (스케일링과 샘플링은 CV 내부에서 처리)
+            # 각 데이터 타입은 동일한 원본 데이터를 사용하되, CV 과정에서 다르게 처리됨
+            self.data[data_type] = {
+                'X_train': self.data['normal']['X_train'].copy(),
+                'X_val': self.data['normal']['X_val'].copy(), 
+                'X_test': self.data['normal']['X_test'].copy(),
+                'y_train': self.data['normal']['y_train'].copy(),
+                'y_val': self.data['normal']['y_val'].copy(),
+                'y_test': self.data['normal']['y_test'].copy()
                 }
             
             for model_name in enabled_models:
                 model_key = f"{model_name}_{data_type}"
                 
-                # 모델 최적화 (이미 샘플링과 스케일링이 적용된 데이터 사용)
+                # 모델 최적화 (CV 내부에서 스케일링과 샘플링 처리)
                 model, best_params, cv_score = self.optimize_model(model_name, data_type)
+                
+                # 추가 CV 메트릭 계산
+                cv_metrics = self._calculate_cv_metrics(model, self.data[data_type]['X_train'], self.data[data_type]['y_train'], data_type)
                 
                 # 모델 및 결과 저장
                 self.models[model_key] = model
@@ -1001,7 +1504,8 @@ class ModelingPipeline:
                     'model_name': model_name,
                     'data_type': data_type,
                     'best_params': best_params,
-                    'cv_score': cv_score
+                    'cv_score': cv_score,
+                    'cv_metrics': cv_metrics
                 }
                 
                 # 특성 중요도 저장 (tree 기반 모델의 경우)
@@ -1077,11 +1581,15 @@ class ModelingPipeline:
             model_name = result['model_name']
             data_type = result['data_type']
             
+            cv_metrics = result.get('cv_metrics', {})
             summary_data.append({
                 'Model': model_name,
                 'Data_Type': data_type.upper(),
                 'Optimal_Threshold': result.get('optimal_threshold', 0.5),
                 'CV_AUC': result['cv_score'],
+                'CV_AUC_Mean': cv_metrics.get('cv_auc_mean', result['cv_score']),
+                'CV_AP_Mean': cv_metrics.get('cv_average_precision_mean', 0),
+                'CV_F1_Mean': cv_metrics.get('cv_f1_mean', 0),
                 'Val_AUC': result['val_metrics']['auc'],
                 'Val_F1': result['val_metrics']['f1'],
                 'Test_AUC': result['test_metrics']['auc'],
@@ -1089,7 +1597,7 @@ class ModelingPipeline:
                 'Test_Recall': result['test_metrics']['recall'],
                 'Test_F1': result['test_metrics']['f1'],
                 'Test_Balanced_Acc': result['test_metrics'].get('balanced_accuracy', 0),
-                'Average_Precision': result['test_metrics'].get('average_precision', 0)
+                'Test_Average_Precision': result['test_metrics'].get('average_precision', 0)
             })
         
         summary_df = pd.DataFrame(summary_data)
@@ -1600,7 +2108,7 @@ class ModelingPipeline:
         ensemble_path = models_dir / f'{ensemble_key}_model.joblib'
         joblib.dump(ensemble_pipeline, ensemble_path)
         self.logger.info(f"앙상블 모델 저장: {ensemble_path}")
-
+    
     def run_pipeline(self) -> str:
         """전체 파이프라인 실행"""
         self.logger.info("=== 모델링 파이프라인 시작 ===")
