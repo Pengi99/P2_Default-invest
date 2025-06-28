@@ -1,403 +1,403 @@
-data:
-  files:
-    X_test: X_test.csv
-    X_train: X_train.csv
-    X_val: X_val.csv
-    y_test: y_test.csv
-    y_train: y_train.csv
-    y_val: y_val.csv
-  input_path: data/final
-ensemble:
-  auto_weight: true
-  data_types:
-  - normal
-  - smote
-  - undersampling
-  enabled: true
-  method: weighted_average
-  models:
-  - logistic_regression
-  - random_forest
-  - xgboost
-  threshold_optimization:
-    enabled: true
-    metric_priority: average_precision
-  weight_metric: average_precision
+# 모델링 파이프라인 설정 파일
+# ===================================
+
+# 실험 정보
 experiment:
-  description: 한국 기업 부실예측 모델링 파이프라인
-  name: default_modeling_run
-  version: 1.0.0
-feature_selection:
-  enabled: true
-  lasso_cv:
-    alphas:
-    - 0.001
-    - 0.01
-    - 0.1
-    - 1.0
-    - 10.0
-    - 100.0
-    cv_folds: 5
-    threshold: median
-  logistic_regression_cv:
-    Cs:
-    - 0.001
-    - 0.01
-    - 0.1
-    - 1.0
-    - 10.0
-    - 100.0
-    cv_folds: 5
-    max_iter: 1000
-    penalty: l1
-    scoring: average_precision
-    solver: liblinear
-    threshold: median
-  method: logistic_regression_cv
-  permutation_importance:
-    base_estimator: random_forest
-    estimator_params:
-      logistic_regression:
-        C: 1.0
-        class_weight: balanced
-        max_iter: 1000
-        penalty: l2
-        solver: lbfgs
-      random_forest:
-        class_weight: balanced
-        max_depth: 10
-        min_samples_leaf: 2
-        min_samples_split: 5
-        n_estimators: 100
-      xgboost:
-        colsample_bytree: 0.8
-        learning_rate: 0.1
-        max_depth: 6
-        n_estimators: 100
-        subsample: 0.8
-    max_features: null
-    n_repeats: 10
-    random_state: 42
-    scoring: average_precision
-    threshold: median
-  shap:
-    base_estimator: random_forest
-    estimator_params:
-      logistic_regression:
-        C: 1.0
-        class_weight: balanced
-        max_iter: 1000
-        penalty: l2
-        solver: lbfgs
-      random_forest:
-        class_weight: balanced
-        max_depth: 10
-        min_samples_leaf: 2
-        min_samples_split: 5
-        n_estimators: 100
-      xgboost:
-        colsample_bytree: 0.8
-        learning_rate: 0.1
-        max_depth: 6
-        n_estimators: 100
-        subsample: 0.8
-    explainer_type: auto
-    max_features: null
-    sample_size: 1000
-    threshold: median
+  name: "default_modeling_run"
+  version: "1.0.0"
+  description: "한국 기업 부실예측 모델링 파이프라인"
+
+# 로깅 설정
 logging:
-  level: INFO
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
   save_to_file: true
-models:
-  logistic_regression:
-    C_range:
-    - 0.01
-    - 100
-    class_weight: balanced
-    enabled: true
-    l1_ratio_range:
-    - 0.1
-    - 0.9
-    l2_solvers:
-    - newton-cg
-    - lbfgs
-    - sage
-    - liblinear
-    max_iter_range:
-    - 100
-    - 10000
-    n_trials: 100
-    penalty:
-    - l2
-  optimization:
-    description: 하이퍼파라미터 최적화 시 사용할 주요 메트릭
-    primary_metric: average_precision
-  random_forest:
-    class_weight: balanced
-    enabled: true
-    max_depth_range:
-    - 3
-    - 20
-    max_features_range:
-    - 0.1
-    - 1.0
-    min_samples_leaf_range:
-    - 1
-    - 10
-    min_samples_split_range:
-    - 2
-    - 20
-    n_estimators_range:
-    - 200
-    - 1000
-    n_trials: 100
-  xgboost:
-    class_weight_mode: scale_pos_weight
-    colsample_bytree_range:
-    - 0.6
-    - 1.0
-    enabled: true
-    learning_rate_range:
-    - 0.005
-    - 0.3
-    max_depth_range:
-    - 3
-    - 10
-    n_estimators_range:
-    - 200
-    - 800
-    n_trials: 100
-    reg_alpha_range:
-    - 0.0
-    - 10.0
-    reg_lambda_range:
-    - 1.0
-    - 10.0
-    scale_pos_weight: auto
-    subsample_range:
-    - 0.6
-    - 1.0
-output:
-  base_dir: outputs/modeling_runs
-  generate_visualizations: true
-  report_format:
-  - txt
-  - html
-  save_models: true
-  save_results: true
-performance:
-  n_jobs: -1
-random_state: 42
+
+# 데이터 설정
+data:
+  input_path: "data/final"  # 전처리된 데이터가 있는 디렉토리
+  files:
+    X_train: "X_train.csv"
+    X_val: "X_val.csv"  
+    X_test: "X_test.csv"
+    y_train: "y_train.csv"
+    y_val: "y_val.csv"
+    y_test: "y_test.csv"
+
+# 샘플링 전략 설정
 sampling:
   data_types:
-    combined:
-      description: SMOTE + 언더샘플링 조합
-      enabled: false
-      smote:
-        k_neighbors: 5
-        kind: borderline-1
-        m_neighbors: 10
-        sampling_strategy: 0.01
-      undersampling:
-        method: random
-        random_state: 42
-        sampling_strategy: 0.1
     normal:
-      description: 원본 데이터 (샘플링 없음)
       enabled: true
+      description: "원본 데이터 (샘플링 없음)"
+    
     smote:
-      description: BorderlineSMOTE 오버샘플링
       enabled: true
+      description: "BorderlineSMOTE 오버샘플링"
+      sampling_strategy: 0.1  # 부실 클래스 비율 목표 (양성 2%, 원래 0.7%에서 증가)
       k_neighbors: 5
-      kind: borderline-1
       m_neighbors: 10
+      kind: "borderline-1"  # borderline-1, borderline-2, svm
       random_state: 42
-      sampling_strategy: 0.02
+    
     undersampling:
-      description: 언더샘플링
       enabled: true
-      method: tomek
+      description: "언더샘플링"
+      method: "tomek"  # random, edited_nearest_neighbours, tomek (노이즈 제거)
+      sampling_strategy: 1  # 정상 클래스 유지 비율 (정상 30% 유지)
       random_state: 42
-      sampling_strategy: 0.3
-scaling:
-  column_groups:
-    Log:
-    - 총자산
-    - 총부채
-    - 총자본
-    - 유동자산
-    - 유동부채
-    - 매출액
-    - 자본금
-    - 부가가치
-    - 인건비
-    - 감가상각비
-    - 종업원수
-    - 기업가치
-    - EBITDA
-    - 발행주식총수
-    - 법인세비용차감전손익
-    - 주당매출액
-    - 주당순자산
-    - 주당영업이익
-    - 주당EBITDA
-    - 종업원당부가가치
-    - 종업원당매출액
-    - 종업원당영업이익
-    - 종업원당인건비
-    - 유동비율
-    - 당좌비율
-    - 현금비율
-    - 부채비율
-    - 자기자본배율
-    - 유보율
-    - 사내유보자기자본비율
-    - 배당성향
-    - 평균배당률
-    - 자기자본배당률
-    - 매입채무회전률
-    - 재고자산회전률
-    - 상품제품회전률
-    - 원부재료회전률
-    - 재공품회전률
-    - 매출채권회전률
-    - 자본금회전률
-    - R&D투자효율
-    - 설비투자효율
-    - 기계투자효율
-    - 노동장비율
-    - 기계장비율
-    - 자본집약도
-    - 유동자산집중도
-    - 비유동자산집중도
-    - 투자집중도
-    - 누적감가상각률
-    - 지급이자율
-    - 차입금평균이자율
-    - EV_EBITDA배수
-    - PER최고
-    - PER최저
-    - PBR최고
-    - PBR최저
-    - PCR최고
-    - PCR최저
-    - PSR최고
-    - PSR최저
-    - EBITDA금융비용배수
-    - 차입금비율
-    - 유보액납입자본비율
-    - 현금흐름차입금비율
-    MinMax:
-    - 순금융비용이자보상배율
-    Robust:
-    - 이익잉여금
-    - 영업이익
-    - 당기순이익
-    - 영업현금흐름
-    - 매출액증가율
-    - 매출액총이익률
-    - 매출액영업이익률
-    - 매출액순이익률
-    - 총자산수익률
-    - 자기자본순이익률
-    - 이자보상배율
-    - 총자본증가율
-    - 유형자산증가율
-    - 비유동생물자산증가율
-    - 투자부동산증가율
-    - 비유동자산증가율
-    - 유동자산증가율
-    - 재고자산증가율
-    - 자기자본증가율
-    - 영업이익증가율
-    - 순이익증가율
-    - 총포괄이익증가율
-    - 종업원당부가가치증가율
-    - 종업원수증가율
-    - 종업원당매출액증가율
-    - 종업원당인건비증가율
-    - 총자본사업이익률
-    - 총자본영업이익률
-    - 자기자본영업이익률
-    - 경영자본영업이익률
-    - 경영자본순이익률
-    - 자본금영업이익률
-    - 자본금순이익률
-    - 매출원가율
-    - 영업비용률
-    - 기타손익비율
-    - 금융손익비율
-    - 금융비용부담률
-    - 외환이익비율
-    - 광고선전비비율
-    - 세금과공과비율
-    - 기업순이익률
-    - 수지비율
-    - 세금과공과총비용비율
-    - 금융비용총비용비율
-    - 감가상각비총비용비율
-    - 감가상각률
-    - 이자부담률
-    - 적립금비율
-    - 주당순이익
-    - 주당현금흐름
-    - 유동비유동자산비율
-    - 자기자본구성비율
-    - 타인자본구성비율
-    - 비유동비율
-    - 비유동장기적합률
-    - 매출채권비율
-    - 재고자산순운전자본비율
-    - 매출채권매입채무비율
-    - 매출채권상제품비율
-    - 매입채무재고자산비율
-    - 유동부채비율
-    - 비유동부채비율
-    - 비유동부채순운전자본비율
-    - 순운전자본비율
-    - 차입금의존도
-    - 유보액대비율
-    - 현금흐름부채비율
-    - 현금흐름총자본비율
-    - 현금흐름매출액비율
-    - 영업이익이자보상배율
-    - 자기자본회전률
-    - 매입채무회전기간
-    - 재고자산회전기간
-    - 매출채권회전기간
-    - 비유동자산회전률
-    - 유형자산회전률
-    - 운전자본회전률
-    - 회전기간
-    - 종업원당순이익
-    - 총자본투자효율
-    - 부가가치율
-    - 노동소득분배율
-    - 자본분배율
-    - 이윤분배율
-    - 금융비용
-    - 임차료
-    - 세금과공과
-    - EBITDA매출액비율
-    Standard:
-    - 총자본회전률
-    - 사내유보율
-    - 유동자산구성비율
-    - 재고자산유동자산비율
-    - 당좌자산구성비율
-    - 비유동자산구성비율
-    - 단기차입금총차입금비율
-    - 경영자본회전률
-    - 당좌자산회전률
-    - 유동자산회전률
-    - 타인자본회전률
-    - 순운전자본회전률
-    - 인건비비율
+    
+    combined:
+      enabled: true
+      description: "SMOTE + 언더샘플링 조합"
+      # SMOTE 설정
+      smote:
+        sampling_strategy: 0.1  # 부실 클래스 비율 목표 (원래 0.7% → 20%로 증가)
+        k_neighbors: 5
+        m_neighbors: 10 
+        kind: "borderline-1"  # borderline-1, borderline-2, svm
+      # 언더샘플링 설정  
+      undersampling:
+        method: "tomek"  # random, edited_nearest_neighbours, tomek
+        sampling_strategy: 1  # 정상 클래스 유지 비율 (10% 유지)
+        random_state: 42
+
+# 특성 선택 설정
+feature_selection:
   enabled: true
+  method: "shap"  # logistic_regression_cv, lasso_cv, permutation_importance, shap
+  
+  logistic_regression_cv:
+    Cs: [0.001, 0.01, 0.1, 1.0, 10.0, 100.0]  # 정규화 강도의 역수 (C 값들)
+    cv_folds: 5
+    penalty: "l1"  # l1 (Lasso), l2 (Ridge), elasticnet
+    solver: "liblinear"  # l1 penalty를 위해서는 liblinear 또는 saga 사용
+    max_iter: 1000
+    threshold: "median"  # median, mean, 또는 숫자값 (계수 임계값)
+    scoring: "f1"  # roc_auc, f1, average_precision 등
+  
+  # 기존 lasso_cv (연속 회귀용, 참고용으로 유지)
+  lasso_cv:
+    alphas: [0.001, 0.01, 0.1, 1.0, 10.0, 100.0]
+    cv_folds: 5
+    threshold: "median"  # median, mean, 또는 숫자값
+  
+  # Permutation Importance 방법
+  permutation_importance:
+    base_estimator: "random_forest"  # random_forest, logistic_regression, xgboost
+    n_repeats: 10  # 순열 반복 횟수 (높을수록 정확하지만 느림)
+    random_state: 42
+    threshold: "median"  # median, mean, 또는 숫자값 (중요도 임계값)
+    max_features: null  # 최대 특성 수 제한 (null이면 제한 없음)
+    scoring: "f1"  # roc_auc, f1, average_precision 등
+    # 기본 추정기별 파라미터
+    estimator_params:
+      random_forest:
+        n_estimators: 100
+        max_depth: 10
+        min_samples_split: 5
+        min_samples_leaf: 2
+        class_weight: "balanced"
+      logistic_regression:
+        C: 1.0
+        penalty: "l2"
+        solver: "lbfgs"
+        max_iter: 1000
+        class_weight: "balanced"
+      xgboost:
+        n_estimators: 100
+        max_depth: 6
+        learning_rate: 0.1
+        subsample: 0.8
+        colsample_bytree: 0.8
+  
+  # SHAP 기반 특성 선택
+  shap:
+    base_estimator: "random_forest"  # random_forest, logistic_regression, xgboost
+    explainer_type: "tree"  # auto, tree, linear, kernel, permutation
+    threshold: "median"  # median, mean, 또는 숫자값 (SHAP 값 임계값)
+    max_features: 10  # 최대 특성 수 제한 (null이면 제한 없음)
+    sample_size: 20000  # SHAP 계산용 샘플 크기 (속도 개선용)
+    # 기본 추정기별 파라미터
+    estimator_params:
+      random_forest:
+        n_estimators: 300
+        max_depth: 8
+        min_samples_split: 5
+        min_samples_leaf: 3
+        class_weight: "balanced"
+      logistic_regression:
+        C: 1.0
+        penalty: "l2"
+        solver: "lbfgs"
+        max_iter: 1000
+        class_weight: "balanced"
+      xgboost:
+        n_estimators: 100
+        max_depth: 6
+        learning_rate: 0.1
+        subsample: 0.8
+        colsample_bytree: 0.8
+
+# 모델 설정
+models:
+  # 최적화 메트릭 설정
+  optimization:
+    primary_metric: "average_precision"  # roc_auc, f1, average_precision, balanced_accuracy
+    description: "하이퍼파라미터 최적화 시 사용할 주요 메트릭"
+  
+  logistic_regression:
+    enabled: true
+    class_weight: null  # class_weight 제거로 Precision 개선 (극심한 불균형 데이터에서 오히려 성능 저하)
+    penalty: ["l2"]
+    l2_solvers: ["newton-cg", "lbfgs", "sage", "liblinear"]  # 가장 안정적인 solver들만 사용
+    C_range: [0.01, 100]  # 수렴 안정성을 위해 범위 축소
+    max_iter_range: [100, 10000]  # 충분한 반복 횟수 보장
+    l1_ratio_range: [0.1, 0.9]  # elasticnet용
+    n_trials: 25  # trial 수 감소로 빠른 수렴
+  
+  random_forest:
+    enabled: true
+    class_weight: null  # class_weight 제거로 Precision 개선 (극심한 불균형 데이터에서 오히려 성능 저하)
+    n_estimators_range: [200, 1000]
+    max_depth_range: [3, 20]
+    min_samples_split_range: [2, 20]
+    min_samples_leaf_range: [1, 10]
+    max_features_range: [0.1, 1.0]
+    n_trials: 25
+  
+  xgboost:
+    enabled: true
+    class_weight_mode: "scale_pos_weight"  # "scale_pos_weight" 또는 "sample_weight"
+    scale_pos_weight: auto  # 적당한 가중치 사용 (auto는 102.11로 너무 극단적)
+    n_estimators_range: [200, 800]
+    max_depth_range: [3, 10]
+    learning_rate_range: [0.005, 0.3]
+    subsample_range: [0.6, 1.0]
+    colsample_bytree_range: [0.6, 1.0]
+    reg_alpha_range: [0.0, 10.0]
+    reg_lambda_range: [1.0, 10.0]
+    n_trials: 25
+
+# Threshold 최적화 설정
 threshold_optimization:
   enabled: true
-  metric_priority: average_precision
+  metric_priority: "average_precision"  # f1, precision, recall, balanced_accuracy
   search_range:
-    high: 0.3
-    low: 0.0005
-    n_grid: 300
+    low: 0.0005  # 최소 임계값
+    high: 0.50   # 최대 임계값  
+    n_grid: 3000  # 그리드 점 수
+
+# 앙상블 설정
+ensemble:
+  enabled: true
+  method: "weighted_average"  # simple_average, weighted_average, stacking
+  auto_weight: true  # 검증 성능 기반 자동 가중치
+  weight_metric: "f1"  # 앙상블 가중치 계산에 사용할 메트릭 (roc_auc, f1, average_precision)
+  models: ["logistic_regression", "random_forest", "xgboost"]
+  data_types: ["normal", "smote", "undersampling"]  # combined 비활성화 시
+  threshold_optimization:
+    enabled: true
+    metric_priority: "average_precision"
+
+# 출력 설정
+output:
+  base_dir: "outputs/modeling_runs"
+  save_models: true
+  save_results: true
+  generate_visualizations: true
+  report_format: ["txt", "html"]
+
+# 성능 설정
+performance:
+  n_jobs: -1  # 병렬 처리 코어 수 (-1: 모든 코어)
+
+# 랜덤 시드
+random_state: 42
+
+# 스케일링 설정
+scaling:
+  enabled: true
+  column_groups:
+    Standard:  # 표준 스케일링 적용할 컬럼명들 (정규분포에 가까운 변수들, 스케일링 점수 0-3)
+      - "총자본회전률"
+      - "사내유보율"
+      - "유동자산구성비율"
+      - "재고자산유동자산비율"
+      - "당좌자산구성비율"
+      - "비유동자산구성비율"
+      - "단기차입금총차입금비율"
+      - "경영자본회전률"
+      - "당좌자산회전률"
+      - "유동자산회전률"
+      - "타인자본회전률"
+      - "순운전자본회전률"
+      - "인건비비율"
+    
+    Robust:  # 로버스트 스케일링 적용할 컬럼명들 (이상치 많음, 높은 왜도/첨도, 스케일링 점수 4-12)
+      - "이익잉여금"
+      - "영업이익"
+      - "당기순이익"
+      - "영업현금흐름"
+      - "매출액증가율"
+      - "매출액총이익률"
+      - "매출액영업이익률"
+      - "매출액순이익률"
+      - "총자산수익률"
+      - "자기자본순이익률"
+      - "이자보상배율"
+      - "총자본증가율"
+      - "유형자산증가율"
+      - "비유동생물자산증가율"
+      - "투자부동산증가율"
+      - "비유동자산증가율"
+      - "유동자산증가율"
+      - "재고자산증가율"
+      - "자기자본증가율"
+      - "영업이익증가율"
+      - "순이익증가율"
+      - "총포괄이익증가율"
+      - "종업원당부가가치증가율"
+      - "종업원수증가율"
+      - "종업원당매출액증가율"
+      - "종업원당인건비증가율"
+      - "총자본사업이익률"
+      - "총자본영업이익률"
+      - "자기자본영업이익률"
+      - "경영자본영업이익률"
+      - "경영자본순이익률"
+      - "자본금영업이익률"
+      - "자본금순이익률"
+      - "매출원가율"
+      - "영업비용률"
+      - "기타손익비율"
+      - "금융손익비율"
+      - "금융비용부담률"
+      - "외환이익비율"
+      - "광고선전비비율"
+      - "세금과공과비율"
+      - "기업순이익률"
+      - "수지비율"
+      - "세금과공과총비용비율"
+      - "금융비용총비용비율"
+      - "감가상각비총비용비율"
+      - "감가상각률"
+      - "이자부담률"
+      - "적립금비율"
+      - "주당순이익"
+      - "주당현금흐름"
+      - "유동비유동자산비율"
+      - "자기자본구성비율"
+      - "타인자본구성비율"
+      - "비유동비율"
+      - "비유동장기적합률"
+      - "매출채권비율"
+      - "재고자산순운전자본비율"
+      - "매출채권매입채무비율"
+      - "매출채권상제품비율"
+      - "매입채무재고자산비율"
+      - "유동부채비율"
+      - "비유동부채비율"
+      - "비유동부채순운전자본비율"
+      - "순운전자본비율"
+      - "차입금의존도"
+      - "유보액대비율"
+      - "현금흐름부채비율"
+      - "현금흐름총자본비율"
+      - "현금흐름매출액비율"
+      - "영업이익이자보상배율"
+      - "자기자본회전률"
+      - "매입채무회전기간"
+      - "재고자산회전기간"
+      - "매출채권회전기간"
+      - "비유동자산회전률"
+      - "유형자산회전률"
+      - "운전자본회전률"
+      - "회전기간"
+      - "종업원당순이익"
+      - "총자본투자효율"
+      - "부가가치율"
+      - "노동소득분배율"
+      - "자본분배율"
+      - "이윤분배율"
+      - "금융비용"
+      - "임차료"
+      - "세금과공과"
+      - "EBITDA매출액비율"
+      - "총자산"
+      - "총부채"
+      - "총자본"
+      - "유동자산"
+      - "유동부채"
+      - "매출액"
+      - "자본금"
+      - "부가가치"
+      - "인건비"
+      - "감가상각비"
+      - "종업원수"
+      - "기업가치"
+      - "EBITDA"
+      - "발행주식총수"
+      - "법인세비용차감전손익"
+      # 주당 변수들 (극도로 치우친 분포)
+      - "주당매출액"
+      - "주당순자산"
+      - "주당영업이익"
+      - "주당EBITDA"
+      # 종업원당 변수들 (기업 규모별 차이가 큰 변수들)
+      - "종업원당부가가치"
+      - "종업원당매출액"
+      - "종업원당영업이익"
+      - "종업원당인건비"
+      # 비율 변수 중 양수이고 극도로 치우친 변수들
+      - "유동비율"
+      - "당좌비율"
+      - "현금비율"
+      - "부채비율"
+      - "자기자본배율"
+      - "유보율"
+      - "사내유보자기자본비율"
+      - "배당성향"
+      - "평균배당률"
+      - "자기자본배당률"
+      # 회전률 중 양수이고 극도로 치우친 변수들
+      - "매입채무회전률"
+      - "재고자산회전률"
+      - "상품제품회전률"
+      - "원부재료회전률"
+      - "재공품회전률"
+      - "매출채권회전률"
+      - "자본금회전률"
+      # 투자효율 변수들
+      - "R&D투자효율"
+      - "설비투자효율"
+      - "기계투자효율"
+      - "노동장비율"
+      - "기계장비율"
+      - "자본집약도"
+      # 집중도 변수들
+      - "유동자산집중도"
+      - "비유동자산집중도"
+      - "투자집중도"
+      # 기타 극도로 치우친 양수 변수들
+      - "누적감가상각률"
+      - "지급이자율"
+      - "차입금평균이자율"
+      - "EV_EBITDA배수"
+      - "PER최고"
+      - "PER최저"
+      - "PBR최고"
+      - "PBR최저"
+      - "PCR최고"
+      - "PCR최저"
+      - "PSR최고"
+      - "PSR최저"
+      - "EBITDA금융비용배수"
+      - "차입금비율"
+      - "유보액납입자본비율"
+      - "현금흐름차입금비율"
+    
+    MinMax:  # 최소-최대 스케일링 적용할 컬럼명들 (매우 큰 범위, 극단값 제한 필요)
+      - "순금융비용이자보상배율"
+    
+    Log:  # 로그 변환 적용할 컬럼명들 (극도로 치우친 분포, 양수 값만 가능, 부실기업이 극단값)
+      # 절대값 변수들 (기업 규모 차이가 극심한 변수들)

@@ -1,0 +1,156 @@
+2025-06-27 20:15:57,173 - ModelingPipeline - INFO - 모델링 파이프라인이 초기화되었습니다.
+2025-06-27 20:15:57,173 - ModelingPipeline - INFO - 실행 이름: default_modeling_run_20250627_201557
+2025-06-27 20:15:57,173 - ModelingPipeline - INFO - 출력 경로: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250627_201557
+2025-06-27 20:15:57,173 - ModelingPipeline - INFO - === 모델링 파이프라인 시작 ===
+2025-06-27 20:15:57,173 - ModelingPipeline - INFO - 데이터 로드 시작
+2025-06-27 20:15:57,341 - ModelingPipeline - INFO - Train: (9795, 119), 부실비율: 0.97%
+2025-06-27 20:15:57,341 - ModelingPipeline - INFO - Validation: (5984, 119), 부실비율: 0.64%
+2025-06-27 20:15:57,341 - ModelingPipeline - INFO - Test: (6706, 119), 부실비율: 0.30%
+2025-06-27 20:15:57,346 - ModelingPipeline - INFO - 모든 모델 실행 시작
+2025-06-27 20:15:57,346 - ModelingPipeline - INFO - 특성 선택 방법: LOGISTIC_REGRESSION_CV (NORMAL)
+2025-06-27 20:22:29,195 - ModelingPipeline - INFO - 최적 C: 10.000000
+2025-06-27 20:22:29,195 - ModelingPipeline - INFO - CV 점수: 0.1610 (±0.1389)
+2025-06-27 20:22:29,209 - ModelingPipeline - INFO - 선택된 특성: 58/119
+2025-06-27 20:22:29,211 - ModelingPipeline - INFO - 활성화된 데이터 타입: ['normal', 'smote', 'undersampling']
+2025-06-27 20:22:29,211 - ModelingPipeline - INFO - 활성화된 모델: ['logistic_regression', 'random_forest', 'xgboost']
+2025-06-27 20:22:29,211 - ModelingPipeline - INFO - NORMAL 데이터 처리
+2025-06-27 20:22:29,213 - ModelingPipeline - INFO - logistic_regression 최적화 시작 (NORMAL)
+2025-06-27 20:22:29,213 - ModelingPipeline - INFO - Logistic Regression 클래스 불균형 가중치: class_weight=balanced
+2025-06-27 20:22:29,213 - ModelingPipeline - INFO - 최적화 메트릭: F1
+2025-06-27 20:22:29,244 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:29,417 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:29,588 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:29,772 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:29,937 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:30,077 - ModelingPipeline - INFO - Trial 1/20 - Current: 0.1867, Best: 0.1867
+2025-06-27 20:22:30,102 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:30,279 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:30,452 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:30,631 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:30,788 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:30,950 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:31,029 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:31,110 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:31,202 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:31,278 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:31,355 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:31,472 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:31,595 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:31,722 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:31,850 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:31,968 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:32,054 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:32,134 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:32,211 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:32,290 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:32,373 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:32,469 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:32,566 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:32,666 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:32,792 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:32,877 - ModelingPipeline - INFO - Trial 6/20 - Current: 0.1870, Best: 0.1932
+2025-06-27 20:22:32,903 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:33,014 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:33,169 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:33,312 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:33,459 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:33,573 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:33,669 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:33,784 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:33,880 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:33,994 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:34,111 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:34,319 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:34,632 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:34,929 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:35,202 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:35,474 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:35,574 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:35,672 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:35,772 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:35,882 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:35,978 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:36,035 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:36,089 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:36,154 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:36,212 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:36,253 - ModelingPipeline - INFO - Trial 11/20 - Current: 0.1785, Best: 0.1932
+2025-06-27 20:22:36,284 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:36,378 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:36,464 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:36,556 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:36,647 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:36,723 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:36,800 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:36,875 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:36,954 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:37,031 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:37,124 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:37,228 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:37,332 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:37,440 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:37,522 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:37,617 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:37,688 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:37,766 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:37,840 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:37,903 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:37,964 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:38,052 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:38,149 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:38,239 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:38,320 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:38,388 - ModelingPipeline - INFO - Trial 16/20 - Current: 0.1923, Best: 0.1932
+2025-06-27 20:22:38,421 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:38,503 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:38,598 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:38,727 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:38,832 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:38,936 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:39,016 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:39,097 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:39,191 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:39,274 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:39,367 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:39,581 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:39,859 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:40,102 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:40,295 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:40,501 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:40,587 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:40,678 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:40,777 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:40,882 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:40,946 - ModelingPipeline - INFO - Trial 20/20 - Current: 0.1926, Best: 0.1932
+2025-06-27 20:22:40,973 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:41,041 - ModelingPipeline - INFO - 최적 AUC: 0.1932
+2025-06-27 20:22:41,041 - ModelingPipeline - INFO - 최적 파라미터: {'C': 0.07068974950624607, 'max_iter': 1900, 'penalty': 'l2', 'solver': 'lbfgs', 'tol': 0.0001, 'class_weight': 'balanced'}
+2025-06-27 20:22:41,068 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:41,148 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:41,231 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:41,326 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:41,403 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:41,482 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:41,560 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:41,643 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:41,741 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:41,821 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:41,901 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:41,983 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:42,068 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:42,163 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:42,245 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:42,300 - ModelingPipeline - INFO - CV 메트릭 - AUC: 0.9459 (±0.0218)
+2025-06-27 20:22:42,300 - ModelingPipeline - INFO - CV 메트릭 - AP: 0.3493 (±0.0900)
+2025-06-27 20:22:42,300 - ModelingPipeline - INFO - CV 메트릭 - F1: 0.1932 (±0.0260)
+2025-06-27 20:22:42,300 - ModelingPipeline - INFO - random_forest 최적화 시작 (NORMAL)
+2025-06-27 20:22:42,300 - ModelingPipeline - INFO - Random Forest 클래스 불균형 가중치: class_weight=balanced
+2025-06-27 20:22:42,300 - ModelingPipeline - INFO - 최적화 메트릭: F1
+2025-06-27 20:22:42,326 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:43,736 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:45,219 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:46,630 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:48,127 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:49,547 - ModelingPipeline - INFO - Trial 1/20 - Current: 0.3926, Best: 0.3926
+2025-06-27 20:22:49,574 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']
+2025-06-27 20:22:51,782 - ModelingPipeline - INFO -   - 미적용 컬럼: ['기업순이익률.1']

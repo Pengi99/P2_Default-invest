@@ -61,14 +61,16 @@ class ModelingPipeline:
     데이터 로드부터 모델 훈련, 평가까지 전체 과정을 수행
     """
     
-    def __init__(self, config_path: str):
+    def __init__(self, config_path: str, data_path_override: str = None):
         """
         파이프라인 초기화
         
         Args:
             config_path: config YAML/JSON 파일 경로
+            data_path_override: 데이터 경로 오버라이드 (전처리 결과 경로)
         """
         self.config_path = config_path
+        self.data_path_override = data_path_override
         self.config = self._load_config()
         
         # 프로젝트 루트 디렉토리 설정
@@ -151,7 +153,13 @@ class ModelingPipeline:
         """전처리된 데이터 로드"""
         self.logger.info("데이터 로드 시작")
         
-        data_path = self.project_root / self.config['data']['input_path']
+        # 오버라이드된 경로가 있으면 사용, 없으면 config에서 가져오기
+        if self.data_path_override:
+            data_path = self.project_root / self.data_path_override
+            self.logger.info(f"오버라이드된 데이터 경로 사용: {self.data_path_override}")
+        else:
+            data_path = self.project_root / self.config['data']['input_path']
+            self.logger.info(f"기본 데이터 경로 사용: {self.config['data']['input_path']}")
         
         # 데이터 로드
         self.data['normal'] = {
@@ -225,13 +233,13 @@ class ModelingPipeline:
             
             try:
                 # BorderlineSMOTE 시도
-            smote = BorderlineSMOTE(
-                sampling_strategy=config['sampling_strategy'],
-                    random_state=config.get('random_state', self.config['random_state']),
-                    k_neighbors=k_neighbors,
-                    m_neighbors=min(config.get('m_neighbors', 10), k_neighbors),
-                    kind=config.get('kind', 'borderline-1')
-                )
+                smote = BorderlineSMOTE(
+                    sampling_strategy=config['sampling_strategy'],
+                        random_state=config.get('random_state', self.config['random_state']),
+                        k_neighbors=k_neighbors,
+                        m_neighbors=min(config.get('m_neighbors', 10), k_neighbors),
+                        kind=config.get('kind', 'borderline-1')
+                    )
                 X_resampled, y_resampled = smote.fit_resample(X, y)
                 return pd.DataFrame(X_resampled, columns=X.columns), pd.Series(y_resampled)
                 
@@ -297,14 +305,14 @@ class ModelingPipeline:
             
             try:
                 # BorderlineSMOTE 시도
-            smote = BorderlineSMOTE(
-                    sampling_strategy=smote_config['sampling_strategy'],
-                    random_state=smote_config.get('random_state', self.config['random_state']),
-                    k_neighbors=k_neighbors,
-                    m_neighbors=min(smote_config.get('m_neighbors', 10), k_neighbors),
-                    kind=smote_config.get('kind', 'borderline-1')
-            )
-            X_smote, y_smote = smote.fit_resample(X, y)
+                smote = BorderlineSMOTE(
+                        sampling_strategy=smote_config['sampling_strategy'],
+                        random_state=smote_config.get('random_state', self.config['random_state']),
+                        k_neighbors=k_neighbors,
+                        m_neighbors=min(smote_config.get('m_neighbors', 10), k_neighbors),
+                        kind=smote_config.get('kind', 'borderline-1')
+                )
+                X_smote, y_smote = smote.fit_resample(X, y)
                 
             except Exception as e:
                 self.logger.warning(f"Combined BorderlineSMOTE 실패 ({e}), 일반 SMOTE로 대체")
@@ -328,10 +336,10 @@ class ModelingPipeline:
             # 언더샘플링 방법에 따른 선택
             method = undersampling_config.get('method', 'random')
             if method == 'random':
-            undersampler = RandomUnderSampler(
-                    sampling_strategy=undersampling_config['sampling_strategy'],
-                    random_state=undersampling_config.get('random_state', self.config['random_state'])
-                )
+                undersampler = RandomUnderSampler(
+                        sampling_strategy=undersampling_config['sampling_strategy'],
+                        random_state=undersampling_config.get('random_state', self.config['random_state'])
+                    )
             elif method == 'edited_nearest_neighbours':
                 from imblearn.under_sampling import EditedNearestNeighbours
                 undersampler = EditedNearestNeighbours(
@@ -373,7 +381,7 @@ class ModelingPipeline:
             self.logger.info(f"스케일링이 비활성화되어 있습니다 ({data_type.upper()})")
             return X_train, X_val, X_test, {}
         
-        self.logger.info(f"스케일링 적용 시작 ({data_type.upper()})")
+        # self.logger.info(f"스케일링 적용 시작 ({data_type.upper()})")  # 로그 제거
         
         scaling_config = self.config['scaling']
         scalers = {}
@@ -382,21 +390,17 @@ class ModelingPipeline:
         
         # 각 스케일링 방법별로 컬럼 처리
         for scaler_type, columns in scaling_config.get('column_groups', {}).items():
-            if not columns:
-                self.logger.info(f"{scaler_type} 그룹에 설정된 컬럼이 없습니다")
-                continue
-                
             # 실제 존재하는 컬럼과 존재하지 않는 컬럼 구분
             existing_columns = [col for col in columns if col in total_available_columns]
             missing_columns = [col for col in columns if col not in total_available_columns]
             
-            # 존재하지 않는 컬럼 정보 출력 (경고가 아닌 정보 레벨)
-            if missing_columns:
-                self.logger.info(f"{scaler_type} 그룹 - 데이터에 없는 컬럼 ({len(missing_columns)}개): {missing_columns[:5]}{'...' if len(missing_columns) > 5 else ''}")
+            # 존재하지 않는 컬럼 정보 출력 (경고가 아닌 정보 레벨) - 로그 제거
+            # if missing_columns:
+            #     self.logger.info(f"{scaler_type} 그룹 - 데이터에 없는 컬럼 ({len(missing_columns)}개): {missing_columns[:5]}{'...' if len(missing_columns) > 5 else ''}")
             
-            # 존재하는 컬럼이 없으면 건너뛰기
+            # 존재하는 컬럼이 없으면 건너뛰기 - 로그 제거
             if not existing_columns:
-                self.logger.info(f"{scaler_type} 그룹 - 적용 가능한 컬럼이 없어 건너뜁니다")
+                # self.logger.info(f"{scaler_type} 그룹 - 적용 가능한 컬럼이 없어 건너뜁니다")
                 continue
             
             # 중복 처리 방지 체크
@@ -420,36 +424,36 @@ class ModelingPipeline:
                         'missing_columns': missing_columns
                     }
                 else:
-                    # 기존 스케일러들
-            if scaler_type.lower() == 'standard':
-                scaler = StandardScaler()
-            elif scaler_type.lower() == 'robust':
-                scaler = RobustScaler()
-            elif scaler_type.lower() == 'minmax':
-                scaler = MinMaxScaler()
-            else:
+                            # 기존 스케일러들
+                    if scaler_type.lower() == 'standard':
+                        scaler = StandardScaler()
+                    elif scaler_type.lower() == 'robust':
+                        scaler = RobustScaler()
+                    elif scaler_type.lower() == 'minmax':
+                        scaler = MinMaxScaler()
+                    else:
                         self.logger.warning(f"지원하지 않는 스케일링 방법: {scaler_type}, Standard 스케일링을 사용합니다")
                 scaler = StandardScaler()
-            
-            # 훈련 데이터로 스케일러 피팅
-            scaler.fit(X_train[existing_columns])
-            
-            # 스케일링 적용
-            X_train.loc[:, existing_columns] = scaler.transform(X_train[existing_columns])
-            X_val.loc[:, existing_columns] = scaler.transform(X_val[existing_columns])
-            X_test.loc[:, existing_columns] = scaler.transform(X_test[existing_columns])
-            
-                    # 스케일러 정보 저장
-            scalers[scaler_type] = {
-                'scaler': scaler,
-                        'columns': existing_columns,
-                        'missing_columns': missing_columns
-                    }
+                
+                # 훈련 데이터로 스케일러 피팅
+                scaler.fit(X_train[existing_columns])
+                
+                # 스케일링 적용
+                X_train.loc[:, existing_columns] = scaler.transform(X_train[existing_columns])
+                X_val.loc[:, existing_columns] = scaler.transform(X_val[existing_columns])
+                X_test.loc[:, existing_columns] = scaler.transform(X_test[existing_columns])
+                
+                        # 스케일러 정보 저장
+                scalers[scaler_type] = {
+                    'scaler': scaler,
+                            'columns': existing_columns,
+                            'missing_columns': missing_columns
+                        }
                 
                 # 처리된 컬럼 추적
                 total_processed_columns.update(existing_columns)
                 
-                self.logger.info(f"{scaler_type} 스케일링 적용 완료: {len(existing_columns)}개 컬럼 처리")
+                # self.logger.info(f"{scaler_type} 스케일링 적용 완료: {len(existing_columns)}개 컬럼 처리")  # 로그 제거
                 
             except Exception as e:
                 self.logger.error(f"{scaler_type} 스케일링 적용 중 오류 발생: {e}")
@@ -459,10 +463,11 @@ class ModelingPipeline:
         total_scaled_columns = len(total_processed_columns)
         unscaled_columns = total_available_columns - total_processed_columns
         
-        self.logger.info(f"스케일링 완료 요약 ({data_type.upper()}):")
-        self.logger.info(f"  - 총 컬럼 수: {len(total_available_columns)}")
-        self.logger.info(f"  - 스케일링 적용: {total_scaled_columns}개 컬럼")
-        self.logger.info(f"  - 스케일링 미적용: {len(unscaled_columns)}개 컬럼")
+        # 스케일링 요약 로그 제거
+        # self.logger.info(f"스케일링 완료 요약 ({data_type.upper()}):")
+        # self.logger.info(f"  - 총 컬럼 수: {len(total_available_columns)}")
+        # self.logger.info(f"  - 스케일링 적용: {total_scaled_columns}개 컬럼")
+        # self.logger.info(f"  - 스케일링 미적용: {len(unscaled_columns)}개 컬럼")
         
         if unscaled_columns and len(unscaled_columns) <= 10:
             self.logger.info(f"  - 미적용 컬럼: {list(unscaled_columns)}")
@@ -507,7 +512,7 @@ class ModelingPipeline:
                 if min_val <= 0:
                     # 음수나 0이 있는 경우 shift 적용 (최소값을 1로 만들기)
                     shift_value = 1 - min_val
-                    self.logger.info(f"{scaler_type} - {col} ({df_name}): 최소값 {min_val:.4f}, shift {shift_value:.4f} 적용")
+                    # self.logger.info(f"{scaler_type} - {col} ({df_name}): 최소값 {min_val:.4f}, shift {shift_value:.4f} 적용")  # 로그 제거
                     df[col] = np.log1p(df[col] + shift_value)  # log1p = log(1+x)
                 else:
                     # 양수만 있는 경우 직접 로그 변환
@@ -557,26 +562,30 @@ class ModelingPipeline:
         """LogisticRegressionCV를 이용한 특성 선택 (이진 분류 전용)"""
         from sklearn.linear_model import LogisticRegressionCV
         from sklearn.preprocessing import StandardScaler
+        from sklearn.pipeline import Pipeline
         
         config = self.config['feature_selection']['logistic_regression_cv']
         
-        # 스케일링 (L1 정규화를 위해 필수)
-        scaler = StandardScaler()
-        X_train_scaled = scaler.fit_transform(X_train)
+        # Pipeline을 사용하여 CV 내부에서 스케일링 적용
+        pipeline = Pipeline([
+            ('scaler', StandardScaler()),
+            ('logistic', LogisticRegressionCV(
+                Cs=config['Cs'],
+                cv=config['cv_folds'],
+                penalty=config['penalty'],
+                solver=config['solver'],
+                max_iter=config['max_iter'],
+                scoring=config.get('scoring', 'roc_auc'),
+                random_state=self.config['random_state'],
+                n_jobs=self.config.get('performance', {}).get('n_jobs', 1)
+            ))
+        ])
         
-        # LogisticRegressionCV
-        logistic_cv = LogisticRegressionCV(
-            Cs=config['Cs'],
-            cv=config['cv_folds'],
-            penalty=config['penalty'],
-            solver=config['solver'],
-            max_iter=config['max_iter'],
-            scoring=config.get('scoring', 'roc_auc'),
-            random_state=self.config['random_state'],
-            n_jobs=self.config.get('performance', {}).get('n_jobs', 1)
-        )
+        # Pipeline 훈련 (CV 내부에서 각 fold마다 스케일링 적용)
+        pipeline.fit(X_train, y_train)
         
-        logistic_cv.fit(X_train_scaled, y_train)
+        # 훈련된 LogisticRegressionCV 모델 추출
+        logistic_cv = pipeline.named_steps['logistic']
         
         # 특성 선택
         threshold = config['threshold']
@@ -851,28 +860,62 @@ class ModelingPipeline:
         try:
             if explainer_type in ['kernel', 'permutation']:
                 shap_values = explainer(X_sample)
-                if hasattr(shap_values, 'values') and len(shap_values.values.shape) == 3:
-                    # 이진 분류의 경우 양성 클래스 SHAP 값 사용
-                    shap_values_array = shap_values.values[:, :, 1]
+                if hasattr(shap_values, 'values'):
+                    shap_values_raw = shap_values.values
                 else:
-                    shap_values_array = shap_values.values
+                    shap_values_raw = shap_values
             else:
-                shap_values = explainer.shap_values(X_sample)
-                if isinstance(shap_values, list):
-                    # 이진 분류의 경우 양성 클래스 SHAP 값 사용
-                    shap_values_array = shap_values[1]
-                else:
-                    shap_values_array = shap_values
+                shap_values_raw = explainer.shap_values(X_sample)
+            
+            # SHAP 값 배열 처리
+            if isinstance(shap_values_raw, list):
+                # 이진 분류의 경우 양성 클래스 SHAP 값 사용
+                shap_values_array = shap_values_raw[1]
+            elif shap_values_raw.ndim == 3:
+                # 3차원 배열의 경우 (n_samples, n_features, n_classes)
+                # 이진 분류에서 양성 클래스(클래스 1) SHAP 값 사용
+                shap_values_array = shap_values_raw[:, :, 1]
+            else:
+                shap_values_array = shap_values_raw
+                
         except Exception as e:
             self.logger.warning(f"SHAP 값 계산 실패 ({e}), 기본 feature importance 사용")
             if hasattr(estimator, 'feature_importances_'):
                 shap_values_array = estimator.feature_importances_.reshape(1, -1)
             else:
                 # 로지스틱 회귀의 경우 계수의 절댓값 사용
-                shap_values_array = np.abs(estimator.coef_).reshape(1, -1)
+                coef = estimator.coef_
+                if coef.ndim == 2:
+                    # 이진 분류의 경우 (1, n_features) 형태
+                    shap_values_array = np.abs(coef)
+                else:
+                    # 1차원인 경우
+                    shap_values_array = np.abs(coef).reshape(1, -1)
         
         # 특성별 평균 절댓값 SHAP 값 계산
-        mean_abs_shap = np.mean(np.abs(shap_values_array), axis=0)
+        if shap_values_array.ndim == 2:
+            mean_abs_shap = np.mean(np.abs(shap_values_array), axis=0)
+        elif shap_values_array.ndim == 1:
+            mean_abs_shap = np.abs(shap_values_array)
+        else:
+            # 예상치 못한 차원의 경우
+            self.logger.warning(f"예상치 못한 SHAP 값 차원: {shap_values_array.shape}")
+            mean_abs_shap = np.abs(shap_values_array).flatten()[:len(X_train.columns)]
+        
+        # 차원 확인 및 디버깅 로그
+        self.logger.info(f"SHAP 값 배열 형태: {shap_values_array.shape}")
+        self.logger.info(f"평균 절댓값 SHAP 형태: {mean_abs_shap.shape}")
+        self.logger.info(f"특성 개수: {len(X_train.columns)}")
+        
+        # 차원이 맞지 않는 경우 처리
+        if len(mean_abs_shap) != len(X_train.columns):
+            self.logger.error(f"차원 불일치: SHAP 값 {len(mean_abs_shap)}개, 특성 {len(X_train.columns)}개")
+            # 최소 길이로 맞춤
+            min_len = min(len(mean_abs_shap), len(X_train.columns))
+            mean_abs_shap = mean_abs_shap[:min_len]
+            feature_names = X_train.columns[:min_len]
+        else:
+            feature_names = X_train.columns
         
         # 특성 선택
         threshold = config['threshold']
@@ -885,13 +928,13 @@ class ModelingPipeline:
             threshold_value = float(threshold)
         
         selected_mask = mean_abs_shap >= threshold_value
-        selected_features = X_train.columns[selected_mask].tolist()
+        selected_features = feature_names[selected_mask].tolist()
         
         # max_features 제한 적용
         max_features = config.get('max_features')
         if max_features and len(selected_features) > max_features:
             # SHAP 값 순으로 정렬하여 상위 max_features개만 선택
-            feature_shap_pairs = list(zip(X_train.columns, mean_abs_shap))
+            feature_shap_pairs = list(zip(feature_names, mean_abs_shap))
             feature_shap_pairs.sort(key=lambda x: x[1], reverse=True)
             selected_features = [pair[0] for pair in feature_shap_pairs[:max_features]]
         
@@ -908,7 +951,7 @@ class ModelingPipeline:
             'original_features': len(X_train.columns),
             'selected_features': len(selected_features),
             'selected_feature_names': selected_features,
-            'mean_abs_shap_values': dict(zip(X_train.columns, mean_abs_shap)),
+            'mean_abs_shap_values': dict(zip(feature_names, mean_abs_shap)),
             'estimator_params': estimator_params
         }
         
@@ -942,7 +985,7 @@ class ModelingPipeline:
         primary_metric = optimization_config.get('primary_metric', 'roc_auc')
         
         # Config에서 class_weight 설정 가져오기
-        class_weight = config.get('class_weight', 'balanced')
+        class_weight = config.get('class_weight', None)
         self.logger.info(f"Logistic Regression 클래스 불균형 가중치: class_weight={class_weight}")
         self.logger.info(f"최적화 메트릭: {primary_metric.upper()}")
         
@@ -988,9 +1031,9 @@ class ModelingPipeline:
                 # Cross validation with proper sampling (데이터 누수 방지)
                 scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=5, scoring=primary_metric)
             
-            return scores.mean()
+                return scores.mean()
                 
-            except (Warning, Exception):
+            except (Warning, Exception) as e:
                 # 모든 예외에 대해 낮은 점수 반환
                 return 0.5
         
@@ -1044,7 +1087,7 @@ class ModelingPipeline:
         primary_metric = optimization_config.get('primary_metric', 'roc_auc')
         
         # Config에서 class_weight 설정 가져오기
-        class_weight = config.get('class_weight', 'balanced')
+        class_weight = config.get('class_weight', None)
         self.logger.info(f"Random Forest 클래스 불균형 가중치: class_weight={class_weight}")
         self.logger.info(f"최적화 메트릭: {primary_metric.upper()}")
         
@@ -1195,7 +1238,7 @@ class ModelingPipeline:
         """
         skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=self.config['random_state'])
         scores = []
-        
+                
         for fold, (train_idx, val_idx) in enumerate(skf.split(X, y)):
             # 각 fold마다 별도로 분할
             X_fold_train, X_fold_val = X.iloc[train_idx], X.iloc[val_idx]
@@ -1224,7 +1267,7 @@ class ModelingPipeline:
                 
                 # 다양한 평가 메트릭 계산
                 if scoring == 'roc_auc':
-                score = roc_auc_score(y_fold_val, y_pred_proba)
+                    score = roc_auc_score(y_fold_val, y_pred_proba)
                 elif scoring == 'average_precision':
                     score = average_precision_score(y_fold_val, y_pred_proba)
                 elif scoring == 'f1':
@@ -1238,51 +1281,170 @@ class ModelingPipeline:
                 
             except Exception as e:
                 self.logger.warning(f"Fold {fold+1} {data_type.upper()} 처리 실패: {e}")
-                # 처리 실패 시 원본 데이터로 훈련
-                model_copy = model.__class__(**model.get_params())
-                model_copy.fit(X_fold_train, y_fold_train)
-                y_pred_proba = model_copy.predict_proba(X_fold_val)[:, 1]
                 
-                if scoring == 'roc_auc':
-                score = roc_auc_score(y_fold_val, y_pred_proba)
-                elif scoring == 'average_precision':
-                    score = average_precision_score(y_fold_val, y_pred_proba)
-                elif scoring == 'f1':
-                    y_pred = (y_pred_proba >= 0.5).astype(int)
-                    score = f1_score(y_fold_val, y_pred, zero_division=0)
-                else:
-                    score = roc_auc_score(y_fold_val, y_pred_proba)
-                
-                scores.append(score)
+                try:
+                    # 처리 실패 시 원본 데이터로 훈련 (최소한의 백업)
+                    model_copy = model.__class__(**model.get_params())
+                    model_copy.fit(X_fold_train, y_fold_train)
+                    y_pred_proba = model_copy.predict_proba(X_fold_val)[:, 1]
+                    
+                    if scoring == 'roc_auc':
+                        score = roc_auc_score(y_fold_val, y_pred_proba)
+                    elif scoring == 'average_precision':
+                        score = average_precision_score(y_fold_val, y_pred_proba)
+                    elif scoring == 'f1':
+                        y_pred = (y_pred_proba >= 0.5).astype(int)
+                        score = f1_score(y_fold_val, y_pred, zero_division=0)
+                    else:
+                        score = roc_auc_score(y_fold_val, y_pred_proba)
+                    
+                    scores.append(score)
+                    self.logger.info(f"Fold {fold+1} 백업 처리 완료: {score:.4f}")
+                    
+                except Exception as e2:
+                    # 완전히 실패한 경우 기본값 사용
+                    self.logger.error(f"Fold {fold+1} 완전 실패: {e2}")
+                    default_score = 0.5 if scoring == 'roc_auc' else 0.0
+                    scores.append(default_score)
         
-        return np.array(scores)
+        if not scores:
+            self.logger.error(f"모든 CV fold 실패, 기본값 반환")
+            default_score = 0.5 if scoring == 'roc_auc' else 0.0
+            scores = [default_score] * cv_folds
+        
+        scores_array = np.array(scores)        
+        return scores_array
+    
+    def _proper_cv_with_all_metrics(self, model, X: pd.DataFrame, y: pd.Series, data_type: str, cv_folds: int = 5) -> Dict[str, float]:
+        """
+        최적화된 CV: 한 번의 CV로 모든 메트릭을 동시에 계산
+        시간을 3배 단축 (15 fold → 5 fold)
+        """
+        skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=self.config['random_state'])
+        
+        # 각 메트릭별 점수 저장
+        auc_scores = []
+        ap_scores = []
+        f1_scores = []
+                
+        for fold, (train_idx, val_idx) in enumerate(skf.split(X, y)):            
+            # 각 fold마다 별도로 분할
+            X_fold_train, X_fold_val = X.iloc[train_idx], X.iloc[val_idx]
+            y_fold_train, y_fold_val = y.iloc[train_idx], y.iloc[val_idx]
+            
+            try:
+                # 1단계: 스케일링 적용
+                X_fold_train_scaled, X_fold_val_scaled, _, scalers = self.apply_scaling(
+                    X_fold_train.copy(),
+                    X_fold_val.copy(), 
+                    X_fold_val.copy(),  # 더미 테스트 데이터
+                    data_type
+                )
+                
+                # 2단계: 샘플링 적용 (훈련 데이터에만)
+                X_fold_train_resampled, y_fold_train_resampled = self.apply_sampling_strategy(
+                    X_fold_train_scaled, y_fold_train, data_type
+                )
+                
+                # 3단계: 모델 훈련
+                model_copy = model.__class__(**model.get_params())
+                model_copy.fit(X_fold_train_resampled, y_fold_train_resampled)
+                
+                # 4단계: 예측 (한 번만 수행)
+                y_pred_proba = model_copy.predict_proba(X_fold_val_scaled)[:, 1]
+                y_pred_binary = (y_pred_proba >= 0.5).astype(int)
+                
+                # 5단계: 모든 메트릭 동시 계산
+                auc_score = roc_auc_score(y_fold_val, y_pred_proba)
+                ap_score = average_precision_score(y_fold_val, y_pred_proba)
+                f1_score_val = f1_score(y_fold_val, y_pred_binary, zero_division=0)
+                
+                auc_scores.append(auc_score)
+                ap_scores.append(ap_score)
+                f1_scores.append(f1_score_val)
+                
+            except Exception as e:
+                self.logger.warning(f"Fold {fold+1} {data_type.upper()} 처리 실패: {e}")
+                
+                try:
+                    # 백업 처리: 원본 데이터로 훈련
+                    model_copy = model.__class__(**model.get_params())
+                    model_copy.fit(X_fold_train, y_fold_train)
+                    y_pred_proba = model_copy.predict_proba(X_fold_val)[:, 1]
+                    y_pred_binary = (y_pred_proba >= 0.5).astype(int)
+                    
+                    auc_score = roc_auc_score(y_fold_val, y_pred_proba)
+                    ap_score = average_precision_score(y_fold_val, y_pred_proba)
+                    f1_score_val = f1_score(y_fold_val, y_pred_binary, zero_division=0)
+                    
+                    auc_scores.append(auc_score)
+                    ap_scores.append(ap_score)
+                    f1_scores.append(f1_score_val)
+                    
+                    self.logger.info(f"Fold {fold+1} 백업 처리 완료: AUC={auc_score:.3f}, AP={ap_score:.3f}, F1={f1_score_val:.3f}")
+                    
+                except Exception as e2:
+                    # 완전 실패 시 기본값
+                    self.logger.error(f"Fold {fold+1} 완전 실패: {e2}")
+                    auc_scores.append(0.5)
+                    ap_scores.append(0.0)
+                    f1_scores.append(0.0)
+        
+        # 최종 메트릭 계산
+        if not auc_scores:
+            self.logger.error(f"모든 CV fold 실패, 기본값 반환")
+            return {
+                'cv_auc_mean': 0.5, 'cv_auc_std': 0.0,
+                'cv_average_precision_mean': 0.0, 'cv_average_precision_std': 0.0,
+                'cv_f1_mean': 0.0, 'cv_f1_std': 0.0
+            }
+        
+        # 결과 정리
+        auc_array = np.array(auc_scores)
+        ap_array = np.array(ap_scores)
+        f1_array = np.array(f1_scores)
+        
+        metrics = {
+            'cv_auc_mean': float(auc_array.mean()),
+            'cv_auc_std': float(auc_array.std()),
+            'cv_average_precision_mean': float(ap_array.mean()),
+            'cv_average_precision_std': float(ap_array.std()),
+            'cv_f1_mean': float(f1_array.mean()),
+            'cv_f1_std': float(f1_array.std())
+        }
+        
+        self.logger.info(f"최적화된 CV 완료: AUC={metrics['cv_auc_mean']:.4f}(±{metrics['cv_auc_std']:.4f}), "
+                        f"AP={metrics['cv_average_precision_mean']:.4f}(±{metrics['cv_average_precision_std']:.4f}), "
+                        f"F1={metrics['cv_f1_mean']:.4f}(±{metrics['cv_f1_std']:.4f})")
+        
+        return metrics
     
     def _calculate_cv_metrics(self, model, X_train: pd.DataFrame, y_train: pd.Series, data_type: str) -> Dict[str, float]:
         """
-        다양한 CV 메트릭 계산 (데이터 누수 방지)
+        다양한 CV 메트릭 계산 (데이터 누수 방지) - 최적화된 버전
+        한 번의 CV로 모든 메트릭을 동시에 계산
         """
-        metrics = {}
+        self.logger.info(f"CV 메트릭 계산 시작 ({data_type.upper()})")
         
-        # ROC AUC
-        auc_scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=5, scoring='roc_auc')
-        metrics['cv_auc_mean'] = float(auc_scores.mean())
-        metrics['cv_auc_std'] = float(auc_scores.std())
-        
-        # Average Precision
-        ap_scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=5, scoring='average_precision')
-        metrics['cv_average_precision_mean'] = float(ap_scores.mean())
-        metrics['cv_average_precision_std'] = float(ap_scores.std())
-        
-        # F1 Score
-        f1_scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=5, scoring='f1')
-        metrics['cv_f1_mean'] = float(f1_scores.mean())
-        metrics['cv_f1_std'] = float(f1_scores.std())
-        
-        self.logger.info(f"CV 메트릭 - AUC: {metrics['cv_auc_mean']:.4f} (±{metrics['cv_auc_std']:.4f})")
-        self.logger.info(f"CV 메트릭 - AP: {metrics['cv_average_precision_mean']:.4f} (±{metrics['cv_average_precision_std']:.4f})")
-        self.logger.info(f"CV 메트릭 - F1: {metrics['cv_f1_mean']:.4f} (±{metrics['cv_f1_std']:.4f})")
-        
-        return metrics
+        try:
+            # 한 번의 CV로 모든 메트릭 계산
+            all_metrics = self._proper_cv_with_all_metrics(model, X_train, y_train, data_type, cv_folds=5)
+            
+            self.logger.info(f"CV 메트릭 계산 완료 - AUC: {all_metrics['cv_auc_mean']:.4f}, AP: {all_metrics['cv_average_precision_mean']:.4f}, F1: {all_metrics['cv_f1_mean']:.4f}")
+            
+            return all_metrics
+            
+        except Exception as e:
+            self.logger.error(f"CV 메트릭 계산 실패: {e}")
+            # 기본값 반환
+            return {
+                'cv_auc_mean': 0.5,
+                'cv_auc_std': 0.0,
+                'cv_average_precision_mean': 0.0,
+                'cv_average_precision_std': 0.0,
+                'cv_f1_mean': 0.0,
+                'cv_f1_std': 0.0
+            }
     
 
     
@@ -1356,7 +1518,7 @@ class ModelingPipeline:
             threshold_analysis = {}
         else:
         # 결과를 DataFrame으로 변환
-        threshold_df = pd.DataFrame(threshold_results)
+            threshold_df = pd.DataFrame(threshold_results)
         
         # 주요 메트릭별 최적 threshold 찾기
         metric_priority = self.config.get('threshold_optimization', {}).get('metric_priority', 'f1')
@@ -1370,15 +1532,26 @@ class ModelingPipeline:
                     'value': threshold_df.loc[best_idx, metric]
                 }
         
+        # average_precision은 별도로 계산 (임계값과 무관하므로 F1 기준 threshold 사용)
+        if metric_priority == 'average_precision':
+            ap_score = average_precision_score(y_val, y_val_proba)
+            # F1 기준 threshold 사용 (average_precision은 임계값 무관)
+            f1_threshold = optimal_thresholds.get('f1', {}).get('threshold', 0.5)
+            
+            optimal_thresholds['average_precision'] = {
+                'threshold': f1_threshold,
+                'value': ap_score
+            }
+        
         # 우선순위 메트릭으로 최종 threshold 선택
         if metric_priority in optimal_thresholds:
                 optimal_threshold = optimal_thresholds[metric_priority]['threshold']
-            final_value = optimal_thresholds[metric_priority]['value']
+                final_value = optimal_thresholds[metric_priority]['value']
         else:
                 optimal_threshold = optimal_thresholds['f1']['threshold']
-            final_value = optimal_thresholds['f1']['value']
+                final_value = optimal_thresholds['f1']['value']
         
-            self.logger.info(f"최종 선택: {optimal_threshold:.3f} ({metric_priority.upper()}: {final_value:.4f})")
+        self.logger.info(f"최종 선택: {optimal_threshold:.3f} ({metric_priority.upper()}: {final_value:.4f})")
         
         # Precision-Recall 곡선 데이터 저장
         precision_vals, recall_vals, pr_thresholds = precision_recall_curve(y_val, y_val_proba)
@@ -1636,6 +1809,14 @@ class ModelingPipeline:
             
             # 6. Train vs Test 성능 비교 (Overfitting 분석)
             self._plot_train_vs_test_comparison(viz_dir)
+            
+            # 7. 앙상블 가중치 시각화
+            if 'ensemble_model' in self.models:
+                try:
+                    ensemble_pipeline = self.models['ensemble_model']
+                    ensemble_pipeline.create_ensemble_report(viz_dir)
+                except Exception as e:
+                    self.logger.error(f"앙상블 시각화 리포트 생성 중 오류: {e}")
             
             self.logger.info("시각화 생성 완료")
             

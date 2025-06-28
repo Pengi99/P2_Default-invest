@@ -179,13 +179,17 @@ class FullPipelineRunner:
             else:
                 config_path = str(modeling_config)
             
-            # 전처리 결과 경로를 모델링 설정에 반영
-            self.update_modeling_config_paths(config_path)
-            
             print(f"📋 설정 파일: {config_path}")
             
-            # 모델링 파이프라인 실행
-            pipeline = ModelingPipeline(config_path)
+            # 전처리 결과 경로 계산 (임시 파일 없이 동적 전달)
+            data_path_override = None
+            if hasattr(self, 'preprocessing_dir'):
+                relative_path = Path(self.preprocessing_dir).relative_to(self.project_root)
+                data_path_override = str(relative_path)
+                print(f"📝 데이터 경로 오버라이드: {data_path_override}")
+            
+            # 모델링 파이프라인 실행 (동적 경로 전달)
+            pipeline = ModelingPipeline(config_path, data_path_override=data_path_override)
             experiment_dir = pipeline.run_pipeline()
             
             print(f"📁 모델링 결과 저장: {experiment_dir}")
@@ -195,13 +199,6 @@ class FullPipelineRunner:
             
             self.modeling_dir = experiment_dir
             self.log_step_end("3", True)
-            
-            # 임시 설정 파일 정리
-            if self.quick_test:
-                temp_config = Path(config_path)
-                if temp_config.exists():
-                    temp_config.unlink()
-                    print(f"🗑️ 임시 설정 파일 삭제: {config_path}")
             
             return True
             
@@ -241,24 +238,7 @@ class FullPipelineRunner:
             yaml.dump(config, f, default_flow_style=False, allow_unicode=True, indent=2)
         
         return str(temp_config_path)
-    
-    def update_modeling_config_paths(self, config_path: str):
-        """모델링 설정의 데이터 경로를 전처리 결과로 업데이트"""
-        import yaml
-        
-        with open(config_path, 'r', encoding='utf-8') as f:
-            config = yaml.safe_load(f)
-        
-        # 전처리 결과 경로로 업데이트
-        if hasattr(self, 'preprocessing_dir'):
-            # 상대 경로로 변환
-            relative_path = Path(self.preprocessing_dir).relative_to(self.project_root)
-            config['data']['input_path'] = str(relative_path)
-            
-            with open(config_path, 'w', encoding='utf-8') as f:
-                yaml.dump(config, f, default_flow_style=False, allow_unicode=True, indent=2)
-            
-            print(f"📝 데이터 경로 업데이트: {relative_path}")
+
     
     def print_modeling_summary(self, pipeline):
         """모델링 결과 요약 출력"""

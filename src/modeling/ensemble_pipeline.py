@@ -274,9 +274,18 @@ class EnsemblePipeline:
         threshold_df = pd.DataFrame(threshold_results)
         
         # 최적 threshold 찾기
-        best_idx = threshold_df[metric].idxmax()
-        optimal_threshold = threshold_df.loc[best_idx, 'threshold']
-        optimal_value = threshold_df.loc[best_idx, metric]
+        if metric == 'average_precision':
+            # average_precision은 임계값과 무관하므로 F1 기준으로 threshold 선택
+            optimal_value = average_precision_score(y_val, y_pred_proba)
+            if 'f1' in threshold_df.columns:
+                best_idx = threshold_df['f1'].idxmax()
+                optimal_threshold = threshold_df.loc[best_idx, 'threshold']
+            else:
+                optimal_threshold = 0.5
+        else:
+            best_idx = threshold_df[metric].idxmax()
+            optimal_threshold = threshold_df.loc[best_idx, 'threshold']
+            optimal_value = threshold_df.loc[best_idx, metric]
         
         print(f"✅ 최적 Threshold: {optimal_threshold:.3f} ({metric.upper()}: {optimal_value:.4f})")
         
