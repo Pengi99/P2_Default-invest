@@ -82,6 +82,7 @@ class DataPreprocessingPipeline:
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
+        logger.propagate = False
         
         # 파일 핸들러
         if self.config['logging']['save_to_file']:
@@ -177,10 +178,16 @@ class DataPreprocessingPipeline:
     
     def _split_data_random(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """랜덤 기반 데이터 분할 (기존 방식)"""
-        self.logger.info("랜덤 기반 데이터 분할 시작 (5:3:2)")
+        self.logger.info("랜덤 기반 데이터 분할 시작")
         
         target_col = self.config['feature_engineering']['target_column']
         random_config = self.config['data_split']['random']
+        
+        # 거래소코드 그룹핑 옵션 확인
+        group_by_exchange = random_config.get('group_by_exchange', False)
+        
+        if group_by_exchange:
+            return self._split_data_random_grouped(df)
         
         # 먼저 train과 temp로 분할 (5:5)
         if random_config['stratify']:
@@ -226,7 +233,76 @@ class DataPreprocessingPipeline:
             'test_shape': test_df.shape,
             'train_target_dist': train_df[target_col].value_counts().to_dict(),
             'val_target_dist': val_df[target_col].value_counts().to_dict(),
-            'test_target_dist': test_df[target_col].value_counts().to_dict()
+            'test_target_dist': test_df[target_col].value_counts().to_dict(),
+            'group_by_exchange': group_by_exchange
+        }
+        
+        return train_df, val_df, test_df
+    
+    def _split_data_random_grouped(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        """거래소코드 그룹핑 기반 랜덤 데이터 분할"""
+        self.logger.info("거래소코드 그룹핑 기반 랜덤 데이터 분할 시작")
+        
+        target_col = self.config['feature_engineering']['target_column']
+        random_config = self.config['data_split']['random']
+        
+        # 거래소코드별 그룹 생성
+        exchange_groups = df.groupby('거래소코드')
+        exchange_codes = list(exchange_groups.groups.keys())
+        
+        # self.logger.info(f"거래소코드 개수: {len(exchange_codes)}")
+        # for code in exchange_codes:
+        #     group_size = len(exchange_groups.get_group(code))
+        #     self.logger.info(f"  거래소코드 {code}: {group_size}개 기업")
+        
+        # 거래소코드를 train/val/test로 분할
+        np.random.seed(random_config['random_state'])
+        np.random.shuffle(exchange_codes)
+        
+        train_ratio = random_config['train_ratio']
+        val_ratio = random_config['val_ratio']
+        
+        n_total = len(exchange_codes)
+        n_train = int(n_total * train_ratio)
+        n_val = int(n_total * val_ratio)
+        
+        train_codes = exchange_codes[:n_train]
+        val_codes = exchange_codes[n_train:n_train + n_val]
+        test_codes = exchange_codes[n_train + n_val:]
+        
+        # 각 그룹에 해당하는 데이터 추출
+        train_df = df[df['거래소코드'].isin(train_codes)].copy()
+        val_df = df[df['거래소코드'].isin(val_codes)].copy()
+        test_df = df[df['거래소코드'].isin(test_codes)].copy()
+        
+        # self.logger.info(f"분할 결과:")
+        # self.logger.info(f"  Train: {train_df.shape} (거래소코드: {len(train_codes)}개)")
+        # self.logger.info(f"  Val: {val_df.shape} (거래소코드: {len(val_codes)}개)")
+        # self.logger.info(f"  Test: {test_df.shape} (거래소코드: {len(test_codes)}개)")
+        
+        # # 각 세트의 거래소코드 분포 확인
+        # self.logger.info(f"Train 거래소코드: {sorted(train_codes)}")
+        # self.logger.info(f"Val 거래소코드: {sorted(val_codes)}")
+        # self.logger.info(f"Test 거래소코드: {sorted(test_codes)}")
+        
+        # 분할 정보 저장
+        self.results['preprocessing_steps']['data_split'] = {
+            'method': 'random_grouped',
+            'train_shape': train_df.shape,
+            'val_shape': val_df.shape,
+            'test_shape': test_df.shape,
+            'train_target_dist': train_df[target_col].value_counts().to_dict(),
+            'val_target_dist': val_df[target_col].value_counts().to_dict(),
+            'test_target_dist': test_df[target_col].value_counts().to_dict(),
+            'group_by_exchange': True,
+            'train_exchange_codes': train_codes,
+            'val_exchange_codes': val_codes,
+            'test_exchange_codes': test_codes,
+            'exchange_distribution': {
+                'train': len(train_codes),
+                'val': len(val_codes),
+                'test': len(test_codes)
+            }
         }
         
         return train_df, val_df, test_df
@@ -475,8 +551,20 @@ class DataPreprocessingPipeline:
    - Train: {split_info['train_shape']} ({split_info['train_years'][0]}-{split_info['train_years'][-1]}년)
    - Validation: {split_info['val_shape']} ({split_info['val_years'][0]}-{split_info['val_years'][-1]}년)
    - Test: {split_info['test_shape']} ({split_info['test_years'][0]}-{split_info['test_years'][-1]}년)"""
+        elif split_info['method'] == 'random_grouped':
+            split_details = f"""1. 데이터 분할 (거래소코드 그룹핑 기반)
+   - 방법: 거래소코드 그룹핑 랜덤 분할 (5:3:2)
+   - Train: {split_info['train_shape']} (거래소코드: {split_info['exchange_distribution']['train']}개)
+   - Validation: {split_info['val_shape']} (거래소코드: {split_info['exchange_distribution']['val']}개)
+   - Test: {split_info['test_shape']} (거래소코드: {split_info['exchange_distribution']['test']}개)
+   - Train 거래소코드: {split_info['train_exchange_codes']}
+   - Val 거래소코드: {split_info['val_exchange_codes']}
+   - Test 거래소코드: {split_info['test_exchange_codes']}"""
         else:
-            split_details = f"""1. 데이터 분할 (랜덤 기반)
+            group_info = ""
+            if split_info.get('group_by_exchange', False):
+                group_info = " (거래소코드 그룹핑 적용)"
+            split_details = f"""1. 데이터 분할 (랜덤 기반{group_info})
    - 방법: 랜덤 분할 (5:3:2)
    - Train: {split_info['train_shape']}
    - Validation: {split_info['val_shape']}

@@ -9,7 +9,7 @@ data:
 # 데이터 분할 설정
 data_split:
   # 분할 방식: 'random' 또는 'timeseries'
-  split_method: "timeseries"
+  split_method: "random"
   
   # 시계열 분할 설정 (split_method가 'timeseries'일 때 사용)
   timeseries:
@@ -20,11 +20,12 @@ data_split:
   
   # 랜덤 분할 설정 (split_method가 'random'일 때 사용)
   random:
-    train_ratio: 0.5    # 50%
-    val_ratio: 0.3      # 30%
-    test_ratio: 0.2     # 20%
+    train_ratio: 0.6
+    val_ratio: 0.2
+    test_ratio: 0.2
     random_state: 42
     stratify: true      # 타겟 변수 기준 층화 샘플링
+    group_by_exchange: true  # 거래소코드별 그룹핑 여부 (true: 거래소코드가 같은 행들을 그룹화해서 분할)
 
 # 결측치 처리 설정
 missing_data:
@@ -41,8 +42,8 @@ outlier_treatment:
   method: "winsorization"  # winsorization, iqr, zscore
   # 윈저라이징 설정
   winsorization:
-    lower_percentile: 0.001   # 하위 0.1%
-    upper_percentile: 0.999   # 상위 0.1% (양 옆 0.001씩)
+    lower_percentile: 0.005   # 하위 0.1%
+    upper_percentile: 0.995   # 상위 0.1% (양 옆 0.001씩)
   
 # 피처 엔지니어링
 feature_engineering:

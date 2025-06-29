@@ -146,6 +146,7 @@ class ModelingPipeline:
             file_handler = logging.FileHandler(log_file)
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
+            logger.propagate = False
         
         return logger
     
@@ -208,7 +209,7 @@ class ModelingPipeline:
         Args:
             X: 특성 데이터
             y: 타겟 데이터
-            data_type: 데이터 타입 ('normal', 'smote', 'undersampling', 'combined')
+            data_type: 데이터 타입 ('normal', 'smote', 'undersampling', 'combined', 'ctgan')
             
         Returns:
             tuple: (X_resampled, y_resampled)
@@ -216,7 +217,15 @@ class ModelingPipeline:
         if data_type == 'normal':
             return X, y
         
-        config = self.config['sampling']['data_types'][data_type]
+        # config가 None이거나 존재하지 않을 경우 처리
+        try:
+            config = self.config['sampling']['data_types'][data_type]
+            if config is None:
+                self.logger.warning(f"{data_type} 샘플링 설정이 None입니다. 원본 데이터를 반환합니다.")
+                return X, y
+        except (KeyError, TypeError) as e:
+            self.logger.warning(f"{data_type} 샘플링 설정을 찾을 수 없습니다: {e}. 원본 데이터를 반환합니다.")
+            return X, y
         
         if data_type == 'smote':
             # 양성 샘플 수 확인
@@ -286,6 +295,76 @@ class ModelingPipeline:
             
             X_resampled, y_resampled = undersampler.fit_resample(X, y)
             return pd.DataFrame(X_resampled, columns=X.columns), pd.Series(y_resampled)
+        
+        elif data_type == 'ctgan':
+            try:
+                from ctgan import CTGAN
+                from sklearn.model_selection import train_test_split
+                import numpy as np
+                
+                # 원본 데이터 크기와 클래스 분포 확인
+                n_minority = (y == 1).sum()
+                n_majority = (y == 0).sum()
+                total_samples = len(y)
+                
+                self.logger.info(f"CTGAN 시작 - 클래스 분포: 0={n_majority}, 1={n_minority}")
+                
+                # 소수 클래스가 너무 적으면 건너뛰기
+                if n_minority < 10:
+                    self.logger.warning(f"소수 클래스 샘플이 {n_minority}개로 너무 적어 CTGAN 건너뛰기")
+                    return X, y
+                
+                # CTGAN 학습용 데이터 준비
+                ctgan_data = X.copy()
+                ctgan_data['target'] = y
+                
+                # 소수 클래스 데이터만 추출해서 CTGAN 학습
+                minority_data = ctgan_data[ctgan_data['target'] == 1].copy()
+                
+                # CTGAN 모델 생성 및 학습
+                ctgan_config = config.get('ctgan', {})
+                ctgan = CTGAN(
+                    epochs=ctgan_config.get('epochs', 300),
+                    batch_size=min(ctgan_config.get('batch_size', 500), len(minority_data)),
+                    generator_dim=ctgan_config.get('generator_dim', (256, 256)),
+                    discriminator_dim=ctgan_config.get('discriminator_dim', (256, 256)),
+                    verbose=False
+                )
+                
+                ctgan.fit(minority_data, discrete_columns=['target'])
+                
+                # 필요한 synthetic 샘플 수 계산
+                target_ratio = config.get('sampling_strategy', 0.5)
+                if isinstance(target_ratio, dict):
+                    target_count = target_ratio.get(1, n_majority)
+                else:
+                    target_count = int(n_majority * target_ratio)
+                
+                n_synthetic = max(0, target_count - n_minority)
+                
+                if n_synthetic > 0:
+                    # Synthetic 샘플 생성
+                    synthetic_samples = ctgan.sample(n_synthetic)
+                    synthetic_samples['target'] = 1  # 모두 양성 클래스로 설정
+                    
+                    # 기존 데이터와 결합
+                    combined_data = pd.concat([ctgan_data, synthetic_samples], ignore_index=True)
+                    
+                    X_resampled = combined_data.drop('target', axis=1)
+                    y_resampled = combined_data['target']
+                    
+                    self.logger.info(f"CTGAN 완료 - {n_synthetic}개 synthetic 샘플 생성")
+                    return X_resampled, y_resampled
+                else:
+                    self.logger.info("CTGAN - 추가 샘플링 불필요")
+                    return X, y
+                
+            except ImportError:
+                self.logger.warning("CTGAN 패키지가 설치되지 않음. 'pip install ctgan' 실행 후 재시도")
+                return X, y
+            except Exception as e:
+                self.logger.warning(f"CTGAN 실패: {e}")
+                return X, y
         
         elif data_type == 'combined':
             # 1단계: SMOTE 적용
@@ -389,7 +468,16 @@ class ModelingPipeline:
         total_processed_columns = set()
         
         # 각 스케일링 방법별로 컬럼 처리
-        for scaler_type, columns in scaling_config.get('column_groups', {}).items():
+        column_groups = scaling_config.get('column_groups', {})
+        if column_groups is None:
+            column_groups = {}
+        
+        for scaler_type, columns in column_groups.items():
+            # columns가 None인 경우 건너뛰기
+            if columns is None:
+                self.logger.warning(f"{scaler_type} 그룹의 컬럼 목록이 None입니다. 건너뜁니다.")
+                continue
+            
             # 실제 존재하는 컬럼과 존재하지 않는 컬럼 구분
             existing_columns = [col for col in columns if col in total_available_columns]
             missing_columns = [col for col in columns if col not in total_available_columns]
@@ -424,7 +512,7 @@ class ModelingPipeline:
                         'missing_columns': missing_columns
                     }
                 else:
-                            # 기존 스케일러들
+                    # 기존 스케일러들
                     if scaler_type.lower() == 'standard':
                         scaler = StandardScaler()
                     elif scaler_type.lower() == 'robust':
@@ -433,22 +521,22 @@ class ModelingPipeline:
                         scaler = MinMaxScaler()
                     else:
                         self.logger.warning(f"지원하지 않는 스케일링 방법: {scaler_type}, Standard 스케일링을 사용합니다")
-                scaler = StandardScaler()
+                        scaler = StandardScaler()
                 
-                # 훈련 데이터로 스케일러 피팅
-                scaler.fit(X_train[existing_columns])
-                
-                # 스케일링 적용
-                X_train.loc[:, existing_columns] = scaler.transform(X_train[existing_columns])
-                X_val.loc[:, existing_columns] = scaler.transform(X_val[existing_columns])
-                X_test.loc[:, existing_columns] = scaler.transform(X_test[existing_columns])
-                
-                        # 스케일러 정보 저장
-                scalers[scaler_type] = {
-                    'scaler': scaler,
-                            'columns': existing_columns,
-                            'missing_columns': missing_columns
-                        }
+                    # 훈련 데이터로 스케일러 피팅
+                    scaler.fit(X_train[existing_columns])
+                    
+                    # 스케일링 적용
+                    X_train.loc[:, existing_columns] = scaler.transform(X_train[existing_columns])
+                    X_val.loc[:, existing_columns] = scaler.transform(X_val[existing_columns])
+                    X_test.loc[:, existing_columns] = scaler.transform(X_test[existing_columns])
+                    
+                    # 스케일러 정보 저장
+                    scalers[scaler_type] = {
+                        'scaler': scaler,
+                        'columns': existing_columns,
+                        'missing_columns': missing_columns
+                    }
                 
                 # 처리된 컬럼 추적
                 total_processed_columns.update(existing_columns)
@@ -1246,17 +1334,29 @@ class ModelingPipeline:
             
             try:
                 # 1단계: 스케일링 적용 (훈련 fold에서 fit, 검증 fold에서 transform)
-                X_fold_train_scaled, X_fold_val_scaled, _, scalers = self.apply_scaling(
+                scaling_result = self.apply_scaling(
                     X_fold_train.copy(),
                     X_fold_val.copy(), 
                     X_fold_val.copy(),  # 더미 테스트 데이터 (사용 안 함)
                     data_type
                 )
                 
-                # 2단계: 샘플링 적용 (스케일링된 훈련 데이터에만)
-                X_fold_train_resampled, y_fold_train_resampled = self.apply_sampling_strategy(
+                # scaling 결과 None 체크
+                if scaling_result is None or len(scaling_result) != 4:
+                    raise ValueError("apply_scaling 함수가 None 또는 잘못된 형태를 반환했습니다")
+                
+                X_fold_train_scaled, X_fold_val_scaled, _, scalers = scaling_result
+                
+                # 2단계: 샘플링 적용 (스케일링된 훈련 데이터에만)  
+                sampling_result = self.apply_sampling_strategy(
                     X_fold_train_scaled, y_fold_train, data_type
                 )
+                
+                # sampling 결과 None 체크
+                if sampling_result is None or len(sampling_result) != 2:
+                    raise ValueError("apply_sampling_strategy 함수가 None 또는 잘못된 형태를 반환했습니다")
+                
+                X_fold_train_resampled, y_fold_train_resampled = sampling_result
                 
                 # 모델 복사 및 훈련
                 model_copy = model.__class__(**model.get_params())
@@ -1334,17 +1434,29 @@ class ModelingPipeline:
             
             try:
                 # 1단계: 스케일링 적용
-                X_fold_train_scaled, X_fold_val_scaled, _, scalers = self.apply_scaling(
+                scaling_result = self.apply_scaling(
                     X_fold_train.copy(),
                     X_fold_val.copy(), 
                     X_fold_val.copy(),  # 더미 테스트 데이터
                     data_type
                 )
                 
+                # scaling 결과 None 체크
+                if scaling_result is None or len(scaling_result) != 4:
+                    raise ValueError("apply_scaling 함수가 None 또는 잘못된 형태를 반환했습니다")
+                
+                X_fold_train_scaled, X_fold_val_scaled, _, scalers = scaling_result
+                
                 # 2단계: 샘플링 적용 (훈련 데이터에만)
-                X_fold_train_resampled, y_fold_train_resampled = self.apply_sampling_strategy(
+                sampling_result = self.apply_sampling_strategy(
                     X_fold_train_scaled, y_fold_train, data_type
                 )
+                
+                # sampling 결과 None 체크
+                if sampling_result is None or len(sampling_result) != 2:
+                    raise ValueError("apply_sampling_strategy 함수가 None 또는 잘못된 형태를 반환했습니다")
+                
+                X_fold_train_resampled, y_fold_train_resampled = sampling_result
                 
                 # 3단계: 모델 훈련
                 model_copy = model.__class__(**model.get_params())

@@ -46,6 +46,16 @@ sampling:
       sampling_strategy: 1  # 정상 클래스 유지 비율 (정상 30% 유지)
       random_state: 42
     
+    ctgan:
+      enabled: true
+      description: "CTGAN 기반 synthetic 데이터 생성"
+      sampling_strategy: 0.1  # 부실 클래스 비율 목표
+      ctgan:
+        epochs: 300  # 학습 epoch 수
+        batch_size: 500  # 배치 크기
+        generator_dim: [256, 256]  # Generator 네트워크 차원
+        discriminator_dim: [256, 256]  # Discriminator 네트워크 차원
+    
     combined:
       enabled: true
       description: "SMOTE + 언더샘플링 조합"
@@ -194,7 +204,7 @@ ensemble:
   auto_weight: true  # 검증 성능 기반 자동 가중치
   weight_metric: "f1"  # 앙상블 가중치 계산에 사용할 메트릭 (roc_auc, f1, average_precision)
   models: ["logistic_regression", "random_forest", "xgboost"]
-  data_types: ["normal", "smote", "undersampling"]  # combined 비활성화 시
+  data_types: ["normal", "smote", "undersampling", "combined"]  # combined 비활성화 시
   threshold_optimization:
     enabled: true
     metric_priority: "average_precision"
@@ -232,8 +242,6 @@ scaling:
       - "타인자본회전률"
       - "순운전자본회전률"
       - "인건비비율"
-    
-    Robust:  # 로버스트 스케일링 적용할 컬럼명들 (이상치 많음, 높은 왜도/첨도, 스케일링 점수 4-12)
       - "이익잉여금"
       - "영업이익"
       - "당기순이익"
@@ -395,9 +403,11 @@ scaling:
       - "차입금비율"
       - "유보액납입자본비율"
       - "현금흐름차입금비율"
-    
-    MinMax:  # 최소-최대 스케일링 적용할 컬럼명들 (매우 큰 범위, 극단값 제한 필요)
       - "순금융비용이자보상배율"
+    
+    Robust:  # 로버스트 스케일링 적용할 컬럼명들 (이상치 많음, 높은 왜도/첨도, 스케일링 점수 4-12)
+      
+    MinMax:  # 최소-최대 스케일링 적용할 컬럼명들 (매우 큰 범위, 극단값 제한 필요)
     
     Log:  # 로그 변환 적용할 컬럼명들 (극도로 치우친 분포, 양수 값만 가능, 부실기업이 극단값)
       # 절대값 변수들 (기업 규모 차이가 극심한 변수들)
