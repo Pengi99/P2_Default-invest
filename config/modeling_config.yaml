@@ -57,7 +57,7 @@ sampling:
         discriminator_dim: [256, 256]  # Discriminator 네트워크 차원
     
     combined:
-      enabled: true
+      enabled: false
       description: "SMOTE + 언더샘플링 조합"
       # SMOTE 설정
       smote:
@@ -204,7 +204,7 @@ ensemble:
   auto_weight: true  # 검증 성능 기반 자동 가중치
   weight_metric: "f1"  # 앙상블 가중치 계산에 사용할 메트릭 (roc_auc, f1, average_precision)
   models: ["logistic_regression", "random_forest", "xgboost"]
-  data_types: ["normal", "smote", "undersampling", "combined"]  # combined 비활성화 시
+  data_types: ["normal", "smote", "undersampling", "ctgan"]  # combined 비활성화 시
   threshold_optimization:
     enabled: true
     metric_priority: "average_precision"

@@ -475,7 +475,7 @@ class ModelingPipeline:
         for scaler_type, columns in column_groups.items():
             # columns가 None인 경우 건너뛰기
             if columns is None:
-                self.logger.warning(f"{scaler_type} 그룹의 컬럼 목록이 None입니다. 건너뜁니다.")
+                # self.logger.warning(f"{scaler_type} 그룹의 컬럼 목록이 None입니다. 건너뜁니다.")
                 continue
             
             # 실제 존재하는 컬럼과 존재하지 않는 컬럼 구분
