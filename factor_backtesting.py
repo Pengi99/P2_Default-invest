@@ -24,8 +24,11 @@ plt.style.use('seaborn-v0_8')
 class FactorBacktester:
     """팩터 투자 백테스트 클래스"""
     
-    def __init__(self, data_path='.'):
+    def __init__(self, data_path='/Users/jojongho/KDT/P2_Default-invest/data/raw'):
+        # 절대 경로로 설정
         self.data_path = data_path
+        # 재무 데이터 절대 경로 설정
+        self.fs_path = '/Users/jojongho/KDT/P2_Default-invest/data/processed/FS.csv'
         self.prices_df = None
         self.fs_df = None
         self.df = None
@@ -38,34 +41,43 @@ class FactorBacktester:
         print("📊 데이터 로딩 중...")
         
         # 가격 데이터 로딩 (2012~2023)
-        price_files = sorted(glob.glob(f"{self.data_path}/20*.csv"))
+        price_files = sorted(glob.glob(os.path.join(self.data_path, '20*.csv')))
         price_dfs = []
+        
+        if not price_files:
+            raise FileNotFoundError(f"No price files found in directory: {self.data_path}")
         
         for file in price_files:
             year = int(os.path.basename(file)[:4])
             df_temp = pd.read_csv(file, encoding='utf-8')
             
-            # 컬럼 rename
+            # 컬럼 rename (실제 컬럼명에 맞춰 수정)
             df_temp = df_temp.rename(columns={
                 '매매년월일': 'date',
                 '종가(원)': 'price',
-                '수익률': 'ret',
                 '상장주식수(주)': 'shares_out'
             })
             
-            # ticker_key 생성
-            df_temp['ticker_key'] = df_temp['회사명'].astype(str) + '_' + df_temp['거래소코드'].astype(str) + '_' + df_temp['종목코드'].astype(str)
+            # 수익률 계산 (일간 수익률)
+            df_temp = df_temp.sort_values(['회사명', '거래소코드', 'date'])
+            df_temp['ret'] = df_temp.groupby(['회사명', '거래소코드'])['price'].pct_change()
             
-            # 날짜 변환
-            df_temp['date'] = pd.to_datetime(df_temp['date'], format='%Y%m%d', errors='coerce')
+            # ticker_key 생성
+            df_temp['ticker_key'] = df_temp['거래소코드'].astype(str)
+            
+            # 날짜 변환 (YYYY/MM/DD 형식)
+            df_temp['date'] = pd.to_datetime(df_temp['date'], format='%Y/%m/%d', errors='coerce')
+            
+            # 회계년도 정보 추가
+            df_temp['year'] = df_temp['date'].dt.year
             
             price_dfs.append(df_temp)
         
         self.prices_df = pd.concat(price_dfs, ignore_index=True)
         print(f"✅ 가격 데이터 로딩 완료: {len(self.prices_df):,}행")
         
-        # 재무 데이터 로딩
-        self.fs_df = pd.read_csv(f"{self.data_path}/FS.csv", encoding='utf-8')
+        # 재무 데이터 로딩 (processed 폴더에서)
+        self.fs_df = pd.read_csv(self.fs_path, encoding='utf-8-sig')
         print(f"✅ 재무 데이터 로딩 완료: {len(self.fs_df):,}행")
         
         return self
@@ -74,32 +86,36 @@ class FactorBacktester:
         """2단계: 데이터 전처리"""
         print("🔄 데이터 전처리 중...")
         
-        # group_default_flag 계산
-        group_default = self.fs_df.groupby(['회사명', '거래소코드'])['default_flag'].max().reset_index()
-        self.predictions_df = group_default.rename(columns={'default_flag': 'group_default_flag'})
-        
-        # prices_df에 year 추가
-        self.prices_df['year'] = self.prices_df['date'].dt.year
+        # 회계년도를 기준으로 재무 데이터 매핑
+        # 회계년도 컬럼명 확인 및 정리
+        if '회계년도' in self.fs_df.columns:
+            # YYYY/MM 형식을 년도로 변환
+            self.fs_df['year'] = self.fs_df['회계년도']
         
         # ticker_key를 fs_df에도 추가
-        self.fs_df['ticker_key'] = self.fs_df['회사명'].astype(str) + '_' + self.fs_df['거래소코드'].astype(str)
+        self.fs_df['ticker_key'] = self.fs_df['거래소코드'].astype(str)
         
-        # 데이터 병합
-        self.df = self.prices_df.merge(
+        # 가격 데이터에 연말 기준으로 재무 데이터 병합
+        # 각 년도의 12월 데이터만 사용 (연간 팩터 계산용)
+        monthly_prices = self.prices_df.copy()
+        monthly_prices['month'] = monthly_prices['date'].dt.month
+        
+        # 각 월 마지막 거래일 데이터만 추출
+        monthly_prices = monthly_prices.loc[monthly_prices.groupby(['ticker_key', 'year', 'month'])['date'].idxmax()]
+        
+        # 재무 데이터와 병합
+        self.df = monthly_prices.merge(
             self.fs_df, 
-            on=['회사명', '거래소코드', 'year'], 
-            how='left'
-        )
-        
-        self.df = self.df.merge(
-            self.predictions_df,
-            on=['회사명', '거래소코드'],
+            on=['ticker_key', 'year'], 
             how='left'
         )
         
         # 시가총액 계산
         self.df['mktcap'] = self.df['price'] * self.df['shares_out']
-        
+
+        # 무한값과 결측치 제거
+        self.df = self.df.replace([np.inf, -np.inf], np.nan).dropna()
+
         print(f"✅ 전처리 완료: {len(self.df):,}행")
         return self
     
@@ -110,16 +126,24 @@ class FactorBacktester:
         # 데이터 정렬
         self.df = self.df.sort_values(['ticker_key', 'date']).reset_index(drop=True)
         
-        # 1. Magic Formula
-        self.df['earnings_yield'] = self.df['영업이익'] / self.df['기업가치']
-        self.df['magic'] = self.df['earnings_yield'] + self.df['경영자본순이익률(ROIC)']
+        # 1. Magic Formula - processed FS.csv 컬럼명 사용
+        # 영업이익 수익률 = 영업이익 / 기업가치
+        self.df['operating_income'] = self.df['영업이익']
+        self.df['enterprise_value'] = self.df['기업가치']
+        self.df['earnings_yield'] = self.df['operating_income'] / self.df['enterprise_value']
         
-        # 2. EV/EBIT
-        self.df['ev_ebit'] = self.df['기업가치'] / self.df['EBIT']
-        self.df['ev_ebit_signal'] = -self.df['ev_ebit']  # 낮을수록 좋음
+        # ROIC = 경영자본영업이익률 / 100 (퍼센트를 소수로 변환)
+        self.df['roic'] = self.df['경영자본영업이익률'] / 100
+        self.df['magic'] = self.df['earnings_yield'] + self.df['roic']
         
-        # 3. B/M (Book-to-Market)
-        self.df['bm'] = self.df['BVPS'] / self.df['price']
+        # 2. EV/EBITDA - 실제 컬럼에 이미 계산되어 있음
+        self.df['ev_ebitda'] = self.df['EV_EBITDA배수']
+        self.df['ev_ebitda_signal'] = -self.df['ev_ebitda']  # 낮을수록 좋음
+        
+        # 3. B/M (Book-to-Market) - 총자본/시가총액
+        self.df['book_value'] = self.df['총자본']
+        self.df['market_value'] = self.df['mktcap']
+        self.df['bm'] = self.df['book_value'] / self.df['market_value']
         
         # 4. 12-1 Momentum
         self.df['mom'] = self.df.groupby('ticker_key')['ret'].apply(
@@ -146,22 +170,25 @@ class FactorBacktester:
     
     def _compute_fscore(self):
         """Piotroski F-Score 계산"""
-        # 기본 수익성 지표
-        self.df['f_roa'] = (self.df['주당순이익(EPS)'] > 0).astype(int)
-        self.df['f_cfo'] = (self.df['주당현금흐름(CFO)'] > 0).astype(int)
-        self.df['f_roic'] = (self.df['경영자본순이익률(ROIC)'] > 0).astype(int)
+        # 기본 수익성 지표 - processed FS.csv 컬럼명 사용
+        self.df['f_roa'] = (self.df['총자산수익률'] > 0).astype(int)
+        self.df['f_cfo'] = (self.df['영업현금흐름'] > 0).astype(int)
+        self.df['f_roic'] = (self.df['경영자본영업이익률'] > 0).astype(int)
         
         # 레버리지, 유동성, 자금조달 지표
         self.df['f_debt'] = (self.df.groupby('ticker_key')['부채비율'].pct_change() < 0).astype(int)
         self.df['f_liquid'] = (self.df.groupby('ticker_key')['유동비율'].pct_change() > 0).astype(int)
-        self.df['f_shares'] = (self.df['신주발행'] == 0).astype(int)
+        
+        # 신주발행 여부 (발행주식총수 증가율로 판단)
+        shares_change = self.df.groupby('ticker_key')['발행주식총수'].pct_change()
+        self.df['f_shares'] = (shares_change <= 0.05).astype(int)  # 5% 이하 증가만 허용
         
         # 운영 효율성 지표
-        self.df['f_margin'] = (self.df.groupby('ticker_key')['매출총이익률'].pct_change() > 0).astype(int)
+        self.df['f_margin'] = (self.df.groupby('ticker_key')['매출액총이익률'].pct_change() > 0).astype(int)
         self.df['f_turn'] = (self.df.groupby('ticker_key')['총자본회전률'].pct_change() > 0).astype(int)
         
         # ROA 개선 지표
-        self.df['f_roa_chg'] = (self.df.groupby('ticker_key')['주당순이익(EPS)'].pct_change() > 0).astype(int)
+        self.df['f_roa_chg'] = (self.df.groupby('ticker_key')['총자산수익률'].pct_change() > 0).astype(int)
         
         # F-Score 합계
         fscore_cols = ['f_roa', 'f_cfo', 'f_roic', 'f_debt', 'f_liquid', 'f_shares', 'f_margin', 'f_turn', 'f_roa_chg']
@@ -169,14 +196,14 @@ class FactorBacktester:
     
     def _compute_qmj(self):
         """QMJ (Quality Minus Junk) 계산"""
-        # 수익성 지표들
-        profitability_cols = ['경영자본순이익률(ROIC)', '매출총이익률']
+        # 수익성 지표들 - processed FS.csv 컬럼명 사용
+        profitability_cols = ['자기자본순이익률', '매출액총이익률']
         
         # 안정성 지표들  
         safety_cols = ['부채비율', 'vol12m']
         
         # 성장성 지표들
-        growth_cols = ['주당순이익(EPS)', '매출총이익률']
+        growth_cols = ['매출액증가율', '매출액총이익률']
         
         # 각 그룹별로 Z-score 표준화
         quality_scores = []
@@ -331,7 +358,7 @@ class FactorBacktester:
         
         factor_signals = {
             'Magic Formula': 'magic',
-            'EV/EBIT': 'ev_ebit_signal', 
+            'EV/EBITDA': 'ev_ebitda_signal', 
             'Book-to-Market': 'bm',
             'Momentum (12-1)': 'mom',
             'Piotroski F-Score': 'fscore',
@@ -347,8 +374,8 @@ class FactorBacktester:
             full_universe = backtest_mask
             full_returns = self.get_factor_returns(signal_col, full_universe)
             
-            # 우량기업 유니버스 (group_default_flag == 0)
-            quality_universe = backtest_mask & (self.df['group_default_flag'] == 0)
+            # 우량기업 유니버스 (default == 0)
+            quality_universe = backtest_mask & (self.df['default'] == 0)
             quality_returns = self.get_factor_returns(signal_col, quality_universe)
             
             self.factor_returns[f"{strategy_name}_Full"] = full_returns
@@ -534,7 +561,7 @@ class FactorBacktester:
                 ax.grid(True, alpha=0.3)
         
         plt.tight_layout()
-        plt.savefig('factor_performance_bars.png', dpi=300, bbox_inches='tight')
+        plt.savefig('/Users/jojongho/KDT/P2_Default-invest/outputs/factor_performance_bars.png', dpi=300, bbox_inches='tight')
         plt.show()
     
     def _plot_heatmap(self):
@@ -559,7 +586,7 @@ class FactorBacktester:
         )
         plt.title('팩터 전략별 성과지표 히트맵')
         plt.tight_layout()
-        plt.savefig('factor_heatmap.png', dpi=300, bbox_inches='tight')
+        plt.savefig('/Users/jojongho/KDT/P2_Default-invest/outputs/factor_heatmap.png', dpi=300, bbox_inches='tight')
         plt.show()
     
     def _plot_monthly_boxplot(self):
@@ -589,7 +616,7 @@ class FactorBacktester:
         plt.xticks(rotation=45)
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
-        plt.savefig('monthly_returns_boxplot.png', dpi=300, bbox_inches='tight')
+        plt.savefig('/Users/jojongho/KDT/P2_Default-invest/outputs/monthly_returns_boxplot.png', dpi=300, bbox_inches='tight')
         plt.show()
     
     def _plot_drawdown_curves(self):
@@ -628,7 +655,7 @@ class FactorBacktester:
         ax2.grid(True, alpha=0.3)
         
         plt.tight_layout()
-        plt.savefig('drawdown_curves.png', dpi=300, bbox_inches='tight')
+        plt.savefig('/Users/jojongho/KDT/P2_Default-invest/outputs/drawdown_curves.png', dpi=300, bbox_inches='tight')
         plt.show()
     
     def save_results(self):
@@ -638,13 +665,13 @@ class FactorBacktester:
         # 성과 통계 저장
         if self.performance_stats:
             stats_df = pd.DataFrame(self.performance_stats).T
-            stats_df.to_csv('factor_performance_stats.csv', encoding='utf-8-sig')
+            stats_df.to_csv('/Users/jojongho/KDT/P2_Default-invest/outputs/factor_performance_stats.csv', encoding='utf-8-sig')
             print("✅ 성과통계 저장: factor_performance_stats.csv")
         
         # 팩터 수익률 저장
         for strategy_name, returns_df in self.factor_returns.items():
             if len(returns_df) > 0:
-                filename = f"factor_returns_{strategy_name}.csv"
+                filename = f"/Users/jojongho/KDT/P2_Default-invest/outputs/factor_returns_{strategy_name}.csv"
                 returns_df.to_csv(filename, encoding='utf-8-sig')
         
         print("✅ 팩터 수익률 저장 완료")
@@ -670,7 +697,7 @@ def main():
     print("="*60)
     
     # 백테스터 초기화 및 실행
-    backtester = FactorBacktester(data_path='.')
+    backtester = FactorBacktester(data_path='/Users/jojongho/KDT/P2_Default-invest/data/raw')
     
     backtester.load_data() \
               .preprocess() \

@@ -47,7 +47,7 @@ sampling:
       random_state: 42
     
     ctgan:
-      enabled: true
+      enabled: false
       description: "CTGAN 기반 synthetic 데이터 생성"
       sampling_strategy: 0.1  # 부실 클래스 비율 목표
       ctgan:
@@ -57,11 +57,11 @@ sampling:
         discriminator_dim: [256, 256]  # Discriminator 네트워크 차원
     
     combined:
-      enabled: false
+      enabled: true
       description: "SMOTE + 언더샘플링 조합"
       # SMOTE 설정
       smote:
-        sampling_strategy: 0.1  # 부실 클래스 비율 목표 (원래 0.7% → 20%로 증가)
+        sampling_strategy: 0.2  # 부실 클래스 비율 목표 (원래 0.7% → 20%로 증가)
         k_neighbors: 5
         m_neighbors: 10 
         kind: "borderline-1"  # borderline-1, borderline-2, svm
@@ -163,7 +163,7 @@ models:
     C_range: [0.01, 100]  # 수렴 안정성을 위해 범위 축소
     max_iter_range: [100, 10000]  # 충분한 반복 횟수 보장
     l1_ratio_range: [0.1, 0.9]  # elasticnet용
-    n_trials: 25  # trial 수 감소로 빠른 수렴
+    n_trials: 200  # trial 수 감소로 빠른 수렴
   
   random_forest:
     enabled: true
@@ -173,7 +173,7 @@ models:
     min_samples_split_range: [2, 20]
     min_samples_leaf_range: [1, 10]
     max_features_range: [0.1, 1.0]
-    n_trials: 25
+    n_trials: 200
   
   xgboost:
     enabled: true
@@ -186,7 +186,7 @@ models:
     colsample_bytree_range: [0.6, 1.0]
     reg_alpha_range: [0.0, 10.0]
     reg_lambda_range: [1.0, 10.0]
-    n_trials: 25
+    n_trials: 200
 
 # Threshold 최적화 설정
 threshold_optimization:
@@ -202,9 +202,9 @@ ensemble:
   enabled: true
   method: "weighted_average"  # simple_average, weighted_average, stacking
   auto_weight: true  # 검증 성능 기반 자동 가중치
-  weight_metric: "f1"  # 앙상블 가중치 계산에 사용할 메트릭 (roc_auc, f1, average_precision)
+  weight_metric: "average_precision"  # 앙상블 가중치 계산에 사용할 메트릭 (roc_auc, f1, average_precision)
   models: ["logistic_regression", "random_forest", "xgboost"]
-  data_types: ["normal", "smote", "undersampling", "ctgan"]  # combined 비활성화 시
+  data_types: ["normal", "smote", "undersampling", "combined"]  # combined 비활성화 시
   threshold_optimization:
     enabled: true
     metric_priority: "average_precision"
