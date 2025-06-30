@@ -1,0 +1,113 @@
+# 데이터 전처리 설정 파일
+# =========================
+
+# 데이터 경로
+data:
+  input_path: "data/processed/FS_filtered.csv"
+  output_dir: "data/final"
+  
+# 데이터 분할 설정
+data_split:
+  # 분할 방식: 'random' 또는 'timeseries'
+  split_method: "random"
+  
+  # 시계열 분할 설정 (split_method가 'timeseries'일 때 사용)
+  timeseries:
+    time_column: "회계년도"  # 시간 기준 컬럼
+    train_end_year: 2017     # Train 데이터 마지막 년도 (포함)
+    val_end_year: 2020       # Validation 데이터 마지막 년도 (포함)
+    # Test는 val_end_year + 1부터 끝까지
+  
+  # 랜덤 분할 설정 (split_method가 'random'일 때 사용)
+  random:
+    train_ratio: 0.6
+    val_ratio: 0.2
+    test_ratio: 0.2
+    random_state: 42
+    stratify: true      # 타겟 변수 기준 층화 샘플링
+    group_by_exchange: true  # 거래소코드별 그룹핑 여부 (true: 거래소코드가 같은 행들을 그룹화해서 분할)
+
+# 결측치 처리 설정
+missing_data:
+  # 행 삭제 임계값 (50% 이상 결측치인 행 삭제)
+  row_missing_threshold: 0.2
+  # 결측값 대체 방법
+  imputation_method: "median"  # median, mean, mode, knn
+  # 결측치가 모두 0인 컬럼 처리 여부
+  drop_all_missing_columns: true
+
+# 이상치 처리 (윈저라이징)
+outlier_treatment:
+  enabled: true
+  method: "winsorization"  # winsorization, iqr, zscore
+  # 윈저라이징 설정
+  winsorization:
+    lower_percentile: 0.005   # 하위 0.1%
+    upper_percentile: 0.995   # 상위 0.1% (양 옆 0.001씩)
+  
+# 피처 엔지니어링
+feature_engineering:
+  # 제외할 컬럼들
+  exclude_columns:
+    - "회사명"
+    - "거래소코드"
+    - "회계년도"
+  # 타겟 변수
+  target_column: "default"
+
+# 출력 설정
+output:
+  # 저장할 파일들
+  save_processed_data: true
+  save_config_log: true
+  
+  # 파일 이름 형식
+  file_naming:
+    # X, y 분리 저장 여부
+    separate_features_target: true
+    # 파일명 접두사
+    prefix: ""
+    # 파일명 형식: X_train.csv, y_train.csv, X_val.csv, y_val.csv, X_test.csv, y_test.csv
+    feature_format: "X_{split}.csv"
+    target_format: "y_{split}.csv"
+    # 통합 파일명 형식 (separate_features_target이 false일 때)
+    combined_format: "{split}_processed.csv"
+  
+  # 결과 보고서 생성
+  generate_report: true
+  report_format: ["txt", "html"]  # txt, html, pdf
+  
+  # 시각화 생성
+  generate_plots: true
+  plot_types:
+    - "missing_data_heatmap"
+    - "feature_distribution"
+    - "correlation_matrix"
+
+# 로깅 설정
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  save_to_file: true
+  log_file: "logs/preprocessing.log"
+
+# 실험 추적
+experiment:
+  # 실험 이름 (자동 생성하거나 수동 설정)
+  name: null  # null이면 파일을 직접 data/final에 저장
+  # 실험 설명
+  description: "기본 전처리 파이프라인 (시계열 분할 적용, 스케일링 및 피처 선택 제외)"
+  # 버전
+  version: "1.2"
+  # 서브디렉토리 생성 여부 (false면 data/final에 직접 저장)
+  create_subdirectory: false
+
+# 성능 최적화
+performance:
+  # 멀티프로세싱 사용 여부
+  use_multiprocessing: true
+  # 프로세스 수 (null이면 CPU 코어 수)
+  n_jobs: null
+  # 메모리 최적화
+  optimize_memory: true
+  # 중간 결과 캐싱
+  enable_cache: true

@@ -44,9 +44,14 @@ print("=== 재무비율 스케일링 필요성 시각적 분석 ===")
 print("\n1️⃣ 데이터 로드")
 print("="*50)
 
-# FS_ratio_flow_korean.csv 로드 (한국어 변수명 적용)
-fs_ratio = pd.read_csv('data/final/FS_ratio_flow_korean.csv', dtype={'거래소코드': str})
-print(f"FS_ratio_flow_korean.csv: {fs_ratio.shape}")
+# 프로젝트 루트 디렉토리 설정
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(os.path.dirname(current_dir))
+
+# FS_ratio_flow.csv 로드
+data_path = os.path.join(project_root, 'data', 'processed', 'FS.csv')
+fs_ratio = pd.read_csv(data_path, dtype={'거래소코드': str})
+print(f"FS_ratio_flow.csv: {fs_ratio.shape}")
 
 # 재무비율 컬럼만 추출
 ratio_columns = [col for col in fs_ratio.columns 
@@ -59,8 +64,24 @@ print(f"비율 목록: {ratio_columns}")
 print("\n2️⃣ 결측치 분석")
 print("="*50)
 
-# 폴더 생성
-os.makedirs('outputs/visualizations/missing_analysis', exist_ok=True)
+# 출력 폴더 생성
+output_base = os.path.join(project_root, 'outputs/analysis/scaling_needs')
+viz_base = os.path.join(output_base, 'visualizations')
+reports_base = os.path.join(output_base, 'reports')
+
+# 하위 디렉토리 생성
+missing_dir = os.path.join(viz_base, 'missing_analysis')
+dist_dir = os.path.join(viz_base, 'distributions')
+box_dir = os.path.join(viz_base, 'boxplots')
+scaling_dir = os.path.join(viz_base, 'scaling_indicators')
+comp_dir = os.path.join(viz_base, 'comprehensive')
+
+os.makedirs(missing_dir, exist_ok=True)
+os.makedirs(dist_dir, exist_ok=True)
+os.makedirs(box_dir, exist_ok=True)
+os.makedirs(scaling_dir, exist_ok=True)
+os.makedirs(comp_dir, exist_ok=True)
+os.makedirs(reports_base, exist_ok=True)
 
 # 2-1. 결측치 기본 통계
 total_rows = len(fs_ratio)
@@ -170,7 +191,7 @@ for i, bar in enumerate(bars):
                f'{height:.1f}%', ha='center', va='bottom', fontsize=8, rotation=45)
 
 plt.tight_layout()
-plt.savefig('outputs/visualizations/missing_analysis/01_missing_rates_by_variable.png', 
+plt.savefig(os.path.join(missing_dir, '01_missing_rates_by_variable.png'), 
            dpi=300, bbox_inches='tight')
 plt.close()
 
@@ -197,7 +218,7 @@ ax.set_xlabel('관측치 (샘플)', fontsize=12)
 ax.set_ylabel('재무비율 변수', fontsize=12)
 
 plt.tight_layout()
-plt.savefig('outputs/visualizations/missing_analysis/02_missing_pattern_heatmap.png', 
+plt.savefig(os.path.join(missing_dir, '02_missing_pattern_heatmap.png'), 
            dpi=300, bbox_inches='tight')
 plt.close()
 
@@ -225,7 +246,7 @@ for i, (label, count) in enumerate(category_counts.items()):
     autotexts[i].set_fontweight('bold')
 
 plt.tight_layout()
-plt.savefig('outputs/visualizations/missing_analysis/03_missing_level_distribution.png', 
+plt.savefig(os.path.join(missing_dir, '03_missing_level_distribution.png'), 
            dpi=300, bbox_inches='tight')
 plt.close()
 
@@ -258,7 +279,7 @@ for i in range(len(missing_df)):
                f'{int(height):,}', ha='center', va='bottom', fontsize=8, rotation=45)
 
 plt.tight_layout()
-plt.savefig('outputs/visualizations/missing_analysis/04_valid_data_counts.png', 
+plt.savefig(os.path.join(missing_dir, '04_valid_data_counts.png'), 
            dpi=300, bbox_inches='tight')
 plt.close()
 
@@ -300,10 +321,6 @@ print("기초 통계량 계산 완료")
 print("\n4️⃣ 분포 시각화")
 print("="*50)
 
-# 폴더 생성
-os.makedirs('outputs/visualizations/distributions', exist_ok=True)
-os.makedirs('outputs/visualizations/boxplots', exist_ok=True)
-
 # 3-1. 각 비율별 개별 히스토그램
 print("개별 히스토그램 생성 중...")
 for i, col in enumerate(ratio_columns):
@@ -318,26 +335,31 @@ for i, col in enumerate(ratio_columns):
         ax.set_ylabel('빈도')
         ax.grid(True, alpha=0.3)
         
-        # 이상치 표시 (평균 ± 3*표준편차 벗어나는 값)
-        mean_val = data.mean()
-        std_val = data.std()
-        outlier_threshold = 3
+        # 분위수 선 추가 (0.5%, 2.5%, 97.5%, 99.5%)
+        q05_pct = data.quantile(0.005)
+        q25_pct = data.quantile(0.025)
+        q975_pct = data.quantile(0.975)
+        q995_pct = data.quantile(0.995)
         
-        if std_val > 0:
-            lower_bound = mean_val - outlier_threshold * std_val
-            upper_bound = mean_val + outlier_threshold * std_val
-            ax.axvline(lower_bound, color='red', linestyle='--', alpha=0.7, label='±3σ')
-            ax.axvline(upper_bound, color='red', linestyle='--', alpha=0.7)
-            ax.legend()
+        ax.axvline(q05_pct, color='red', linestyle=':', alpha=0.8, linewidth=2, label='0.5%/99.5% 분위수')
+        ax.axvline(q995_pct, color='red', linestyle=':', alpha=0.8, linewidth=2)
+        ax.axvline(q25_pct, color='orange', linestyle='--', alpha=0.8, linewidth=2, label='2.5%/97.5% 분위수')
+        ax.axvline(q975_pct, color='orange', linestyle='--', alpha=0.8, linewidth=2)
+        
+        # 중앙값 선 추가
+        median_val = data.median()
+        ax.axvline(median_val, color='green', linestyle='-', alpha=0.8, linewidth=2, label='중앙값')
+        
+        ax.legend()
         
         # 통계 정보 텍스트 박스
-        stats_text = f'데이터 수: {len(data):,}\n중앙값: {data.median():.4f}\n왜도: {data.skew():.2f}'
-        ax.text(0.02, 0.98, stats_text, transform=ax.transAxes, fontsize=10,
+        stats_text = f'데이터 수: {len(data):,}\n중앙값: {median_val:.4f}\n0.5%: {q05_pct:.4f}\n2.5%: {q25_pct:.4f}\n97.5%: {q975_pct:.4f}\n99.5%: {q995_pct:.4f}\n왜도: {data.skew():.2f}'
+        ax.text(0.02, 0.98, stats_text, transform=ax.transAxes, fontsize=9,
                 verticalalignment='top', bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
         
         plt.tight_layout()
         safe_filename = col.replace('/', '_').replace('%', 'pct').replace('(', '').replace(')', '')
-        plt.savefig(f'outputs/visualizations/distributions/{i+1:02d}_{safe_filename}_hist.png', 
+        plt.savefig(os.path.join(dist_dir, f'{i+1:02d}_{safe_filename}_hist.png'),
                    dpi=300, bbox_inches='tight')
         plt.close()
 
@@ -381,7 +403,7 @@ for i, col in enumerate(ratio_columns):
         
         plt.tight_layout()
         safe_filename = col.replace('/', '_').replace('%', 'pct').replace('(', '').replace(')', '')
-        plt.savefig(f'outputs/visualizations/boxplots/{i+1:02d}_{safe_filename}_box.png', 
+        plt.savefig(os.path.join(box_dir, f'{i+1:02d}_{safe_filename}_box.png'), 
                    dpi=300, bbox_inches='tight')
         plt.close()
 
@@ -410,7 +432,7 @@ for i in range(len(ratio_columns), len(axes)):
 
 plt.suptitle('전체 재무비율 분포 요약', fontsize=16, fontweight='bold')
 plt.tight_layout()
-plt.savefig('outputs/visualizations/00_ratio_distributions_summary.png', dpi=300, bbox_inches='tight')
+plt.savefig(os.path.join(viz_base, '00_ratio_distributions_summary.png'), dpi=300, bbox_inches='tight')
 plt.close()
 
 # 3-4. 전체 요약 박스플롯
@@ -441,7 +463,7 @@ ax.tick_params(axis='x', rotation=45)
 ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig('outputs/visualizations/00_ratio_boxplots_summary.png', dpi=300, bbox_inches='tight')
+plt.savefig(os.path.join(viz_base, '00_ratio_boxplots_summary.png'), dpi=300, bbox_inches='tight')
 plt.close()
 
 print("✅ 요약 차트 저장 완료")
@@ -449,9 +471,6 @@ print("✅ 요약 차트 저장 완료")
 # 5. 스케일링 필요성 지표 시각화
 print("\n5️⃣ 스케일링 필요성 지표 시각화")
 print("="*50)
-
-# 폴더 생성
-os.makedirs('outputs/visualizations/scaling_indicators', exist_ok=True)
 
 # 4-1. 변동계수 vs 왜도 산점도
 print("변동계수 vs 왜도 산점도 생성 중...")
@@ -482,7 +501,7 @@ for i, row in stats_df.iterrows():
                    bbox=dict(boxstyle='round,pad=0.3', facecolor='yellow', alpha=0.7))
 
 plt.tight_layout()
-plt.savefig('outputs/visualizations/scaling_indicators/01_cv_vs_skewness.png', dpi=300, bbox_inches='tight')
+plt.savefig(os.path.join(scaling_dir, '01_cv_vs_skewness.png'), dpi=300, bbox_inches='tight')
 plt.close()
 
 # 4-2. 범위 vs 첨도
@@ -509,7 +528,7 @@ for i, row in stats_df.iterrows():
                    bbox=dict(boxstyle='round,pad=0.3', facecolor='lightcoral', alpha=0.7))
 
 plt.tight_layout()
-plt.savefig('outputs/visualizations/scaling_indicators/02_range_vs_kurtosis.png', dpi=300, bbox_inches='tight')
+plt.savefig(os.path.join(scaling_dir, '02_range_vs_kurtosis.png'), dpi=300, bbox_inches='tight')
 plt.close()
 
 # 4-3. 평균의 절댓값 분포
@@ -536,14 +555,14 @@ for i in top_5_indices:
            f'{height:.2e}', ha='center', va='bottom', fontsize=8, rotation=45)
 
 plt.tight_layout()
-plt.savefig('outputs/visualizations/scaling_indicators/03_mean_abs_distribution.png', dpi=300, bbox_inches='tight')
+plt.savefig(os.path.join(scaling_dir, '03_mean_abs_distribution.png'), dpi=300, bbox_inches='tight')
 plt.close()
 
 # 4-4. 표준편차 분포
 print("표준편차 분포 생성 중...")
 fig, ax = plt.subplots(figsize=(14, 8))
 
-bars = ax.bar(range(len(stats_df)), stats_df['표준편차'], alpha=0.7, color='orange', edgecolor='black', linewidth=0.5)
+bars = ax.bar(range(len(stats_df)), stats_df['표준편차'], alpha=0.7, color='darkorange', edgecolor='black', linewidth=0.5)
 ax.set_xlabel('재무비율', fontsize=12)
 ax.set_ylabel('표준편차', fontsize=12)
 ax.set_title('재무비율별 표준편차 분포', fontsize=14, fontweight='bold')
@@ -562,7 +581,7 @@ for i in top_5_indices:
            f'{height:.2e}', ha='center', va='bottom', fontsize=8, rotation=45)
 
 plt.tight_layout()
-plt.savefig('outputs/visualizations/scaling_indicators/04_std_distribution.png', dpi=300, bbox_inches='tight')
+plt.savefig(os.path.join(scaling_dir, '04_std_distribution.png'), dpi=300, bbox_inches='tight')
 plt.close()
 
 print("✅ 스케일링 지표 차트 4개 저장 완료")
@@ -645,7 +664,7 @@ print("\n7️⃣ 스케일링 필요성 종합 시각화")
 print("="*50)
 
 # 폴더 생성
-os.makedirs('outputs/visualizations/comprehensive', exist_ok=True)
+os.makedirs(comp_dir, exist_ok=True)
 
 # 6-1. 스케일링 점수 막대그래프
 print("스케일링 점수 막대그래프 생성 중...")
@@ -676,44 +695,35 @@ ax.axhline(y=4, color='orange', linestyle=':', alpha=0.7, linewidth=2, label='Me
 ax.legend()
 
 plt.tight_layout()
-plt.savefig('outputs/visualizations/comprehensive/01_scaling_scores.png', dpi=300, bbox_inches='tight')
+plt.savefig(os.path.join(comp_dir, '01_scaling_scores.png'), dpi=300, bbox_inches='tight')
 plt.close()
 
-# 6-2. 우선순위별 파이차트
+# 6-2. 우선순위별 분포 파이차트
 print("우선순위별 파이차트 생성 중...")
+priority_counts = pd.Series(scaling_score_df['우선순위'].value_counts())
+
 fig, ax = plt.subplots(figsize=(10, 8))
-
-priority_counts = scaling_score_df['우선순위'].value_counts()
-colors_pie = ['red', 'orange', 'green']
-wedges, texts, autotexts = ax.pie(priority_counts.values, labels=priority_counts.index, 
-                                  autopct='%1.1f%%', colors=colors_pie, startangle=90,
-                                  textprops={'fontsize': 12}, explode=(0.1, 0.05, 0))
-
-ax.set_title('스케일링 우선순위 분포', fontsize=14, fontweight='bold')
-
-# 개수 정보 추가
-for i, (label, count) in enumerate(priority_counts.items()):
-    autotexts[i].set_text(f'{count}개\n({count/len(scaling_score_df)*100:.1f}%)')
-    autotexts[i].set_fontweight('bold')
+colors = ['red', 'orange', 'lightgreen']
+ax.pie(priority_counts.values, labels=priority_counts.index, autopct='%1.1f%%', 
+       colors=colors, startangle=90, textprops={'fontsize': 12})
+ax.set_title('스케일링 우선순위별 변수 분포', fontsize=14, fontweight='bold')
 
 plt.tight_layout()
-plt.savefig('outputs/visualizations/comprehensive/02_priority_distribution.png', dpi=300, bbox_inches='tight')
+plt.savefig(os.path.join(comp_dir, '02_priority_distribution.png'), dpi=300, bbox_inches='tight')
 plt.close()
 
-# 6-3. 상관관계 히트맵 (스케일링 전)
+# 6-3. 상관관계 히트맵
 print("상관관계 히트맵 생성 중...")
-fig, ax = plt.subplots(figsize=(14, 12))
+corr_matrix = fs_ratio[ratio_columns].corr()
 
-correlation_data = fs_ratio[ratio_columns].corr()
-mask = np.triu(np.ones_like(correlation_data, dtype=bool))
-
-sns.heatmap(correlation_data, mask=mask, annot=False, cmap='coolwarm', center=0,
-            square=True, ax=ax, cbar_kws={"shrink": .8})
-ax.set_title('재무비율 간 상관관계 (스케일링 전)', fontsize=14, fontweight='bold')
-ax.tick_params(axis='both', which='major', labelsize=10)
+fig, ax = plt.subplots(figsize=(20, 16))
+mask = np.triu(np.ones_like(corr_matrix))  # 상삼각행렬 마스킹
+sns.heatmap(corr_matrix, mask=mask, annot=False, cmap='RdBu_r', center=0,
+            square=True, linewidths=0.5, ax=ax, vmin=-1, vmax=1)
+ax.set_title('재무비율 간 상관관계 히트맵', fontsize=16, fontweight='bold')
 
 plt.tight_layout()
-plt.savefig('outputs/visualizations/comprehensive/03_correlation_heatmap.png', dpi=300, bbox_inches='tight')
+plt.savefig(os.path.join(comp_dir, '03_correlation_heatmap.png'), dpi=300, bbox_inches='tight')
 plt.close()
 
 # 6-4. 이상치 개수 막대그래프
@@ -758,7 +768,7 @@ for i in top_10_indices:
            f'{outlier_rates[i]:.1f}%', ha='center', va='bottom', fontsize=8, rotation=45)
 
 plt.tight_layout()
-plt.savefig('outputs/visualizations/comprehensive/04_outlier_counts.png', dpi=300, bbox_inches='tight')
+plt.savefig(os.path.join(comp_dir, '04_outlier_counts.png'), dpi=300, bbox_inches='tight')
 plt.close()
 
 print("✅ 종합 분석 차트 4개 저장 완료")
@@ -844,11 +854,11 @@ for method, ratios in method_groups.items():
 print("\n9️⃣ 결과 저장")
 print("="*50)
 
-# CSV 파일로 저장
-missing_df.to_csv('outputs/reports/missing_analysis.csv', index=False, encoding='utf-8-sig')
-stats_df.to_csv('outputs/reports/basic_statistics.csv', index=False, encoding='utf-8-sig')
-scaling_score_df.to_csv('outputs/reports/scaling_scores.csv', index=False, encoding='utf-8-sig')
-recommend_df.to_csv('outputs/reports/scaling_recommendations.csv', index=False, encoding='utf-8-sig')
+# CSV 파일 저장
+missing_df.to_csv(os.path.join(reports_base, 'missing_analysis.csv'), index=False, encoding='utf-8-sig')
+stats_df.to_csv(os.path.join(reports_base, 'basic_statistics.csv'), index=False, encoding='utf-8-sig')
+scaling_score_df.to_csv(os.path.join(reports_base, 'scaling_scores.csv'), index=False, encoding='utf-8-sig')
+recommend_df.to_csv(os.path.join(reports_base, 'scaling_recommendations.csv'), index=False, encoding='utf-8-sig')
 
 print(f"✅ 상세 분석 결과 저장:")
 print(f"   📄 outputs/reports/missing_analysis.csv : 결측치 분석 결과")
@@ -859,8 +869,8 @@ print(f"✅ 시각화 파일 저장:")
 print(f"   📁 missing_analysis/ : 4개 결측치 분석 차트")
 print(f"   📁 distributions/ : {len(ratio_columns)}개 개별 히스토그램")
 print(f"   📁 boxplots/ : {len(ratio_columns)}개 개별 박스플롯")
-print(f"   📁 scaling_indicators/ : 4개 스케일링 지표 차트")
-print(f"   📁 comprehensive/ : 4개 종합 분석 차트")
+print(f"   📁 scaling_indicators/ : 4개 스케일링 지표")
+print(f"   📁 comprehensive/ : 4개 종합 분석")
 print(f"   📄 00_ratio_distributions_summary.png : 전체 히스토그램 요약")
 print(f"   📄 00_ratio_boxplots_summary.png : 전체 박스플롯 요약")
 

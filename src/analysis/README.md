@@ -104,6 +104,49 @@ python src_new/analysis/apply_default_labeling_and_scaling.py
 
 ---
 
+### 🔧 missing_data_default_analysis.py
+**결측치 임계값별 Default 분포 및 남은 결측치 분석**
+
+**주요 기능:**
+- 행별 결측치 비율 임계값(0, 10, 20, 30, 50%)에 따라 데이터 필터링
+- **데이터 보존율·Default 보존율·남은 결측치 비율** 동시 분석
+- 컬럼별 결측치 비율 변화 및 패턴 파악
+- 6개 시각화(남은 결측치 분석, 열별 변화 히트맵 등)와 상세 CSV/리포트 생성
+
+**출력 결과:**
+- `outputs/reports/missing_threshold_default_analysis.csv`
+- `outputs/reports/column_missing_changes_by_threshold.csv`
+- `outputs/visualizations/missing_default_analysis/` (6개 차트)
+
+**사용법:**
+```bash
+python src_new/analysis/missing_data_default_analysis.py
+```
+
+---
+
+### 🔧 default_group_analysis.py
+**Default 그룹별 재무비율 통계 분석**
+
+**주요 기능:**
+- `default` 값(0,1)에 따라 정상·부실 그룹 분리 후 describe() 통계 계산
+- 평균·표준편차 차이 및 변동계수 비교, 상위 변수 식별
+- 6개 핵심 시각화(평균·표준편차 비교, boxplot, histogram, heatmap, 대시보드) 생성
+- 종합 비교 CSV 및 텍스트 리포트 저장
+
+**출력 결과:**
+- `outputs/reports/normal_companies_statistics.csv`, `default_companies_statistics.csv`
+- `outputs/reports/mean_comparison_analysis.csv`, `std_comparison_analysis.csv`, `comprehensive_group_comparison.csv`
+- `outputs/visualizations/default_group_analysis/` (6개 차트)
+- `outputs/reports/default_group_analysis_report.txt`
+
+**사용법:**
+```bash
+python src_new/analysis/default_group_analysis.py
+```
+
+---
+
 ## 🎯 분석 워크플로우
 
 ### 1단계: 스케일링 분석
@@ -119,6 +162,18 @@ python src_new/analysis/apply_default_labeling_and_scaling.py
 ```
 - 부실 라벨링 적용
 - 모델링용 데이터 준비
+
+### 3단계: 결측치 임계값 분석
+```bash
+python src_new/analysis/missing_data_default_analysis.py
+```
+- 임계값별 데이터 보존·결측치 제거·Default 분포 파악
+
+### 4단계: Default 그룹 통계 분석
+```bash
+python src_new/analysis/default_group_analysis.py
+```
+- 정상·부실 그룹별 재무비율 차이 파악 및 시각화
 
 ## 📊 주요 분석 결과
 

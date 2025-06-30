@@ -1,0 +1,1905 @@
+2025-06-28 23:38:01,354 - ModelingPipeline - INFO - 모델링 파이프라인이 초기화되었습니다.
+2025-06-28 23:38:01,354 - ModelingPipeline - INFO - 실행 이름: default_modeling_run_20250628_233801
+2025-06-28 23:38:01,354 - ModelingPipeline - INFO - 출력 경로: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801
+2025-06-28 23:38:01,354 - ModelingPipeline - INFO - === 모델링 파이프라인 시작 ===
+2025-06-28 23:38:01,354 - ModelingPipeline - INFO - 데이터 로드 시작
+2025-06-28 23:38:01,354 - ModelingPipeline - INFO - 오버라이드된 데이터 경로 사용: data/final
+2025-06-28 23:38:01,526 - ModelingPipeline - INFO - Train: (9795, 118), 부실비율: 0.97%
+2025-06-28 23:38:01,526 - ModelingPipeline - INFO - Validation: (5984, 118), 부실비율: 0.64%
+2025-06-28 23:38:01,526 - ModelingPipeline - INFO - Test: (6706, 118), 부실비율: 0.30%
+2025-06-28 23:38:01,526 - ModelingPipeline - INFO - 모든 모델 실행 시작
+2025-06-28 23:38:01,526 - ModelingPipeline - INFO - 특성 선택 방법: SHAP (NORMAL)
+2025-06-28 23:38:02,024 - ModelingPipeline - INFO - SHAP 기본 모델: random_forest
+2025-06-28 23:38:02,024 - ModelingPipeline - INFO - 기본 모델 훈련 중...
+2025-06-28 23:38:03,117 - ModelingPipeline - INFO - SHAP Explainer 생성 중...
+2025-06-28 23:38:03,122 - ModelingPipeline - INFO - SHAP 값 계산 중...
+2025-06-28 23:38:15,182 - ModelingPipeline - INFO - SHAP 값 배열 형태: (9795, 118)
+2025-06-28 23:38:15,182 - ModelingPipeline - INFO - 평균 절댓값 SHAP 형태: (118,)
+2025-06-28 23:38:15,182 - ModelingPipeline - INFO - 특성 개수: 118
+2025-06-28 23:38:15,182 - ModelingPipeline - INFO - 임계값: 0.002562
+2025-06-28 23:38:15,183 - ModelingPipeline - INFO - 평균 |SHAP|: 0.004482 (±0.005123)
+2025-06-28 23:38:15,187 - ModelingPipeline - INFO - 선택된 특성: 10/118
+2025-06-28 23:38:15,188 - ModelingPipeline - INFO - 활성화된 데이터 타입: ['normal', 'smote', 'undersampling', 'combined']
+2025-06-28 23:38:15,188 - ModelingPipeline - INFO - 활성화된 모델: ['logistic_regression', 'random_forest', 'xgboost']
+2025-06-28 23:38:15,188 - ModelingPipeline - INFO - NORMAL 데이터 처리
+2025-06-28 23:38:15,188 - ModelingPipeline - INFO - logistic_regression 최적화 시작 (NORMAL)
+2025-06-28 23:38:15,188 - ModelingPipeline - INFO - Logistic Regression 클래스 불균형 가중치: class_weight=None
+2025-06-28 23:38:15,188 - ModelingPipeline - INFO - 최적화 메트릭: AVERAGE_PRECISION
+2025-06-28 23:38:15,194 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,214 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,225 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,236 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,250 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,257 - ModelingPipeline - INFO - Trial 1/25 - Current: 0.2601, Best: 0.2601
+2025-06-28 23:38:15,261 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,277 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,292 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,307 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,320 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,337 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,346 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,355 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,364 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,375 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,384 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,396 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,409 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,423 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,435 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,449 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,462 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,475 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,488 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,501 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,514 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,530 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,542 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,556 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,567 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,579 - ModelingPipeline - INFO - Trial 6/25 - Current: 0.2608, Best: 0.2699
+2025-06-28 23:38:15,583 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,599 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,613 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,626 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,641 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,656 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,670 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,684 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,699 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,713 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,728 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,739 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,756 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,766 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,783 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,798 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,812 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,826 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,838 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,851 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,869 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,884 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,897 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,912 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,926 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,935 - ModelingPipeline - INFO - Trial 11/25 - Current: 0.2769, Best: 0.2773
+2025-06-28 23:38:15,943 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,958 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,972 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:15,986 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,002 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,020 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,036 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,050 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,063 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,076 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,095 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,109 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,123 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,138 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,151 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,171 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,186 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,201 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,216 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,230 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,249 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,264 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,280 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,298 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,316 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,330 - ModelingPipeline - INFO - Trial 16/25 - Current: 0.2686, Best: 0.2773
+2025-06-28 23:38:16,339 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,350 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,361 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,372 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,383 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,399 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,417 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,430 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,444 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,459 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,477 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,493 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,508 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,526 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,542 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,568 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,581 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,592 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,606 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,624 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,644 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,660 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,674 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,687 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,700 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,709 - ModelingPipeline - INFO - Trial 21/25 - Current: 0.2661, Best: 0.2773
+2025-06-28 23:38:16,718 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,735 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,749 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,764 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,780 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,799 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,815 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,833 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,846 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,860 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,880 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,895 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,910 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,925 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,941 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,959 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,973 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:16,988 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:17,003 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:17,016 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:17,027 - ModelingPipeline - INFO - Trial 25/25 - Current: 0.2690, Best: 0.2773
+2025-06-28 23:38:17,033 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:17,045 - ModelingPipeline - INFO - 최적 AUC: 0.2773
+2025-06-28 23:38:17,045 - ModelingPipeline - INFO - 최적 파라미터: {'C': 62.45139574743071, 'max_iter': 9660, 'penalty': 'l2', 'solver': 'newton-cg', 'tol': 0.0001, 'class_weight': None}
+2025-06-28 23:38:17,045 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (NORMAL)
+2025-06-28 23:38:17,049 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:17,067 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:17,082 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:17,098 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:17,115 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:17,127 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9204(±0.0274), AP=0.2773(±0.0535), F1=0.1798(±0.0676)
+2025-06-28 23:38:17,127 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9204, AP: 0.2773, F1: 0.1798
+2025-06-28 23:38:17,127 - ModelingPipeline - INFO - random_forest 최적화 시작 (NORMAL)
+2025-06-28 23:38:17,127 - ModelingPipeline - INFO - Random Forest 클래스 불균형 가중치: class_weight=None
+2025-06-28 23:38:17,127 - ModelingPipeline - INFO - 최적화 메트릭: AVERAGE_PRECISION
+2025-06-28 23:38:17,132 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:17,841 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:18,532 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:19,192 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:19,861 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:20,507 - ModelingPipeline - INFO - Trial 1/25 - Current: 0.3420, Best: 0.3420
+2025-06-28 23:38:20,512 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:21,124 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:21,712 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:22,299 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:22,899 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:23,490 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:23,778 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:24,088 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:24,383 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:24,683 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:24,975 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:25,514 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:26,074 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:26,601 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:27,145 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:27,681 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:28,811 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:29,935 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:31,130 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:32,265 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:33,435 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:34,319 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:35,236 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:36,156 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:37,076 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:38,015 - ModelingPipeline - INFO - Trial 6/25 - Current: 0.3446, Best: 0.3534
+2025-06-28 23:38:38,020 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:40,188 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:42,252 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:44,217 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:46,192 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:48,097 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:49,636 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:51,104 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:52,538 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:54,006 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:55,425 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:55,890 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:56,327 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:56,772 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:57,233 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:57,678 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:58,594 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:38:59,488 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:00,380 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:01,311 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:02,240 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:03,527 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:04,799 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:06,044 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:07,340 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:08,551 - ModelingPipeline - INFO - Trial 11/25 - Current: 0.3137, Best: 0.3534
+2025-06-28 23:39:08,563 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:09,245 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:09,936 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:10,628 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:11,333 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:12,034 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:12,592 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:13,145 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:13,683 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:14,232 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:14,792 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:15,419 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:16,023 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:16,625 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:17,250 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:17,852 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:18,600 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:19,368 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:20,128 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:20,920 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:21,684 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:24,177 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:26,693 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:29,234 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:31,736 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:34,016 - ModelingPipeline - INFO - Trial 16/25 - Current: 0.3309, Best: 0.3587
+2025-06-28 23:39:34,030 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:34,272 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:34,510 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:34,743 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:34,986 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:35,228 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:35,723 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:36,214 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:36,694 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:37,195 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:37,708 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:38,499 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:39,263 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:40,036 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:40,826 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:41,609 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:43,144 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:44,644 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:46,171 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:47,701 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:49,224 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:49,723 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:50,226 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:50,707 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:51,225 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:51,717 - ModelingPipeline - INFO - Trial 21/25 - Current: 0.3361, Best: 0.3587
+2025-06-28 23:39:51,731 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:52,453 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:53,177 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:53,900 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:54,609 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:55,336 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:56,153 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:56,987 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:57,809 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:58,643 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:39:59,452 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:00,371 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:01,309 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:02,251 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:03,206 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:04,162 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:05,057 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:05,923 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:06,799 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:07,680 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:08,567 - ModelingPipeline - INFO - Trial 25/25 - Current: 0.3524, Best: 0.3587
+2025-06-28 23:40:08,571 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:11,516 - ModelingPipeline - INFO - 최적 AUC: 0.3587
+2025-06-28 23:40:11,516 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 453, 'max_depth': 3, 'min_samples_split': 7, 'min_samples_leaf': 3, 'max_features': 0.41238161220484293, 'class_weight': None}
+2025-06-28 23:40:11,516 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (NORMAL)
+2025-06-28 23:40:11,520 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:13,916 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:16,345 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:18,785 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:21,207 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:23,587 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9364(±0.0282), AP=0.3545(±0.0427), F1=0.1622(±0.1070)
+2025-06-28 23:40:23,587 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9364, AP: 0.3545, F1: 0.1622
+2025-06-28 23:40:23,606 - ModelingPipeline - INFO - xgboost 최적화 시작 (NORMAL)
+2025-06-28 23:40:23,606 - ModelingPipeline - INFO - XGBoost 클래스 불균형 처리: scale_pos_weight
+2025-06-28 23:40:23,606 - ModelingPipeline - INFO - scale_pos_weight = 102.11 (설정: auto)
+2025-06-28 23:40:23,606 - ModelingPipeline - INFO - 최적화 메트릭: AVERAGE_PRECISION
+2025-06-28 23:40:23,612 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:24,397 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:25,202 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:25,968 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:26,740 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:27,516 - ModelingPipeline - INFO - Trial 1/25 - Current: 0.2528, Best: 0.2528
+2025-06-28 23:40:27,520 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:28,520 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:29,495 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:30,467 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:31,442 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:32,442 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:32,858 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:33,272 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:33,694 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:34,113 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:34,525 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:34,986 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:35,448 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:35,916 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:36,378 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:36,846 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:37,427 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:38,010 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:38,583 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:39,168 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:39,746 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:40,839 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:41,945 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:43,032 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:44,127 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:45,217 - ModelingPipeline - INFO - Trial 6/25 - Current: 0.2855, Best: 0.2926
+2025-06-28 23:40:45,222 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:45,811 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:46,401 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:46,983 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:47,579 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:48,187 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:48,645 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:49,117 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:49,603 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:50,130 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:50,629 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:50,969 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:51,308 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:51,646 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:51,988 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:52,328 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:52,989 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:53,653 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:54,321 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:54,983 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:55,659 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:56,470 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:57,267 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:58,053 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:58,859 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:40:59,672 - ModelingPipeline - INFO - Trial 11/25 - Current: 0.2717, Best: 0.3457
+2025-06-28 23:40:59,687 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:00,183 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:00,697 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:01,187 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:01,687 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:02,195 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:02,744 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:03,292 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:03,844 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:04,393 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:04,958 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:05,370 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:05,784 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:06,200 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:06,613 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:07,038 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:07,448 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:07,861 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:08,274 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:08,691 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:09,114 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:09,603 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:10,087 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:10,569 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:11,075 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:11,589 - ModelingPipeline - INFO - Trial 16/25 - Current: 0.3183, Best: 0.3457
+2025-06-28 23:41:11,604 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:12,120 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:12,636 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:13,147 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:13,664 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:14,192 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:14,834 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:15,472 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:16,105 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:16,748 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:17,400 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:18,023 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:18,646 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:19,272 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:19,899 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:20,523 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:20,999 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:21,454 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:21,953 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:22,450 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:22,957 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:23,427 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:23,902 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:24,373 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:24,846 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:25,316 - ModelingPipeline - INFO - Trial 21/25 - Current: 0.3134, Best: 0.3461
+2025-06-28 23:41:25,332 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:25,805 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:26,278 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:26,751 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:27,228 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:27,716 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:28,540 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:29,366 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:30,205 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:31,027 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:31,872 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:32,451 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:33,036 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:33,615 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:34,196 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:34,790 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:35,310 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:35,828 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:36,347 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:36,870 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:37,397 - ModelingPipeline - INFO - Trial 25/25 - Current: 0.3373, Best: 0.3461
+2025-06-28 23:41:37,400 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:37,914 - ModelingPipeline - INFO - 최적 AUC: 0.3461
+2025-06-28 23:41:37,914 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 387, 'max_depth': 4, 'learning_rate': 0.013461276093793648, 'subsample': 0.9272369270860196, 'colsample_bytree': 0.8034207536468475, 'reg_alpha': 0.05282976784044102, 'reg_lambda': 8.832639858380414, 'scale_pos_weight': np.float64(102.10526315789474)}
+2025-06-28 23:41:37,915 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (NORMAL)
+2025-06-28 23:41:37,919 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:38,441 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:38,956 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:39,471 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:39,987 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,496 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9313(±0.0243), AP=0.3504(±0.0720), F1=0.2199(±0.0260)
+2025-06-28 23:41:40,497 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9313, AP: 0.3504, F1: 0.2199
+2025-06-28 23:41:40,497 - ModelingPipeline - INFO - SMOTE 데이터 처리
+2025-06-28 23:41:40,497 - ModelingPipeline - INFO - logistic_regression 최적화 시작 (SMOTE)
+2025-06-28 23:41:40,497 - ModelingPipeline - INFO - Logistic Regression 클래스 불균형 가중치: class_weight=None
+2025-06-28 23:41:40,497 - ModelingPipeline - INFO - 최적화 메트릭: AVERAGE_PRECISION
+2025-06-28 23:41:40,502 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,531 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,555 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,579 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,601 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,624 - ModelingPipeline - INFO - Trial 1/25 - Current: 0.2704, Best: 0.2704
+2025-06-28 23:41:40,628 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,647 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,667 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,685 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,704 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,724 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,740 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,756 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,770 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,786 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,803 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,821 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,840 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,857 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,876 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,894 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,913 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,930 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,948 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,966 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:40,983 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,000 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,018 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,036 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,054 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,070 - ModelingPipeline - INFO - Trial 6/25 - Current: 0.2710, Best: 0.2758
+2025-06-28 23:41:41,074 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,094 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,115 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,134 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,152 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,172 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,191 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,210 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,228 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,248 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,267 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,299 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,325 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,347 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,371 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,398 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,417 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,436 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,455 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,473 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,496 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,510 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,523 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,536 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,549 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,560 - ModelingPipeline - INFO - Trial 11/25 - Current: 0.2727, Best: 0.2758
+2025-06-28 23:41:41,568 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,582 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,595 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,609 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,622 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,639 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,653 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,667 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,680 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,693 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,711 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,726 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,741 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,755 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,772 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,792 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,806 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,822 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,838 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,853 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,873 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,888 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,904 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,918 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,934 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,946 - ModelingPipeline - INFO - Trial 16/25 - Current: 0.2742, Best: 0.2758
+2025-06-28 23:41:41,954 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,968 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,984 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:41,998 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,014 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,034 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,050 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,068 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,085 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,102 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,125 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,140 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,155 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,170 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,184 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,204 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,218 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,233 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,247 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,261 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,281 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,297 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,313 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,328 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,344 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,357 - ModelingPipeline - INFO - Trial 21/25 - Current: 0.2786, Best: 0.2786
+2025-06-28 23:41:42,365 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,381 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,396 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,413 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,429 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,451 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,467 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,484 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,500 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,515 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,536 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,552 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,569 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,585 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,602 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,624 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,640 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,656 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,672 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,687 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,700 - ModelingPipeline - INFO - Trial 25/25 - Current: 0.2785, Best: 0.2786
+2025-06-28 23:41:42,703 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,718 - ModelingPipeline - INFO - 최적 AUC: 0.2786
+2025-06-28 23:41:42,718 - ModelingPipeline - INFO - 최적 파라미터: {'C': 0.029436066594295533, 'max_iter': 3625, 'penalty': 'l2', 'solver': 'liblinear', 'tol': 0.0001, 'class_weight': None}
+2025-06-28 23:41:42,718 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (SMOTE)
+2025-06-28 23:41:42,722 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,740 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,757 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,772 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,790 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:42,805 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9300(±0.0295), AP=0.2786(±0.0798), F1=0.3084(±0.0829)
+2025-06-28 23:41:42,805 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9300, AP: 0.2786, F1: 0.3084
+2025-06-28 23:41:42,805 - ModelingPipeline - INFO - random_forest 최적화 시작 (SMOTE)
+2025-06-28 23:41:42,805 - ModelingPipeline - INFO - Random Forest 클래스 불균형 가중치: class_weight=None
+2025-06-28 23:41:42,805 - ModelingPipeline - INFO - 최적화 메트릭: AVERAGE_PRECISION
+2025-06-28 23:41:42,810 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:43,526 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:44,210 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:44,885 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:45,597 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:46,309 - ModelingPipeline - INFO - Trial 1/25 - Current: 0.3544, Best: 0.3544
+2025-06-28 23:41:46,313 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:46,935 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:47,571 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:48,191 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:48,815 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:49,441 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:49,765 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:50,088 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:50,395 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:50,733 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:51,045 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:51,642 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:52,203 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:52,756 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:53,341 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:53,905 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:55,108 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:56,346 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:57,577 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:41:58,936 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:00,137 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:01,051 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:01,960 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:02,884 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:03,782 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:04,689 - ModelingPipeline - INFO - Trial 6/25 - Current: 0.3428, Best: 0.3723
+2025-06-28 23:42:04,693 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:06,943 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:09,267 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:11,535 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:13,715 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:16,115 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:18,046 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:19,800 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:21,732 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:23,510 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:25,119 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:25,643 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:26,191 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:26,714 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:27,267 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:27,797 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:28,787 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:29,735 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:30,732 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:31,741 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:32,831 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:36,141 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:39,054 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:42,181 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:45,435 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:48,437 - ModelingPipeline - INFO - Trial 11/25 - Current: 0.3462, Best: 0.3723
+2025-06-28 23:42:48,450 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:49,576 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:50,673 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:51,821 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:52,965 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:54,100 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:56,903 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:42:59,522 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:02,101 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:04,849 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:07,368 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:08,562 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:09,809 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:11,003 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:12,178 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:13,341 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:14,730 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:16,165 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:17,602 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:19,036 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:20,452 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:22,142 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:23,709 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:25,235 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:26,876 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:28,399 - ModelingPipeline - INFO - Trial 16/25 - Current: 0.3528, Best: 0.3723
+2025-06-28 23:43:28,411 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:29,360 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:30,277 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:31,195 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:32,087 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:32,979 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:36,135 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:39,032 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:41,922 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:45,081 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:47,906 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:49,693 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:51,399 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:53,124 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:54,889 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:56,570 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:43:58,410 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:00,246 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:02,062 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:03,889 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:05,675 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:07,321 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:08,890 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:10,436 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:12,066 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:13,543 - ModelingPipeline - INFO - Trial 21/25 - Current: 0.3651, Best: 0.3751
+2025-06-28 23:44:13,557 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:15,456 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:17,351 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:19,253 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:21,162 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:23,064 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:24,490 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:25,922 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:27,339 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:28,794 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:30,239 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:32,001 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:33,787 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:35,562 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:37,378 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:39,067 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:41,077 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:42,941 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:44,780 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:46,785 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:44:48,604 - ModelingPipeline - INFO - Trial 25/25 - Current: 0.3594, Best: 0.3751
+2025-06-28 23:44:48,608 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:45:04,699 - ModelingPipeline - INFO - 최적 AUC: 0.3751
+2025-06-28 23:45:04,700 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 658, 'max_depth': 6, 'min_samples_split': 20, 'min_samples_leaf': 9, 'max_features': 0.8401250451625359, 'class_weight': None}
+2025-06-28 23:45:04,700 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (SMOTE)
+2025-06-28 23:45:04,705 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:45:17,775 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:45:31,127 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:45:44,296 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:45:57,435 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:10,362 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9358(±0.0295), AP=0.3796(±0.1223), F1=0.4067(±0.0737)
+2025-06-28 23:46:10,363 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9358, AP: 0.3796, F1: 0.4067
+2025-06-28 23:46:10,392 - ModelingPipeline - INFO - xgboost 최적화 시작 (SMOTE)
+2025-06-28 23:46:10,393 - ModelingPipeline - INFO - XGBoost 클래스 불균형 처리: scale_pos_weight
+2025-06-28 23:46:10,393 - ModelingPipeline - INFO - scale_pos_weight = 102.11 (설정: auto)
+2025-06-28 23:46:10,393 - ModelingPipeline - INFO - 최적화 메트릭: AVERAGE_PRECISION
+2025-06-28 23:46:10,399 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:11,250 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:12,078 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:12,939 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:13,783 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:14,677 - ModelingPipeline - INFO - Trial 1/25 - Current: 0.2851, Best: 0.2851
+2025-06-28 23:46:14,682 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:15,735 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:16,774 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:17,872 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:19,033 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:20,126 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:20,548 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:20,973 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:21,404 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:21,831 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:22,287 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:22,765 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:23,247 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:23,721 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:24,292 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:24,783 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:25,418 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:26,053 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:26,757 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:27,376 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:27,974 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:29,121 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:30,248 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:31,448 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:32,757 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:33,987 - ModelingPipeline - INFO - Trial 6/25 - Current: 0.3005, Best: 0.3095
+2025-06-28 23:46:33,992 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:34,774 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:35,457 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:36,148 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:36,821 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:37,473 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:38,075 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:38,705 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:39,363 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:39,974 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:40,674 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:41,025 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:41,381 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:41,738 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:42,126 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:42,488 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:43,180 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:44,035 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:44,758 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:45,465 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:46,196 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:47,213 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:48,193 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:49,223 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:50,267 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:51,582 - ModelingPipeline - INFO - Trial 11/25 - Current: 0.2730, Best: 0.3244
+2025-06-28 23:46:51,607 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:52,290 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:53,028 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:53,673 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:54,288 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:54,920 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:55,556 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:56,194 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:56,833 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:57,470 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:58,119 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:58,775 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:46:59,429 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:00,081 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:00,736 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:01,407 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:03,107 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:04,941 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:06,701 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:08,571 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:10,742 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:11,437 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:12,141 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:12,851 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:13,568 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:14,261 - ModelingPipeline - INFO - Trial 16/25 - Current: 0.3057, Best: 0.3581
+2025-06-28 23:47:14,275 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:15,128 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:15,974 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:16,807 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:17,640 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:18,470 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:19,331 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:20,205 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:21,067 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:21,943 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:22,851 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:24,151 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:25,476 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:26,757 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:28,058 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:29,356 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:30,195 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:31,021 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:31,851 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:32,683 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:33,534 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:34,747 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:36,056 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:37,330 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:38,698 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:40,011 - ModelingPipeline - INFO - Trial 21/25 - Current: 0.2963, Best: 0.3581
+2025-06-28 23:47:40,028 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:40,667 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:41,324 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:41,979 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:42,643 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:43,363 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:44,231 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:45,152 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:46,048 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:46,917 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:47,809 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:48,427 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:49,047 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:49,667 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:50,281 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:50,978 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:51,626 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:52,275 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:52,927 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:53,571 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:54,285 - ModelingPipeline - INFO - Trial 25/25 - Current: 0.3168, Best: 0.3581
+2025-06-28 23:47:54,290 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:54,977 - ModelingPipeline - INFO - 최적 AUC: 0.3581
+2025-06-28 23:47:54,977 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 614, 'max_depth': 3, 'learning_rate': 0.012193229652850723, 'subsample': 0.6948420730931092, 'colsample_bytree': 0.6888304787762203, 'reg_alpha': 7.321861704297194, 'reg_lambda': 7.407800219920706, 'scale_pos_weight': np.float64(102.10526315789474)}
+2025-06-28 23:47:54,978 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (SMOTE)
+2025-06-28 23:47:54,984 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:55,659 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:56,340 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:57,020 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:57,701 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:58,373 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9374(±0.0261), AP=0.3570(±0.0795), F1=0.1680(±0.0197)
+2025-06-28 23:47:58,374 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9374, AP: 0.3570, F1: 0.1680
+2025-06-28 23:47:58,374 - ModelingPipeline - INFO - UNDERSAMPLING 데이터 처리
+2025-06-28 23:47:58,375 - ModelingPipeline - INFO - logistic_regression 최적화 시작 (UNDERSAMPLING)
+2025-06-28 23:47:58,375 - ModelingPipeline - INFO - Logistic Regression 클래스 불균형 가중치: class_weight=None
+2025-06-28 23:47:58,375 - ModelingPipeline - INFO - 최적화 메트릭: AVERAGE_PRECISION
+2025-06-28 23:47:58,380 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:58,438 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:58,501 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:58,562 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:58,624 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:58,683 - ModelingPipeline - INFO - Trial 1/25 - Current: 0.2578, Best: 0.2578
+2025-06-28 23:47:58,688 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:58,748 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:58,813 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:58,877 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:58,941 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,010 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,065 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,125 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,184 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,243 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,303 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,360 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,422 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,485 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,546 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,610 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,668 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,730 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,792 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,856 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,922 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:47:59,982 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:00,047 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:00,113 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:00,177 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:00,238 - ModelingPipeline - INFO - Trial 6/25 - Current: 0.2590, Best: 0.2689
+2025-06-28 23:48:00,242 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:00,304 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:00,369 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:00,433 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:00,496 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:00,561 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:00,620 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:00,683 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:00,746 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:00,809 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:00,873 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:00,936 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,002 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,062 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,127 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,195 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,252 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,314 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,378 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,454 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,521 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,582 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,646 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,709 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,771 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,832 - ModelingPipeline - INFO - Trial 11/25 - Current: 0.2717, Best: 0.2717
+2025-06-28 23:48:01,840 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,900 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:01,966 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:02,030 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:02,097 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:02,170 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:02,230 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:02,295 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:02,363 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:02,426 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:02,495 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:02,555 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:02,622 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:02,686 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:02,751 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:02,820 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:02,879 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:02,944 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,008 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,071 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,140 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,196 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,256 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,316 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,376 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,433 - ModelingPipeline - INFO - Trial 16/25 - Current: 0.2560, Best: 0.2719
+2025-06-28 23:48:03,441 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,503 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,566 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,631 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,696 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,765 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,824 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,889 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:03,956 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:04,020 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:04,092 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:04,158 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:04,226 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:04,294 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:04,363 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:04,437 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:04,492 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:04,557 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:04,618 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:04,681 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:04,748 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:04,809 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:04,873 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:04,937 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,000 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,063 - ModelingPipeline - INFO - Trial 21/25 - Current: 0.2712, Best: 0.2719
+2025-06-28 23:48:05,071 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,132 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,196 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,261 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,325 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,396 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,458 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,525 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,588 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,652 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,723 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,782 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,847 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,911 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:05,974 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:06,043 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:06,103 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:06,167 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:06,231 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:06,297 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:06,361 - ModelingPipeline - INFO - Trial 25/25 - Current: 0.2719, Best: 0.2719
+2025-06-28 23:48:06,365 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:06,440 - ModelingPipeline - INFO - 최적 AUC: 0.2719
+2025-06-28 23:48:06,440 - ModelingPipeline - INFO - 최적 파라미터: {'C': 91.2056523701139, 'max_iter': 9350, 'penalty': 'l2', 'solver': 'newton-cg', 'tol': 0.0001, 'class_weight': None}
+2025-06-28 23:48:06,441 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (UNDERSAMPLING)
+2025-06-28 23:48:06,445 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:06,507 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:06,573 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:06,637 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:06,703 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:06,765 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9207(±0.0260), AP=0.2719(±0.0582), F1=0.2047(±0.0851)
+2025-06-28 23:48:06,765 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9207, AP: 0.2719, F1: 0.2047
+2025-06-28 23:48:06,765 - ModelingPipeline - INFO - random_forest 최적화 시작 (UNDERSAMPLING)
+2025-06-28 23:48:06,765 - ModelingPipeline - INFO - Random Forest 클래스 불균형 가중치: class_weight=None
+2025-06-28 23:48:06,765 - ModelingPipeline - INFO - 최적화 메트릭: AVERAGE_PRECISION
+2025-06-28 23:48:06,770 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:07,459 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:08,125 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:08,788 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:09,474 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:10,216 - ModelingPipeline - INFO - Trial 1/25 - Current: 0.3399, Best: 0.3399
+2025-06-28 23:48:10,221 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:10,842 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:11,467 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:12,086 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:12,719 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:13,353 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:13,689 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:14,020 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:14,366 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:14,710 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:15,054 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:15,638 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:16,207 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:16,753 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:17,333 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:17,890 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:19,145 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:20,327 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:21,479 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:22,632 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:23,792 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:24,695 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:25,600 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:26,498 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:27,394 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:28,299 - ModelingPipeline - INFO - Trial 6/25 - Current: 0.3226, Best: 0.3561
+2025-06-28 23:48:28,304 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:30,239 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:32,195 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:34,161 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:36,120 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:38,043 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:39,554 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:41,031 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:42,534 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:44,048 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:45,537 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:46,029 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:46,524 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:47,031 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:47,541 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:48,036 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:49,012 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:49,967 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:50,882 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:51,808 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:52,768 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:54,104 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:55,416 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:56,692 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:58,033 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:48:59,284 - ModelingPipeline - INFO - Trial 11/25 - Current: 0.3289, Best: 0.3561
+2025-06-28 23:48:59,297 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:01,291 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:03,186 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:05,103 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:07,122 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:09,037 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:10,966 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:12,766 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:14,614 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:16,516 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:18,364 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:19,664 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:20,950 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:22,346 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:23,704 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:24,959 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:25,516 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:26,084 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:26,635 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:27,189 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:27,760 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:28,717 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:29,671 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:30,614 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:31,641 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:32,596 - ModelingPipeline - INFO - Trial 16/25 - Current: 0.3288, Best: 0.3561
+2025-06-28 23:49:32,609 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:34,643 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:36,693 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:38,808 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:41,043 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:43,550 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:45,574 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:47,969 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:50,037 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:51,913 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:53,635 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:54,753 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:56,511 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:57,683 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:58,829 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:49:59,880 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:00,780 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:01,693 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:02,577 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:03,488 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:04,378 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:05,427 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:06,454 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:07,481 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:08,606 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:09,647 - ModelingPipeline - INFO - Trial 21/25 - Current: 0.3457, Best: 0.3561
+2025-06-28 23:50:09,660 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:10,631 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:11,573 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:12,518 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:13,489 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:14,445 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:15,565 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:16,637 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:17,733 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:18,864 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:19,995 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:20,632 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:21,279 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:21,922 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:22,578 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:23,235 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:23,639 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:24,049 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:24,573 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:25,007 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:25,400 - ModelingPipeline - INFO - Trial 25/25 - Current: 0.3345, Best: 0.3561
+2025-06-28 23:50:25,404 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:29,325 - ModelingPipeline - INFO - 최적 AUC: 0.3561
+2025-06-28 23:50:29,325 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 346, 'max_depth': 8, 'min_samples_split': 11, 'min_samples_leaf': 5, 'max_features': 0.36210622617823773, 'class_weight': None}
+2025-06-28 23:50:29,326 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (UNDERSAMPLING)
+2025-06-28 23:50:29,330 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:32,429 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:35,488 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:38,407 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:41,477 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:44,349 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9324(±0.0277), AP=0.3539(±0.0498), F1=0.2619(±0.1678)
+2025-06-28 23:50:44,349 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9324, AP: 0.3539, F1: 0.2619
+2025-06-28 23:50:44,364 - ModelingPipeline - INFO - xgboost 최적화 시작 (UNDERSAMPLING)
+2025-06-28 23:50:44,364 - ModelingPipeline - INFO - XGBoost 클래스 불균형 처리: scale_pos_weight
+2025-06-28 23:50:44,365 - ModelingPipeline - INFO - scale_pos_weight = 102.11 (설정: auto)
+2025-06-28 23:50:44,365 - ModelingPipeline - INFO - 최적화 메트릭: AVERAGE_PRECISION
+2025-06-28 23:50:44,370 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:45,162 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:45,953 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:46,746 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:47,543 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:48,356 - ModelingPipeline - INFO - Trial 1/25 - Current: 0.2857, Best: 0.2857
+2025-06-28 23:50:48,361 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:49,368 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:50,362 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:51,359 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:52,390 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:53,417 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:53,876 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:54,340 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:54,809 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:55,274 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:55,740 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:56,247 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:56,757 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:57,270 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:57,779 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:58,294 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:58,914 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:50:59,571 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:00,217 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:00,850 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:01,484 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:02,627 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:03,800 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:04,962 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:06,112 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:07,247 - ModelingPipeline - INFO - Trial 6/25 - Current: 0.3013, Best: 0.3047
+2025-06-28 23:51:07,252 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:07,878 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:08,507 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:09,132 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:09,794 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:10,439 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:10,935 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:11,449 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:11,978 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:12,512 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:13,044 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:13,458 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:13,858 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:14,248 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:14,641 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:15,034 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:15,745 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:16,461 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:17,175 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:17,887 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:18,617 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:19,483 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:20,366 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:21,203 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:22,035 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:22,890 - ModelingPipeline - INFO - Trial 11/25 - Current: 0.2730, Best: 0.3257
+2025-06-28 23:51:22,904 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:23,445 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:23,998 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:24,529 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:25,119 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:25,681 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:26,270 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:26,862 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:27,455 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:28,105 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:28,738 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:29,199 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:29,661 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:30,133 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:30,602 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:31,084 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:32,133 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:33,195 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:34,240 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:35,273 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:36,335 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:37,201 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:38,088 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:38,960 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:39,866 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:40,761 - ModelingPipeline - INFO - Trial 16/25 - Current: 0.3187, Best: 0.3257
+2025-06-28 23:51:40,776 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:41,292 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:41,806 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:42,329 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:42,840 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:43,380 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:43,901 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:44,471 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:44,965 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:45,499 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:46,048 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:47,018 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:47,972 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:48,913 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:49,858 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:50,821 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:51,211 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:51,614 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:52,013 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:52,410 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:52,825 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:54,519 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:56,215 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:57,958 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:51:59,683 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:02,040 - ModelingPipeline - INFO - Trial 21/25 - Current: 0.3129, Best: 0.3257
+2025-06-28 23:52:02,058 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:03,097 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:04,093 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:05,058 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:06,049 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:07,048 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:07,731 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:08,425 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:09,110 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:09,815 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:10,547 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:11,097 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:11,647 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:12,189 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:12,745 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:13,317 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:14,250 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:15,200 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:16,132 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:17,083 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:18,051 - ModelingPipeline - INFO - Trial 25/25 - Current: 0.3402, Best: 0.3402
+2025-06-28 23:52:18,054 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:19,059 - ModelingPipeline - INFO - 최적 AUC: 0.3402
+2025-06-28 23:52:19,059 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 365, 'max_depth': 9, 'learning_rate': 0.03245025430580531, 'subsample': 0.7050431847020073, 'colsample_bytree': 0.8054244622821668, 'reg_alpha': 8.40572687438645, 'reg_lambda': 6.875607973820147, 'scale_pos_weight': np.float64(102.10526315789474)}
+2025-06-28 23:52:19,059 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (UNDERSAMPLING)
+2025-06-28 23:52:19,064 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:20,015 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:20,963 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:21,894 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:23,053 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:24,030 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9320(±0.0291), AP=0.3392(±0.0647), F1=0.3169(±0.0276)
+2025-06-28 23:52:24,030 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9320, AP: 0.3392, F1: 0.3169
+2025-06-28 23:52:24,031 - ModelingPipeline - INFO - COMBINED 데이터 처리
+2025-06-28 23:52:24,032 - ModelingPipeline - INFO - logistic_regression 최적화 시작 (COMBINED)
+2025-06-28 23:52:24,032 - ModelingPipeline - INFO - Logistic Regression 클래스 불균형 가중치: class_weight=None
+2025-06-28 23:52:24,032 - ModelingPipeline - INFO - 최적화 메트릭: AVERAGE_PRECISION
+2025-06-28 23:52:24,037 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:24,107 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:24,179 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:24,251 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:24,323 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:24,390 - ModelingPipeline - INFO - Trial 1/25 - Current: 0.2704, Best: 0.2704
+2025-06-28 23:52:24,395 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:24,459 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:24,527 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:24,596 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:24,665 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:24,736 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:24,795 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:24,861 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:24,927 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:24,993 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:25,061 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:25,124 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:25,192 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:25,259 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:25,331 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:25,415 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:25,527 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:25,602 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:25,673 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:25,745 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:25,818 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:25,884 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:25,955 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:26,024 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:26,096 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:26,163 - ModelingPipeline - INFO - Trial 6/25 - Current: 0.2707, Best: 0.2758
+2025-06-28 23:52:26,168 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:26,235 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:26,302 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:26,556 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:26,642 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:26,719 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:26,787 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:26,857 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:26,928 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:27,001 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:27,074 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:27,152 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:27,227 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:27,300 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:27,380 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:27,460 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:27,527 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:27,664 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:27,747 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:27,823 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:27,902 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:27,963 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:28,032 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:28,099 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:28,164 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:28,226 - ModelingPipeline - INFO - Trial 11/25 - Current: 0.2728, Best: 0.2758
+2025-06-28 23:52:28,235 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:28,298 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:28,363 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:28,429 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:28,494 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:28,563 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:28,626 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:28,690 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:28,757 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:28,822 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:28,894 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:28,956 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:29,022 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:29,089 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:29,156 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:29,225 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:29,287 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:29,352 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:29,418 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:29,483 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:29,555 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:29,616 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:29,684 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:29,760 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:29,828 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:29,892 - ModelingPipeline - INFO - Trial 16/25 - Current: 0.2741, Best: 0.2758
+2025-06-28 23:52:29,901 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:29,963 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:30,028 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:30,094 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:30,162 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:30,234 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:30,297 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:30,365 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:30,434 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:30,501 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:30,575 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:30,638 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:30,702 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:30,768 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:30,832 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:30,901 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:30,960 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:31,023 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:31,088 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:31,154 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:31,224 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:31,285 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:31,351 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:31,417 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:31,494 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:31,555 - ModelingPipeline - INFO - Trial 21/25 - Current: 0.2787, Best: 0.2787
+2025-06-28 23:52:31,564 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:31,626 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:31,690 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:31,757 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:31,823 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:31,892 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:31,953 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:32,017 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:32,084 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:32,150 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:32,221 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:32,283 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:32,349 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:32,414 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:32,483 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:32,557 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:32,617 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:32,681 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:32,745 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:32,811 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:32,873 - ModelingPipeline - INFO - Trial 25/25 - Current: 0.2786, Best: 0.2787
+2025-06-28 23:52:32,876 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:32,952 - ModelingPipeline - INFO - 최적 AUC: 0.2787
+2025-06-28 23:52:32,952 - ModelingPipeline - INFO - 최적 파라미터: {'C': 0.03272200305000932, 'max_iter': 3687, 'penalty': 'l2', 'solver': 'liblinear', 'tol': 0.0001, 'class_weight': None}
+2025-06-28 23:52:32,952 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (COMBINED)
+2025-06-28 23:52:32,956 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:33,018 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:33,086 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:33,153 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:33,220 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:33,285 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9299(±0.0295), AP=0.2787(±0.0798), F1=0.3056(±0.0798)
+2025-06-28 23:52:33,285 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9299, AP: 0.2787, F1: 0.3056
+2025-06-28 23:52:33,285 - ModelingPipeline - INFO - random_forest 최적화 시작 (COMBINED)
+2025-06-28 23:52:33,285 - ModelingPipeline - INFO - Random Forest 클래스 불균형 가중치: class_weight=None
+2025-06-28 23:52:33,285 - ModelingPipeline - INFO - 최적화 메트릭: AVERAGE_PRECISION
+2025-06-28 23:52:33,291 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:34,052 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:34,839 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:35,689 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:36,495 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:37,284 - ModelingPipeline - INFO - Trial 1/25 - Current: 0.3482, Best: 0.3482
+2025-06-28 23:52:37,289 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:37,973 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:38,650 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:39,359 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:40,080 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:40,813 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:41,215 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:41,610 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:41,994 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:42,406 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:42,809 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:43,512 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:44,199 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:44,874 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:45,516 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:46,143 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:47,452 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:48,788 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:50,049 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:51,308 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:52,569 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:53,517 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:54,479 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:55,420 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:56,396 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:57,389 - ModelingPipeline - INFO - Trial 6/25 - Current: 0.3402, Best: 0.3803
+2025-06-28 23:52:57,394 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:52:59,588 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:01,808 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:04,065 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:06,251 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:08,486 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:10,339 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:12,083 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:13,855 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:15,614 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:17,306 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:17,891 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:18,461 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:19,034 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:19,621 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:20,637 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:22,156 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:23,371 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:24,498 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:25,632 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:26,722 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:30,042 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:33,109 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:36,296 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:39,570 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:42,478 - ModelingPipeline - INFO - Trial 11/25 - Current: 0.3375, Best: 0.3803
+2025-06-28 23:53:42,491 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:43,422 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:44,384 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:45,282 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:46,221 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:47,128 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:47,954 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:48,794 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:49,609 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:50,426 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:51,258 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:53,006 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:54,651 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:56,276 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:58,031 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:53:59,605 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:00,570 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:01,552 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:02,523 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:03,510 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:04,511 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:06,086 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:07,560 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:09,038 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:10,597 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:12,032 - ModelingPipeline - INFO - Trial 16/25 - Current: 0.3603, Best: 0.3803
+2025-06-28 23:54:12,045 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:13,921 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:15,727 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:17,478 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:19,245 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:21,014 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:25,036 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:28,789 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:32,866 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:37,085 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:40,594 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:41,269 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:41,953 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:42,624 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:43,307 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:44,006 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:45,746 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:47,391 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:49,034 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:50,746 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:52,327 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:55,280 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:54:58,052 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:00,919 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:03,985 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:07,303 - ModelingPipeline - INFO - Trial 21/25 - Current: 0.3616, Best: 0.3803
+2025-06-28 23:55:07,317 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:09,571 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:12,113 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:14,625 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:17,168 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:19,426 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:21,504 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:23,526 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:25,442 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:27,645 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:29,558 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:31,983 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:34,375 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:36,696 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:38,996 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:41,178 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:42,429 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:43,682 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:44,949 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:46,272 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:47,827 - ModelingPipeline - INFO - Trial 25/25 - Current: 0.3646, Best: 0.3803
+2025-06-28 23:55:47,831 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:55:57,250 - ModelingPipeline - INFO - 최적 AUC: 0.3803
+2025-06-28 23:55:57,251 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 690, 'max_depth': 5, 'min_samples_split': 7, 'min_samples_leaf': 4, 'max_features': 0.5104629857953323, 'class_weight': None}
+2025-06-28 23:55:57,252 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (COMBINED)
+2025-06-28 23:55:57,259 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:04,881 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:12,425 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:19,905 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:27,399 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:34,963 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9409(±0.0273), AP=0.3673(±0.1376), F1=0.3846(±0.0704)
+2025-06-28 23:56:34,964 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9409, AP: 0.3673, F1: 0.3846
+2025-06-28 23:56:34,994 - ModelingPipeline - INFO - xgboost 최적화 시작 (COMBINED)
+2025-06-28 23:56:34,995 - ModelingPipeline - INFO - XGBoost 클래스 불균형 처리: scale_pos_weight
+2025-06-28 23:56:34,995 - ModelingPipeline - INFO - scale_pos_weight = 102.11 (설정: auto)
+2025-06-28 23:56:34,995 - ModelingPipeline - INFO - 최적화 메트릭: AVERAGE_PRECISION
+2025-06-28 23:56:35,000 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:35,855 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:36,745 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:37,656 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:38,552 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:39,478 - ModelingPipeline - INFO - Trial 1/25 - Current: 0.2674, Best: 0.2674
+2025-06-28 23:56:39,483 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:40,575 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:41,693 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:42,843 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:44,053 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:45,219 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:45,685 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:46,155 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:46,627 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:47,097 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:47,572 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:48,088 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:48,605 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:49,124 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:49,648 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:50,175 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:50,807 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:51,442 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:52,082 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:52,720 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:53,367 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:54,514 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:55,674 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:56,833 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:58,034 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:56:59,521 - ModelingPipeline - INFO - Trial 6/25 - Current: 0.2821, Best: 0.3052
+2025-06-28 23:56:59,528 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:00,286 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:01,009 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:01,785 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:02,524 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:03,253 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:03,886 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:04,566 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:05,239 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:05,863 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:06,634 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:07,067 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:07,504 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:07,940 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:08,367 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:08,784 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:09,548 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:10,344 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:11,117 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:11,889 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:12,672 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:13,645 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:14,619 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:15,566 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:16,542 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:17,547 - ModelingPipeline - INFO - Trial 11/25 - Current: 0.2853, Best: 0.3292
+2025-06-28 23:57:17,565 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:17,847 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:18,135 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:18,422 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:18,709 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:19,017 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:19,567 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:20,109 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:20,701 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:21,255 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:21,815 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:22,671 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:23,529 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:24,376 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:25,208 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:26,032 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:27,490 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:29,311 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:30,824 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:32,282 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:33,752 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:34,479 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:35,223 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:35,981 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:36,704 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:37,467 - ModelingPipeline - INFO - Trial 16/25 - Current: 0.2649, Best: 0.3292
+2025-06-28 23:57:37,482 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:38,681 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:39,891 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:41,100 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:42,311 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:43,550 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:44,767 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:46,007 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:47,240 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:48,483 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:49,731 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:51,229 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:52,791 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:54,550 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:56,100 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:57,702 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:57:59,472 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:01,296 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:03,108 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:04,948 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:06,811 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:08,225 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:09,659 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:11,050 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:12,494 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:13,911 - ModelingPipeline - INFO - Trial 21/25 - Current: 0.3428, Best: 0.3428
+2025-06-28 23:58:13,928 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:15,318 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:16,755 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:18,156 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:19,576 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:21,006 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:22,291 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:23,595 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:24,884 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:26,207 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:27,550 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:29,248 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:30,988 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:32,698 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:34,457 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:36,200 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:37,603 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:39,007 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:40,426 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:41,927 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:43,443 - ModelingPipeline - INFO - Trial 25/25 - Current: 0.3049, Best: 0.3525
+2025-06-28 23:58:43,447 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:44,903 - ModelingPipeline - INFO - 최적 AUC: 0.3525
+2025-06-28 23:58:44,903 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 507, 'max_depth': 9, 'learning_rate': 0.01414617093870784, 'subsample': 0.6271103523040418, 'colsample_bytree': 0.8088998142645385, 'reg_alpha': 7.2198381891269, 'reg_lambda': 6.646698176467412, 'scale_pos_weight': np.float64(102.10526315789474)}
+2025-06-28 23:58:44,904 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (COMBINED)
+2025-06-28 23:58:44,908 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:46,297 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:47,714 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:49,100 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:50,520 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:51,931 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9409(±0.0192), AP=0.3504(±0.0731), F1=0.2398(±0.0333)
+2025-06-28 23:58:51,932 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9409, AP: 0.3504, F1: 0.2398
+2025-06-28 23:58:51,933 - ModelingPipeline - INFO - 모든 모델 평가 및 Threshold 최적화
+2025-06-28 23:58:51,938 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:51,939 - ModelingPipeline - INFO - logistic_regression_normal 최적 Threshold 탐색
+2025-06-28 23:58:51,939 - ModelingPipeline - INFO - 임계값 범위: 0.0013 ~ 0.5000 (300개 점)
+2025-06-28 23:58:52,800 - ModelingPipeline - INFO - 최종 선택: 0.116 (AVERAGE_PRECISION: 0.1628)
+2025-06-28 23:58:52,819 - ModelingPipeline - INFO - logistic_regression_normal 최종 평가 (Threshold: 0.116):
+2025-06-28 23:58:52,819 - ModelingPipeline - INFO - 검증 - AUC: 0.9330, F1: 0.2000
+2025-06-28 23:58:52,819 - ModelingPipeline - INFO - 테스트 - AUC: 0.8810, F1: 0.0775
+2025-06-28 23:58:52,823 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:52,869 - ModelingPipeline - INFO - random_forest_normal 최적 Threshold 탐색
+2025-06-28 23:58:52,869 - ModelingPipeline - INFO - 임계값 범위: 0.0013 ~ 0.5000 (300개 점)
+2025-06-28 23:58:53,697 - ModelingPipeline - INFO - 최종 선택: 0.448 (AVERAGE_PRECISION: 0.1788)
+2025-06-28 23:58:53,792 - ModelingPipeline - INFO - random_forest_normal 최종 평가 (Threshold: 0.448):
+2025-06-28 23:58:53,792 - ModelingPipeline - INFO - 검증 - AUC: 0.9344, F1: 0.2581
+2025-06-28 23:58:53,792 - ModelingPipeline - INFO - 테스트 - AUC: 0.8632, F1: 0.2000
+2025-06-28 23:58:53,796 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:53,800 - ModelingPipeline - INFO - xgboost_normal 최적 Threshold 탐색
+2025-06-28 23:58:53,800 - ModelingPipeline - INFO - 임계값 범위: 0.0013 ~ 0.5000 (300개 점)
+2025-06-28 23:58:54,630 - ModelingPipeline - INFO - 최종 선택: 0.482 (AVERAGE_PRECISION: 0.1568)
+2025-06-28 23:58:54,660 - ModelingPipeline - INFO - xgboost_normal 최종 평가 (Threshold: 0.482):
+2025-06-28 23:58:54,660 - ModelingPipeline - INFO - 검증 - AUC: 0.9535, F1: 0.1165
+2025-06-28 23:58:54,660 - ModelingPipeline - INFO - 테스트 - AUC: 0.9059, F1: 0.0447
+2025-06-28 23:58:54,664 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:54,670 - ModelingPipeline - INFO - logistic_regression_smote 최적 Threshold 탐색
+2025-06-28 23:58:54,671 - ModelingPipeline - INFO - 임계값 범위: 0.0013 ~ 0.5000 (300개 점)
+2025-06-28 23:58:55,499 - ModelingPipeline - INFO - 최종 선택: 0.500 (AVERAGE_PRECISION: 0.1554)
+2025-06-28 23:58:55,518 - ModelingPipeline - INFO - logistic_regression_smote 최종 평가 (Threshold: 0.500):
+2025-06-28 23:58:55,518 - ModelingPipeline - INFO - 검증 - AUC: 0.9323, F1: 0.1546
+2025-06-28 23:58:55,519 - ModelingPipeline - INFO - 테스트 - AUC: 0.8202, F1: 0.0684
+2025-06-28 23:58:55,523 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:55,608 - ModelingPipeline - INFO - random_forest_smote 최적 Threshold 탐색
+2025-06-28 23:58:55,608 - ModelingPipeline - INFO - 임계값 범위: 0.0013 ~ 0.5000 (300개 점)
+2025-06-28 23:58:56,443 - ModelingPipeline - INFO - 최종 선택: 0.495 (AVERAGE_PRECISION: 0.1669)
+2025-06-28 23:58:56,650 - ModelingPipeline - INFO - random_forest_smote 최종 평가 (Threshold: 0.495):
+2025-06-28 23:58:56,650 - ModelingPipeline - INFO - 검증 - AUC: 0.9494, F1: 0.2400
+2025-06-28 23:58:56,650 - ModelingPipeline - INFO - 테스트 - AUC: 0.8852, F1: 0.1324
+2025-06-28 23:58:56,655 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:56,664 - ModelingPipeline - INFO - xgboost_smote 최적 Threshold 탐색
+2025-06-28 23:58:56,664 - ModelingPipeline - INFO - 임계값 범위: 0.0013 ~ 0.5000 (300개 점)
+2025-06-28 23:58:57,500 - ModelingPipeline - INFO - 최종 선택: 0.498 (AVERAGE_PRECISION: 0.1686)
+2025-06-28 23:58:57,532 - ModelingPipeline - INFO - xgboost_smote 최종 평가 (Threshold: 0.498):
+2025-06-28 23:58:57,532 - ModelingPipeline - INFO - 검증 - AUC: 0.9543, F1: 0.0851
+2025-06-28 23:58:57,532 - ModelingPipeline - INFO - 테스트 - AUC: 0.9070, F1: 0.0335
+2025-06-28 23:58:57,536 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:57,601 - ModelingPipeline - INFO - logistic_regression_undersampling 최적 Threshold 탐색
+2025-06-28 23:58:57,601 - ModelingPipeline - INFO - 임계값 범위: 0.0013 ~ 0.5000 (300개 점)
+2025-06-28 23:58:58,427 - ModelingPipeline - INFO - 최종 선택: 0.118 (AVERAGE_PRECISION: 0.1617)
+2025-06-28 23:58:58,446 - ModelingPipeline - INFO - logistic_regression_undersampling 최종 평가 (Threshold: 0.118):
+2025-06-28 23:58:58,446 - ModelingPipeline - INFO - 검증 - AUC: 0.9343, F1: 0.2149
+2025-06-28 23:58:58,446 - ModelingPipeline - INFO - 테스트 - AUC: 0.8812, F1: 0.0959
+2025-06-28 23:58:58,450 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:58,566 - ModelingPipeline - INFO - random_forest_undersampling 최적 Threshold 탐색
+2025-06-28 23:58:58,566 - ModelingPipeline - INFO - 임계값 범위: 0.0013 ~ 0.5000 (300개 점)
+2025-06-28 23:58:59,384 - ModelingPipeline - INFO - 최종 선택: 0.363 (AVERAGE_PRECISION: 0.1711)
+2025-06-28 23:58:59,526 - ModelingPipeline - INFO - random_forest_undersampling 최종 평가 (Threshold: 0.363):
+2025-06-28 23:58:59,526 - ModelingPipeline - INFO - 검증 - AUC: 0.9369, F1: 0.2785
+2025-06-28 23:58:59,526 - ModelingPipeline - INFO - 테스트 - AUC: 0.8942, F1: 0.1728
+2025-06-28 23:58:59,531 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:58:59,604 - ModelingPipeline - INFO - xgboost_undersampling 최적 Threshold 탐색
+2025-06-28 23:58:59,604 - ModelingPipeline - INFO - 임계값 범위: 0.0013 ~ 0.5000 (300개 점)
+2025-06-28 23:59:00,434 - ModelingPipeline - INFO - 최종 선택: 0.480 (AVERAGE_PRECISION: 0.1652)
+2025-06-28 23:59:00,475 - ModelingPipeline - INFO - xgboost_undersampling 최종 평가 (Threshold: 0.480):
+2025-06-28 23:59:00,475 - ModelingPipeline - INFO - 검증 - AUC: 0.9469, F1: 0.1739
+2025-06-28 23:59:00,475 - ModelingPipeline - INFO - 테스트 - AUC: 0.8817, F1: 0.0930
+2025-06-28 23:59:00,479 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:59:00,549 - ModelingPipeline - INFO - logistic_regression_combined 최적 Threshold 탐색
+2025-06-28 23:59:00,549 - ModelingPipeline - INFO - 임계값 범위: 0.0013 ~ 0.5000 (300개 점)
+2025-06-28 23:59:01,392 - ModelingPipeline - INFO - 최종 선택: 0.500 (AVERAGE_PRECISION: 0.1549)
+2025-06-28 23:59:01,410 - ModelingPipeline - INFO - logistic_regression_combined 최종 평가 (Threshold: 0.500):
+2025-06-28 23:59:01,410 - ModelingPipeline - INFO - 검증 - AUC: 0.9321, F1: 0.1546
+2025-06-28 23:59:01,410 - ModelingPipeline - INFO - 테스트 - AUC: 0.8208, F1: 0.0682
+2025-06-28 23:59:01,415 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:59:01,569 - ModelingPipeline - INFO - random_forest_combined 최적 Threshold 탐색
+2025-06-28 23:59:01,569 - ModelingPipeline - INFO - 임계값 범위: 0.0013 ~ 0.5000 (300개 점)
+2025-06-28 23:59:02,402 - ModelingPipeline - INFO - 최종 선택: 0.498 (AVERAGE_PRECISION: 0.1774)
+2025-06-28 23:59:02,600 - ModelingPipeline - INFO - random_forest_combined 최종 평가 (Threshold: 0.498):
+2025-06-28 23:59:02,600 - ModelingPipeline - INFO - 검증 - AUC: 0.9463, F1: 0.2542
+2025-06-28 23:59:02,600 - ModelingPipeline - INFO - 테스트 - AUC: 0.8777, F1: 0.1343
+2025-06-28 23:59:02,604 - ModelingPipeline - INFO - Log 그룹에 설정된 컬럼이 없습니다
+2025-06-28 23:59:02,686 - ModelingPipeline - INFO - xgboost_combined 최적 Threshold 탐색
+2025-06-28 23:59:02,686 - ModelingPipeline - INFO - 임계값 범위: 0.0013 ~ 0.5000 (300개 점)
+2025-06-28 23:59:03,535 - ModelingPipeline - INFO - 최종 선택: 0.463 (AVERAGE_PRECISION: 0.1748)
+2025-06-28 23:59:03,584 - ModelingPipeline - INFO - xgboost_combined 최종 평가 (Threshold: 0.463):
+2025-06-28 23:59:03,584 - ModelingPipeline - INFO - 검증 - AUC: 0.9446, F1: 0.1489
+2025-06-28 23:59:03,584 - ModelingPipeline - INFO - 테스트 - AUC: 0.8942, F1: 0.0528
+2025-06-28 23:59:03,585 - ModelingPipeline - INFO - 앙상블 모델 실행 시작
+2025-06-28 23:59:03,587 - ModelingPipeline - INFO - 앙상블에 추가: logistic_regression_normal
+2025-06-28 23:59:03,587 - ModelingPipeline - INFO - 앙상블에 추가: logistic_regression_smote
+2025-06-28 23:59:03,587 - ModelingPipeline - INFO - 앙상블에 추가: logistic_regression_undersampling
+2025-06-28 23:59:03,587 - ModelingPipeline - INFO - 앙상블에 추가: random_forest_normal
+2025-06-28 23:59:03,587 - ModelingPipeline - INFO - 앙상블에 추가: random_forest_smote
+2025-06-28 23:59:03,587 - ModelingPipeline - INFO - 앙상블에 추가: random_forest_undersampling
+2025-06-28 23:59:03,587 - ModelingPipeline - INFO - 앙상블에 추가: xgboost_normal
+2025-06-28 23:59:03,588 - ModelingPipeline - INFO - 앙상블에 추가: xgboost_smote
+2025-06-28 23:59:03,588 - ModelingPipeline - INFO - 앙상블에 추가: xgboost_undersampling
+2025-06-28 23:59:04,129 - ModelingPipeline - INFO - 앙상블 모델 완료 - Test AUC: 0.8023, F1: 0.0746
+2025-06-28 23:59:04,335 - ModelingPipeline - INFO - 앙상블 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/models/ensemble_model_model.joblib
+2025-06-28 23:59:04,335 - ModelingPipeline - INFO - 시각화 생성 시작
+2025-06-28 23:59:11,610 - ModelingPipeline - INFO - Train vs Test 비교 시각화 완료
+2025-06-28 23:59:11,736 - ModelingPipeline - INFO - 시각화 생성 완료
+2025-06-28 23:59:11,736 - ModelingPipeline - INFO - 결과 저장 시작
+2025-06-28 23:59:11,737 - ModelingPipeline - INFO - logistic_regression_normal 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/models/logistic_regression_normal_model.joblib
+2025-06-28 23:59:11,800 - ModelingPipeline - INFO - random_forest_normal 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/models/random_forest_normal_model.joblib
+2025-06-28 23:59:11,803 - ModelingPipeline - INFO - xgboost_normal 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/models/xgboost_normal_model.joblib
+2025-06-28 23:59:11,804 - ModelingPipeline - INFO - logistic_regression_smote 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/models/logistic_regression_smote_model.joblib
+2025-06-28 23:59:11,893 - ModelingPipeline - INFO - random_forest_smote 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/models/random_forest_smote_model.joblib
+2025-06-28 23:59:11,896 - ModelingPipeline - INFO - xgboost_smote 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/models/xgboost_smote_model.joblib
+2025-06-28 23:59:11,896 - ModelingPipeline - INFO - logistic_regression_undersampling 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/models/logistic_regression_undersampling_model.joblib
+2025-06-28 23:59:11,944 - ModelingPipeline - INFO - random_forest_undersampling 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/models/random_forest_undersampling_model.joblib
+2025-06-28 23:59:11,947 - ModelingPipeline - INFO - xgboost_undersampling 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/models/xgboost_undersampling_model.joblib
+2025-06-28 23:59:11,947 - ModelingPipeline - INFO - logistic_regression_combined 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/models/logistic_regression_combined_model.joblib
+2025-06-28 23:59:12,039 - ModelingPipeline - INFO - random_forest_combined 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/models/random_forest_combined_model.joblib
+2025-06-28 23:59:12,043 - ModelingPipeline - INFO - xgboost_combined 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/models/xgboost_combined_model.joblib
+2025-06-28 23:59:12,352 - ModelingPipeline - INFO - ensemble_model 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/models/ensemble_model_model.joblib
+2025-06-28 23:59:12,844 - ModelingPipeline - INFO - 전체 결과 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/results/modeling_results.json
+2025-06-28 23:59:12,845 - ModelingPipeline - INFO - 설정 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/modeling_config.json
+2025-06-28 23:59:12,847 - ModelingPipeline - INFO - 실행 결과 요약:
+2025-06-28 23:59:12,850 - ModelingPipeline - INFO - 
+                  Model        Data_Type  Optimal_Threshold  CV_AUC  CV_AUC_Mean  CV_AP_Mean  CV_F1_Mean  Val_AUC  Val_F1  Test_AUC  Test_Precision  Test_Recall  Test_F1  Test_Balanced_Acc  Test_Average_Precision
+0   logistic_regression           NORMAL             0.1164  0.2773       0.9204      0.2773      0.1798   0.9330  0.2000    0.8810          0.0459         0.25   0.0775             0.6172                  0.0622
+1         random_forest           NORMAL             0.4483  0.3587       0.9364      0.3545      0.1622   0.9344  0.2581    0.8632          0.1667         0.25   0.2000             0.6231                  0.0967
+2               xgboost           NORMAL             0.4817  0.3461       0.9313      0.3504      0.2199   0.9535  0.1165    0.9059          0.0231         0.70   0.0447             0.8057                  0.0923
+3   logistic_regression            SMOTE             0.5000  0.2786       0.9300      0.2786      0.3084   0.9323  0.1546    0.8202          0.0370         0.45   0.0684             0.7075                  0.0401
+4         random_forest            SMOTE             0.4950  0.3751       0.9358      0.3796      0.4067   0.9494  0.2400    0.8852          0.0776         0.45   0.1324             0.7170                  0.0912
+5               xgboost            SMOTE             0.4983  0.3581       0.9374      0.3570      0.1680   0.9543  0.0851    0.9070          0.0171         0.85   0.0335             0.8518                  0.1261
+6   logistic_regression    UNDERSAMPLING             0.1180  0.2719       0.9207      0.2719      0.2047   0.9343  0.2149    0.8812          0.0556         0.35   0.0959             0.6661                  0.0582
+7         random_forest    UNDERSAMPLING             0.3632  0.3561       0.9324      0.3539      0.2619   0.9369  0.2785    0.8942          0.1148         0.35   0.1728             0.6710                  0.0926
+8               xgboost    UNDERSAMPLING             0.4800  0.3402       0.9320      0.3392      0.3169   0.9469  0.1739    0.8817          0.0504         0.60   0.0930             0.7831                  0.1018
+9   logistic_regression         COMBINED             0.5000  0.2787       0.9299      0.2787      0.3056   0.9321  0.1546    0.8208          0.0369         0.45   0.0682             0.7074                  0.0399
+10        random_forest         COMBINED             0.4983  0.3803       0.9409      0.3673      0.3846   0.9463  0.2542    0.8777          0.0789         0.45   0.1343             0.7171                  0.0793
+11              xgboost         COMBINED             0.4633  0.3525       0.9409      0.3504      0.2398   0.9446  0.1489    0.8942          0.0275         0.65   0.0528             0.7907                  0.1193
+12             ensemble  COMBINED_MODELS             0.4500  0.3751       0.3751      0.0000      0.0000   0.8023  0.0981    0.8023          0.0403         0.50   0.0746             0.7322                  0.0720
+2025-06-28 23:59:12,850 - ModelingPipeline - INFO - 요약 테이블 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250628_233801/results/summary_table.csv
+2025-06-28 23:59:12,851 - ModelingPipeline - INFO - === 모델링 파이프라인 완료 ===
