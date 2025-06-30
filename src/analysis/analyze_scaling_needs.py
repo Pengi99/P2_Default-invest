@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from sklearn.preprocessing import StandardScaler
 import os
 import warnings
 warnings.filterwarnings('ignore')
@@ -48,10 +50,13 @@ print("="*50)
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(os.path.dirname(current_dir))
 
-# FS_ratio_flow.csv 로드
-data_path = os.path.join(project_root, 'data', 'processed', 'FS.csv')
+# 데이터 파일 경로 설정 (기본값: FS_filtered.csv, 필요시 수정 가능)
+# 다른 파일 분석하려면 아래 경로를 변경하세요
+# 예: 'FS.csv', 'FS_filtered.csv', 'custom_data.csv' 등
+data_filename = 'FS_filtered.csv'  # 👈 여기서 파일명 변경 가능
+data_path = os.path.join(project_root, 'data', 'processed', data_filename)
 fs_ratio = pd.read_csv(data_path, dtype={'거래소코드': str})
-print(f"FS_ratio_flow.csv: {fs_ratio.shape}")
+print(f"분석 데이터 ({data_filename}): {fs_ratio.shape}")
 
 # 재무비율 컬럼만 추출
 ratio_columns = [col for col in fs_ratio.columns 
@@ -726,6 +731,141 @@ plt.tight_layout()
 plt.savefig(os.path.join(comp_dir, '03_correlation_heatmap.png'), dpi=300, bbox_inches='tight')
 plt.close()
 
+# 6-3-1. VIF 다중공선성 분석
+print(f"VIF 다중공선성 분석 중 ({data_filename})...")
+vif_data = []
+
+# 완전한 관측치만 사용
+complete_data = fs_ratio[ratio_columns].dropna()
+print(f"VIF 분석용 완전한 관측치 ({data_filename}): {len(complete_data):,}개")
+
+if len(complete_data) > 0:
+    # 데이터 표준화 (VIF 계산 안정성을 위해)
+    scaler = StandardScaler()
+    scaled_data = scaler.fit_transform(complete_data)
+    scaled_df = pd.DataFrame(scaled_data, columns=ratio_columns)
+    
+    # VIF 계산
+    for i, col in enumerate(ratio_columns):
+        try:
+            vif_value = variance_inflation_factor(scaled_df.values, i)
+            vif_data.append({
+                '변수명': col,
+                'VIF': vif_value,
+                '다중공선성': 'High' if vif_value > 10 else 'Medium' if vif_value > 5 else 'Low'
+            })
+        except Exception as e:
+            print(f"VIF 계산 오류 ({col}): {e}")
+            vif_data.append({
+                '변수명': col,
+                'VIF': np.nan,
+                '다중공선성': 'Error'
+            })
+    
+    vif_df = pd.DataFrame(vif_data)
+    vif_df = vif_df.sort_values('VIF', ascending=False)
+    
+    # VIF 결과 출력
+    print(f"\n📊 VIF 다중공선성 분석 결과 ({data_filename}):")
+    print("VIF > 10: 높은 다중공선성")
+    print("VIF 5-10: 중간 다중공선성")
+    print("VIF < 5: 낮은 다중공선성")
+    print("\n상위 20개 VIF 값:")
+    print(vif_df.head(20))
+    
+    # VIF 시각화
+    fig, ax = plt.subplots(figsize=(16, 8))
+    
+    colors = ['red' if vif > 10 else 'orange' if vif > 5 else 'green' 
+              for vif in vif_df['VIF']]
+    
+    bars = ax.bar(range(len(vif_df)), vif_df['VIF'], 
+                  color=colors, alpha=0.8, edgecolor='black', linewidth=0.5)
+    
+    ax.set_xlabel('재무비율 변수', fontsize=12)
+    ax.set_ylabel('VIF (Variance Inflation Factor)', fontsize=12)
+    ax.set_title(f'VIF 다중공선성 분석 ({data_filename})\n(빨강: >10, 주황: 5-10, 초록: <5)', 
+                 fontsize=14, fontweight='bold')
+    ax.set_xticks(range(len(vif_df)))
+    ax.set_xticklabels(vif_df['변수명'], rotation=45, ha='right')
+    ax.grid(True, alpha=0.3)
+    
+    # VIF 임계선 표시
+    ax.axhline(y=10, color='red', linestyle='--', alpha=0.7, linewidth=2, label='높은 다중공선성 (VIF=10)')
+    ax.axhline(y=5, color='orange', linestyle='--', alpha=0.7, linewidth=2, label='중간 다중공선성 (VIF=5)')
+    ax.legend()
+    
+    # VIF 값 표시 (상위 10개만)
+    top_10_vif = vif_df.head(10)
+    for i in range(min(10, len(vif_df))):
+        if not np.isnan(vif_df.iloc[i]['VIF']):
+            height = bars[i].get_height()
+            if height > 5:  # VIF > 5인 경우만 표시
+                ax.text(bars[i].get_x() + bars[i].get_width()/2., height + max(vif_df['VIF'])*0.01,
+                       f'{height:.1f}', ha='center', va='bottom', fontsize=8, rotation=45)
+    
+    plt.tight_layout()
+    plt.savefig(os.path.join(comp_dir, '05_vif_multicollinearity.png'), dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    # 높은 VIF 변수들 분석
+    high_vif = vif_df[vif_df['VIF'] > 10]
+    medium_vif = vif_df[(vif_df['VIF'] > 5) & (vif_df['VIF'] <= 10)]
+    low_vif = vif_df[vif_df['VIF'] <= 5]
+    
+    print(f"\n🔴 높은 다중공선성 (VIF > 10): {len(high_vif)}개")
+    for _, row in high_vif.iterrows():
+        print(f"   - {row['변수명']:25} : VIF = {row['VIF']:.2f}")
+    
+    print(f"\n🟠 중간 다중공선성 (VIF 5-10): {len(medium_vif)}개")
+    for _, row in medium_vif.iterrows():
+        print(f"   - {row['변수명']:25} : VIF = {row['VIF']:.2f}")
+    
+    print(f"\n🟢 낮은 다중공선성 (VIF < 5): {len(low_vif)}개")
+    
+    # VIF와 상관관계 결합 분석
+    print(f"\n📈 VIF-상관관계 결합 분석 ({data_filename}):")
+    high_corr_pairs = []
+    
+    # 높은 상관관계 찾기 (|r| > 0.8)
+    for i in range(len(corr_matrix)):
+        for j in range(i+1, len(corr_matrix)):
+            corr_val = abs(corr_matrix.iloc[i, j])
+            if corr_val > 0.8:
+                var1 = corr_matrix.index[i]
+                var2 = corr_matrix.columns[j]
+                vif1 = vif_df[vif_df['변수명'] == var1]['VIF'].iloc[0] if len(vif_df[vif_df['변수명'] == var1]) > 0 else np.nan
+                vif2 = vif_df[vif_df['변수명'] == var2]['VIF'].iloc[0] if len(vif_df[vif_df['변수명'] == var2]) > 0 else np.nan
+                
+                high_corr_pairs.append({
+                    '변수1': var1,
+                    '변수2': var2,
+                    '상관계수': corr_val,
+                    'VIF1': vif1,
+                    'VIF2': vif2
+                })
+    
+    if high_corr_pairs:
+        corr_pairs_df = pd.DataFrame(high_corr_pairs)
+        corr_pairs_df = corr_pairs_df.sort_values('상관계수', ascending=False)
+        
+        print(f"높은 상관관계 쌍 (|r| > 0.8): {len(corr_pairs_df)}개")
+        for _, row in corr_pairs_df.iterrows():
+            print(f"   {row['변수1']} ↔ {row['변수2']}")
+            print(f"      상관계수: {row['상관계수']:.3f}, VIF: {row['VIF1']:.2f} / {row['VIF2']:.2f}")
+    
+    # VIF 결과를 CSV로 저장
+    vif_filename = f'vif_analysis_{data_filename.replace(".csv", "")}.csv'
+    corr_filename = f'high_correlation_pairs_{data_filename.replace(".csv", "")}.csv'
+    vif_df.to_csv(os.path.join(reports_base, vif_filename), index=False, encoding='utf-8-sig')
+    if high_corr_pairs:
+        corr_pairs_df.to_csv(os.path.join(reports_base, corr_filename), index=False, encoding='utf-8-sig')
+    
+else:
+    print(f"⚠️ 완전한 관측치가 없어 VIF 분석을 수행할 수 없습니다 ({data_filename}).")
+    vif_df = pd.DataFrame(columns=['변수명', 'VIF', '다중공선성'])
+
+
 # 6-4. 이상치 개수 막대그래프
 print("이상치 개수 막대그래프 생성 중...")
 fig, ax = plt.subplots(figsize=(16, 8))
@@ -771,7 +911,7 @@ plt.tight_layout()
 plt.savefig(os.path.join(comp_dir, '04_outlier_counts.png'), dpi=300, bbox_inches='tight')
 plt.close()
 
-print("✅ 종합 분석 차트 4개 저장 완료")
+print("✅ 종합 분석 차트 5개 저장 완료 (VIF 1개 포함)")
 
 # 8. 스케일링 방법 추천
 print("\n8️⃣ 스케일링 방법 추천")
@@ -859,22 +999,49 @@ missing_df.to_csv(os.path.join(reports_base, 'missing_analysis.csv'), index=Fals
 stats_df.to_csv(os.path.join(reports_base, 'basic_statistics.csv'), index=False, encoding='utf-8-sig')
 scaling_score_df.to_csv(os.path.join(reports_base, 'scaling_scores.csv'), index=False, encoding='utf-8-sig')
 recommend_df.to_csv(os.path.join(reports_base, 'scaling_recommendations.csv'), index=False, encoding='utf-8-sig')
+# VIF 결과 저장 - 이미 위에서 저장됨
 
 print(f"✅ 상세 분석 결과 저장:")
 print(f"   📄 outputs/reports/missing_analysis.csv : 결측치 분석 결과")
 print(f"   📄 outputs/reports/basic_statistics.csv : 기초 통계량")
 print(f"   📄 outputs/reports/scaling_scores.csv : 스케일링 점수")
 print(f"   📄 outputs/reports/scaling_recommendations.csv : 스케일링 추천")
+
+# VIF 결과 파일 안내
+if 'vif_df' in locals() and len(vif_df) > 0:
+    print(f"   📄 outputs/reports/vif_analysis_FS.csv : VIF 분석 (FS.csv)")
+    if 'high_corr_pairs' in locals() and high_corr_pairs:
+        print(f"   📄 outputs/reports/high_correlation_pairs_FS.csv : 높은 상관관계 (FS.csv)")
+
+if 'vif_filtered_df' in locals() and len(vif_filtered_df) > 0:
+    print(f"   📄 outputs/reports/vif_analysis_FS_filtered.csv : VIF 분석 (FS_filtered.csv)")
+    if 'high_corr_pairs_filtered' in locals() and high_corr_pairs_filtered:
+        print(f"   📄 outputs/reports/high_correlation_pairs_FS_filtered.csv : 높은 상관관계 (FS_filtered.csv)")
 print(f"✅ 시각화 파일 저장:")
 print(f"   📁 missing_analysis/ : 4개 결측치 분석 차트")
 print(f"   📁 distributions/ : {len(ratio_columns)}개 개별 히스토그램")
 print(f"   📁 boxplots/ : {len(ratio_columns)}개 개별 박스플롯")
 print(f"   📁 scaling_indicators/ : 4개 스케일링 지표")
-print(f"   📁 comprehensive/ : 4개 종합 분석")
+print(f"   📁 comprehensive/ : 6개 종합 분석 (VIF 2개 포함)")
 print(f"   📄 00_ratio_distributions_summary.png : 전체 히스토그램 요약")
 print(f"   📄 00_ratio_boxplots_summary.png : 전체 박스플롯 요약")
 
-print(f"\n🎯 분석 완료! 총 {len(ratio_columns)*2 + 14}개의 시각화 파일이 생성되었습니다.")
+total_charts = len(ratio_columns)*2 + 16  # VIF 차트 2개 추가
+print(f"\n🎯 분석 완료! 총 {total_charts}개의 시각화 파일이 생성되었습니다.")
+
+# FS.csv VIF 현황
+if 'vif_df' in locals() and len(vif_df) > 0:
+    high_vif_count = len(vif_df[vif_df['VIF'] > 10])
+    medium_vif_count = len(vif_df[(vif_df['VIF'] > 5) & (vif_df['VIF'] <= 10)])
+    low_vif_count = len(vif_df[vif_df['VIF'] <= 5])
+    print(f"🔗 다중공선성 현황 (FS.csv): 높음 {high_vif_count}개, 중간 {medium_vif_count}개, 낮음 {low_vif_count}개")
+
+# FS_filtered.csv VIF 현황
+if 'vif_filtered_df' in locals() and len(vif_filtered_df) > 0:
+    high_vif_filtered_count = len(vif_filtered_df[vif_filtered_df['VIF'] > 10])
+    medium_vif_filtered_count = len(vif_filtered_df[(vif_filtered_df['VIF'] > 5) & (vif_filtered_df['VIF'] <= 10)])
+    low_vif_filtered_count = len(vif_filtered_df[vif_filtered_df['VIF'] <= 5])
+    print(f"🔗 다중공선성 현황 (FS_filtered.csv): 높음 {high_vif_filtered_count}개, 중간 {medium_vif_filtered_count}개, 낮음 {low_vif_filtered_count}개")
 print(f"📈 고우선순위: {len(high_priority)}개, 중우선순위: {len(medium_priority)}개, 저우선순위: {len(low_priority)}개")
 print(f"📊 결측치 현황: 결측치 없음 {len(no_missing)}개, 낮은 결측치 {len(low_missing)}개, 중간 결측치 {len(medium_missing)}개, 높은 결측치 {len(high_missing)}개")
 print(f"📂 파일 구조:")
@@ -883,6 +1050,6 @@ print(f"   ├── missing_analysis/  : 결측치 분석")
 print(f"   ├── distributions/     : 개별 히스토그램")
 print(f"   ├── boxplots/          : 개별 박스플롯")
 print(f"   ├── scaling_indicators/ : 스케일링 지표")
-print(f"   ├── comprehensive/     : 종합 분석")
+print(f"   ├── comprehensive/     : 종합 분석 (VIF 2개 포함)")
 print(f"   ├── 00_ratio_distributions_summary.png")
 print(f"   └── 00_ratio_boxplots_summary.png") 

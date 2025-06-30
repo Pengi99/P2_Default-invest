@@ -140,20 +140,38 @@ class FactorBacktester:
         print(f"✅ 전처리 완료: {len(self.df):,}행")
         return self
     
-    def _compute_monthly_returns(self):
-        """월말 리샘플링 및 월간 수익률 계산"""
-        # 월말 데이터로 리샘플링
-        monthly_prices = self.df.copy()
-        monthly_prices = monthly_prices.loc[monthly_prices.groupby(['ticker_key', monthly_prices['date'].dt.to_period('M')])['date'].idxmax()]
+    def _compute_annual_returns(self):
+        """연간 리밸런싱 데이터 및 수익률 계산 (4월 1일 기준)"""
+        # 4월 1일 기준 리밸런싱 데이터 추출
+        rebalance_dates = []
         
-        # 월간 수익률 계산
-        monthly_prices = monthly_prices.sort_values(['ticker_key', 'date'])
-        monthly_prices['monthly_ret'] = monthly_prices.groupby('ticker_key')['price'].pct_change()
+        # 각 년도의 4월 1일 또는 가장 가까운 거래일 찾기
+        years = sorted(self.df['date'].dt.year.unique())
+        for year in years:
+            # 4월 1일 또는 그 이후 가장 가까운 거래일
+            target_date = pd.Timestamp(f'{year}-04-01')
+            year_data = self.df[self.df['date'].dt.year == year]
+            april_data = year_data[year_data['date'] >= target_date]
+            
+            if not april_data.empty:
+                # 4월 1일 이후 가장 빠른 날짜
+                rebalance_date = april_data['date'].min()
+                rebalance_dates.append(rebalance_date)
         
-        # 월간 수익률을 원본 데이터에 병합
-        monthly_ret_df = monthly_prices[['ticker_key', 'date', 'monthly_ret']]
-        self.df = self.df.merge(monthly_ret_df, on=['ticker_key', 'date'], how='left')
-        self.df['monthly_ret'] = self.df['monthly_ret'].fillna(0)
+        # 리밸런싱 날짜에 해당하는 데이터만 추출
+        rebalance_data = self.df[self.df['date'].isin(rebalance_dates)].copy()
+        rebalance_data = rebalance_data.sort_values(['ticker_key', 'date'])
+        
+        # 연간 수익률 계산 (리밸런싱 기간 간 수익률)
+        rebalance_data['annual_ret'] = rebalance_data.groupby('ticker_key')['price'].pct_change()
+        
+        # 연간 수익률을 원본 데이터에 병합
+        annual_ret_df = rebalance_data[['ticker_key', 'date', 'annual_ret']]
+        self.df = self.df.merge(annual_ret_df, on=['ticker_key', 'date'], how='left')
+        self.df['annual_ret'] = self.df['annual_ret'].fillna(0)
+        
+        # 리밸런싱 날짜 표시
+        self.df['is_rebalance_date'] = self.df['date'].isin(rebalance_dates)
     
     def _compute_magic_formula(self):
         """매직 포뮬라 - 랭크 기반 점수 사용"""
@@ -198,17 +216,18 @@ class FactorBacktester:
             self.df['magic'] = 0
     
     def _compute_momentum(self):
-        """모멘텀 (12-1) - 월간 수익률 사용"""
-        self.df['mom'] = self.df.groupby('ticker_key')['monthly_ret'].apply(
-            lambda x: x.shift(1).rolling(12).sum()
+        """모멘텀 (12-1) - 연간 수익률 사용"""
+        # 리밸런싱 날짜에만 모멘텀 계산
+        self.df['mom'] = self.df.groupby('ticker_key')['annual_ret'].apply(
+            lambda x: x.shift(1).rolling(3).sum()  # 3년 모멘텀
         ).reset_index(0, drop=True)
     
     def _compute_low_volatility(self):
-        """낮은 변동성 - 월간 수익률 변동성 사용"""
-        self.df['vol12m'] = self.df.groupby('ticker_key')['monthly_ret'].apply(
-            lambda x: x.rolling(12).std()
+        """낮은 변동성 - 연간 수익률 변동성 사용"""
+        self.df['vol3y'] = self.df.groupby('ticker_key')['annual_ret'].apply(
+            lambda x: x.rolling(3).std()  # 3년 변동성
         ).reset_index(0, drop=True)
-        self.df['lovol'] = -self.df['vol12m']
+        self.df['lovol'] = -self.df['vol3y']
     
     def compute_signals(self):
         """3단계: 8개 팩터 시그널 계산"""
@@ -217,8 +236,8 @@ class FactorBacktester:
         # 데이터 정렬
         self.df = self.df.sort_values(['ticker_key', 'date']).reset_index(drop=True)
         
-        # 먼저 월말 데이터로 리샘플링하여 월간 수익률 계산
-        self._compute_monthly_returns()
+        # 먼저 연간 리밸런싱 데이터 및 수익률 계산
+        self._compute_annual_returns()
         
         # 1. Magic Formula - Rank-based scoring
         self._compute_magic_formula()
@@ -232,7 +251,7 @@ class FactorBacktester:
         self.df['market_value'] = self.df['mktcap']
         self.df['bm'] = self.df['book_value'] / self.df['market_value']
         
-        # 4. 12-1 Momentum (using monthly returns)
+        # 4. 12-1 Momentum (using annual returns)
         self._compute_momentum()
         
         # 5. Piotroski F-Score (updated with accruals)
@@ -241,7 +260,7 @@ class FactorBacktester:
         # 6. QMJ (Quality Minus Junk) - improved
         self._compute_qmj()
         
-        # 7. Low Volatility (using monthly returns)
+        # 7. Low Volatility (using annual returns)
         self._compute_low_volatility()
         
         # 8. SMB & HML (Fama-French 3-Factor) - separate factors
@@ -333,47 +352,48 @@ class FactorBacktester:
             self.df['qmj'] = 0
     
     def _compute_ff_factors(self):
-        """Fama-French SMB & HML 팩터 계산 - Separate factors"""
-        # 월별로 size와 value 기준 포트폴리오 구성
+        """Fama-French SMB & HML 팩터 계산 - 연간 리밸런싱"""
+        # 연간 리밸런싱 날짜별로 size와 value 기준 포트폴리오 구성
         ff_returns = []
         
-        monthly_dates = self.df['date'].dt.to_period('M').unique()
+        # 리밸런싱 날짜만 사용
+        rebalance_data = self.df[self.df['is_rebalance_date'] == True]
+        annual_dates = rebalance_data['date'].unique()
         
-        for month in monthly_dates:
-            month_mask = self.df['date'].dt.to_period('M') == month
-            month_df = self.df.loc[month_mask].copy()
+        for rebal_date in annual_dates:
+            annual_df = rebalance_data[rebalance_data['date'] == rebal_date].copy()
             
-            if len(month_df) < 20:
+            if len(annual_df) < 20:
                 continue
             
-            # Size와 B/M 기준으로 정렬 (monthly_ret 사용)
-            month_df = month_df.dropna(subset=['mktcap', 'bm', 'monthly_ret'])
+            # Size와 B/M 기준으로 정렬 (annual_ret 사용)
+            annual_df = annual_df.dropna(subset=['mktcap', 'bm', 'annual_ret'])
             
-            if len(month_df) < 6:
+            if len(annual_df) < 6:
                 continue
                 
             # 시가총액 중위수 기준 분할
-            size_median = month_df['mktcap'].median()
+            size_median = annual_df['mktcap'].median()
             
             # B/M 30%, 70% 분위수 기준 분할
-            bm_30 = month_df['bm'].quantile(0.3)
-            bm_70 = month_df['bm'].quantile(0.7)
+            bm_30 = annual_df['bm'].quantile(0.3)
+            bm_70 = annual_df['bm'].quantile(0.7)
             
             # 6개 포트폴리오 구성
             portfolios = {
-                'SL': month_df[(month_df['mktcap'] <= size_median) & (month_df['bm'] <= bm_30)],
-                'SM': month_df[(month_df['mktcap'] <= size_median) & (month_df['bm'] > bm_30) & (month_df['bm'] <= bm_70)],
-                'SH': month_df[(month_df['mktcap'] <= size_median) & (month_df['bm'] > bm_70)],
-                'BL': month_df[(month_df['mktcap'] > size_median) & (month_df['bm'] <= bm_30)],
-                'BM': month_df[(month_df['mktcap'] > size_median) & (month_df['bm'] > bm_30) & (month_df['bm'] <= bm_70)],
-                'BH': month_df[(month_df['mktcap'] > size_median) & (month_df['bm'] > bm_70)]
+                'SL': annual_df[(annual_df['mktcap'] <= size_median) & (annual_df['bm'] <= bm_30)],
+                'SM': annual_df[(annual_df['mktcap'] <= size_median) & (annual_df['bm'] > bm_30) & (annual_df['bm'] <= bm_70)],
+                'SH': annual_df[(annual_df['mktcap'] <= size_median) & (annual_df['bm'] > bm_70)],
+                'BL': annual_df[(annual_df['mktcap'] > size_median) & (annual_df['bm'] <= bm_30)],
+                'BM': annual_df[(annual_df['mktcap'] > size_median) & (annual_df['bm'] > bm_30) & (annual_df['bm'] <= bm_70)],
+                'BH': annual_df[(annual_df['mktcap'] > size_median) & (annual_df['bm'] > bm_70)]
             }
             
             # 각 포트폴리오 수익률 계산 (동일가중)
             port_returns = {}
             for name, port in portfolios.items():
                 if len(port) > 0:
-                    port_returns[name] = port['monthly_ret'].mean()
+                    port_returns[name] = port['annual_ret'].mean()
                 else:
                     port_returns[name] = 0
             
@@ -386,7 +406,7 @@ class FactorBacktester:
                       (port_returns['SL'] + port_returns['BL']) / 2
                 
                 ff_returns.append({
-                    'date': month.to_timestamp(),
+                    'date': rebal_date,
                     'smb': smb,
                     'hml': hml,
                     'smb_hml': smb * hml  # SMB×HML 교차항 (옵션)
@@ -394,29 +414,31 @@ class FactorBacktester:
         
         if ff_returns:
             ff_df = pd.DataFrame(ff_returns)
-            ff_df['month'] = ff_df['date'].dt.to_period('M')
             
             # 원본 데이터에 병합 - SMB, HML, SMB×HML 모두 포함
-            self.df['month'] = self.df['date'].dt.to_period('M')
-            self.df = self.df.merge(ff_df[['month', 'smb', 'hml', 'smb_hml']], on='month', how='left')
-            self.df = self.df.drop('month', axis=1)
+            self.df = self.df.merge(ff_df[['date', 'smb', 'hml', 'smb_hml']], on='date', how='left')
         else:
             self.df['smb'] = 0
             self.df['hml'] = 0
             self.df['smb_hml'] = 0
     
     def get_factor_returns(self, signal_col, universe_mask=None, top_pct=0.3):
-        """4단계: 팩터 수익률 계산"""
+        """4단계: 팩터 수익률 계산 - 연간 리밸런싱 (4월 1일)"""
         if universe_mask is None:
             universe_mask = self.df.index
         
-        tmp = self.df.loc[universe_mask].dropna(subset=[signal_col, 'monthly_ret']).copy()
-        tmp['month'] = tmp['date'].dt.to_period('M')
+        # 리밸런싱 날짜에만 팩터 계산
+        tmp = self.df.loc[universe_mask].copy()
+        tmp = tmp[tmp['is_rebalance_date'] == True]  # 리밸런싱 날짜만
+        tmp = tmp.dropna(subset=[signal_col, 'annual_ret'])
         
         factor_returns = []
         portfolio_holdings = []  # 턴오버 계산을 위한 보유 종목
         
-        for month, grp in tmp.groupby('month'):
+        # 년도별로 그룹화
+        tmp['year'] = tmp['date'].dt.year
+        
+        for year, grp in tmp.groupby('year'):
             if len(grp) < 10:
                 continue
                 
@@ -424,14 +446,17 @@ class FactorBacktester:
             
             # Long: 상위 30%
             long_stocks = grp.nlargest(n, signal_col)
-            long_ret = long_stocks['monthly_ret'].mean()
+            long_ret = long_stocks['annual_ret'].mean()
             
             # Short: 하위 30%  
             short_stocks = grp.nsmallest(n, signal_col)
-            short_ret = short_stocks['monthly_ret'].mean()
+            short_ret = short_stocks['annual_ret'].mean()
+            
+            # 대표 날짜 (그 년도의 4월 1일)
+            rebalance_date = grp['date'].iloc[0]
             
             factor_returns.append({
-                'date': month.to_timestamp(),
+                'date': rebalance_date,
                 'long_ret': long_ret,
                 'short_ret': short_ret,
                 'factor_ret': long_ret - short_ret,
@@ -440,14 +465,14 @@ class FactorBacktester:
             
             # 포트폴리오 보유 종목 저장
             portfolio_holdings.append({
-                'date': month.to_timestamp(),
+                'date': rebalance_date,
                 'long_tickers': set(long_stocks['ticker_key']),
                 'short_tickers': set(short_stocks['ticker_key'])
             })
         
         factor_df = pd.DataFrame(factor_returns).set_index('date')
         
-        # 턴오버 계산
+        # 턴오버 계산 (연간 리밸런싱)
         if len(portfolio_holdings) > 1:
             turnovers = []
             for i in range(1, len(portfolio_holdings)):
@@ -516,32 +541,47 @@ class FactorBacktester:
                 
             ret_series = returns_df['factor_ret'].dropna()
             
-            if len(ret_series) < 12:
+            if len(ret_series) < 3:  # 최소 3년 데이터 필요
                 continue
             
-            # 기본 통계
-            ann_ret = ret_series.mean() * 12
-            ann_vol = ret_series.std() * np.sqrt(12)
-            sharpe = ann_ret / ann_vol if ann_vol > 0 else 0
+            # 기본 통계 - 연간 리밸런싱 반영
+            # ann_ret = ret_series.mean() * 12  # Removed: arithmetic annualized return
+            ann_vol = ret_series.std()  # 연간 데이터이므로 루트 없이 사용
+            
+            # CAGR (Compound Annual Growth Rate) calculation
+            # CAGR represents compound growth rather than arithmetic average
+            cum_ret = (1 + ret_series).cumprod()  # Portfolio value series
+            start_value = cum_ret.iloc[0]
+            end_value = cum_ret.iloc[-1]
+            n_periods = len(cum_ret)  # number of data points (years)
+            periods_per_year = 1  # annual data
+            n_years = n_periods / periods_per_year
+            
+            if n_years > 0 and start_value > 0:
+                cagr = (end_value / start_value) ** (1 / n_years) - 1
+            else:
+                cagr = 0
+            
+            # Updated metrics using CAGR instead of ann_ret
+            sharpe = cagr / ann_vol if ann_vol > 0 else 0
             
             # 누적수익률과 최대낙폭
-            cum_ret = (1 + ret_series).cumprod()
             running_max = cum_ret.cummax()
             drawdown = (cum_ret / running_max - 1)
             max_dd = drawdown.min()
             
-            # 정보비율 - 벤치마크 대비 계산 (시장 평균 수익률 가정: 0.8% 월간)
-            benchmark_ret = 0.008  # 월간 0.8% (연간 10%)
+            # 정보비율 - 벤치마크 대비 계산 (시장 평균 수익률 가정: 10% 연간)
+            benchmark_ret = 0.10  # 연간 10%
             excess_ret = ret_series - benchmark_ret
-            tracking_error = excess_ret.std() * np.sqrt(12)
-            info_ratio = excess_ret.mean() * 12 / tracking_error if tracking_error > 0 else 0
+            tracking_error = excess_ret.std()  # 연간 데이터
+            info_ratio = excess_ret.mean() / tracking_error if tracking_error > 0 else 0
             
-            # 칼마비율
-            calmar = ann_ret / abs(max_dd) if max_dd != 0 else 0
+            # 칼마비율 - using CAGR
+            calmar = cagr / abs(max_dd) if max_dd != 0 else 0
             
-            # M² 측도 (시장 변동성 대비 조정수익률)
+            # M² 측도 (시장 변동성 대비 조정수익률) - using CAGR
             market_vol = 0.15  # 가정: 시장 연변동성 15%
-            m2_measure = ann_ret * (market_vol / ann_vol) if ann_vol > 0 else 0
+            m2_measure = cagr * (market_vol / ann_vol) if ann_vol > 0 else 0
             
             # 최대낙폭 지속기간
             dd_periods = []
@@ -569,10 +609,10 @@ class FactorBacktester:
             else:
                 turnover = 0.20  # 기본값
             
-            # 상승/하락 캡처 비율 - 벤치마크 대비 계산
+            # 상승/하락 캡처 비율 - 벤치마크 대비 계산 (연간 기준)
             benchmark_returns = pd.Series([benchmark_ret] * len(ret_series), index=ret_series.index)
-            up_periods = benchmark_returns > 0
-            down_periods = benchmark_returns <= 0
+            up_periods = ret_series > benchmark_ret  # 벤치마크 대비 상승
+            down_periods = ret_series <= benchmark_ret  # 벤치마크 대비 하락
             
             if up_periods.sum() > 0:
                 up_capture = ret_series[up_periods].mean() / benchmark_returns[up_periods].mean()
@@ -585,7 +625,7 @@ class FactorBacktester:
                 down_capture = 1.0
             
             self.performance_stats[strategy_name] = {
-                'AnnRet': ann_ret,
+                'CAGR': cagr,  # Updated from AnnRet to CAGR
                 'AnnVol': ann_vol, 
                 'Sharpe': sharpe,
                 'MaxDD': max_dd,
@@ -671,7 +711,7 @@ class FactorBacktester:
             
         stats_df = pd.DataFrame(self.performance_stats).T
         
-        metrics = ['AnnRet', 'Sharpe', 'Calmar', 'MaxDD']
+        metrics = ['CAGR', 'Sharpe', 'Calmar', 'MaxDD']
         
         fig, axes = plt.subplots(2, 2, figsize=(15, 10))
         axes = axes.flatten()
@@ -710,7 +750,7 @@ class FactorBacktester:
         stats_df = pd.DataFrame(self.performance_stats).T
         
         # 숫자형 컬럼만 선택
-        numeric_cols = ['AnnRet', 'AnnVol', 'Sharpe', 'MaxDD', 'IR', 'Calmar']
+        numeric_cols = ['CAGR', 'AnnVol', 'Sharpe', 'MaxDD', 'IR', 'Calmar']
         heatmap_data = stats_df[numeric_cols].fillna(0)
         
         plt.figure(figsize=(12, 8))
@@ -824,7 +864,7 @@ class FactorBacktester:
         if self.performance_stats:
             for strategy, stats in self.performance_stats.items():
                 print(f"\n🎯 {strategy}")
-                print(f"   연수익률: {stats['AnnRet']:.2%}")
+                print(f"   CAGR: {stats['CAGR']:.2%}")
                 print(f"   샤프비율: {stats['Sharpe']:.3f}")
                 print(f"   최대낙폭: {stats['MaxDD']:.2%}")
                 print(f"   칼마비율: {stats['Calmar']:.3f}")

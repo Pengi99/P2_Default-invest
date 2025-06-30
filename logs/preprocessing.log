@@ -3321,3 +3321,174 @@
 2025-06-29 23:56:51,040 - DataPipeline - INFO - 결과 리포트 생성 중...
 2025-06-29 23:56:51,041 - DataPipeline - INFO - 리포트 생성 완료
 2025-06-29 23:56:51,041 - DataPipeline - INFO - === 데이터 전처리 파이프라인 완료 ===
+2025-06-30 14:11:10,876 - DataPipeline - INFO - 데이터 전처리 파이프라인이 초기화되었습니다 (스케일링 및 피처 선택 제외).
+2025-06-30 14:11:10,876 - DataPipeline - INFO - === 데이터 전처리 파이프라인 시작 ===
+2025-06-30 14:11:10,876 - DataPipeline - INFO - 데이터 로드 시작
+2025-06-30 14:11:11,024 - DataPipeline - INFO - 데이터 로드 완료: (23049, 114)
+2025-06-30 14:11:11,028 - DataPipeline - INFO - 랜덤 기반 데이터 분할 시작
+2025-06-30 14:11:11,028 - DataPipeline - INFO - 거래소코드 그룹핑 기반 랜덤 데이터 분할 시작
+2025-06-30 14:11:11,049 - DataPipeline - INFO - 결측치 처리 시작
+2025-06-30 14:11:11,063 - DataPipeline - INFO - 행 삭제 후 - Train: (13300, 114), Val: (4672, 114), Test: (4513, 114)
+2025-06-30 14:11:11,193 - DataPipeline - INFO - 결측값 대체 완료 (median)
+2025-06-30 14:11:11,195 - DataPipeline - INFO - 윈저라이징 적용 시작
+2025-06-30 14:11:11,323 - DataPipeline - INFO - 윈저라이징 완료 (하위 0.5%, 상위 99.5%)
+2025-06-30 14:11:11,323 - DataPipeline - INFO - 결과 저장 시작
+2025-06-30 14:11:11,837 - DataPipeline - INFO - 저장 완료: X_train.csv, y_train.csv
+2025-06-30 14:11:12,022 - DataPipeline - INFO - 저장 완료: X_val.csv, y_val.csv
+2025-06-30 14:11:12,194 - DataPipeline - INFO - 저장 완료: X_test.csv, y_test.csv
+2025-06-30 14:11:12,194 - DataPipeline - INFO - 결과 저장 완료: /Users/jojongho/KDT/P2_Default-invest/data/final
+2025-06-30 14:11:12,194 - DataPipeline - INFO - 결과 리포트 생성 중...
+2025-06-30 14:11:12,195 - DataPipeline - INFO - 리포트 생성 완료
+2025-06-30 14:11:12,195 - DataPipeline - INFO - === 데이터 전처리 파이프라인 완료 ===
+2025-06-30 14:19:20,002 - DataPipeline - INFO - 데이터 전처리 파이프라인이 초기화되었습니다 (스케일링 및 피처 선택 제외).
+2025-06-30 14:19:20,003 - DataPipeline - INFO - === 데이터 전처리 파이프라인 시작 ===
+2025-06-30 14:19:20,003 - DataPipeline - INFO - 데이터 로드 시작
+2025-06-30 14:19:20,128 - DataPipeline - INFO - 데이터 로드 완료: (23049, 106)
+2025-06-30 14:19:20,131 - DataPipeline - INFO - 랜덤 기반 데이터 분할 시작
+2025-06-30 14:19:20,131 - DataPipeline - INFO - 거래소코드 그룹핑 기반 랜덤 데이터 분할 시작
+2025-06-30 14:19:20,150 - DataPipeline - INFO - 결측치 처리 시작
+2025-06-30 14:19:20,160 - DataPipeline - INFO - 행 삭제 후 - Train: (13300, 106), Val: (4672, 106), Test: (4513, 106)
+2025-06-30 14:19:20,278 - DataPipeline - INFO - 결측값 대체 완료 (median)
+2025-06-30 14:19:20,279 - DataPipeline - INFO - 윈저라이징 적용 시작
+2025-06-30 14:19:20,396 - DataPipeline - INFO - 윈저라이징 완료 (하위 0.5%, 상위 99.5%)
+2025-06-30 14:19:20,396 - DataPipeline - INFO - 결과 저장 시작
+2025-06-30 14:19:20,848 - DataPipeline - INFO - 저장 완료: X_train.csv, y_train.csv
+2025-06-30 14:19:21,009 - DataPipeline - INFO - 저장 완료: X_val.csv, y_val.csv
+2025-06-30 14:19:21,164 - DataPipeline - INFO - 저장 완료: X_test.csv, y_test.csv
+2025-06-30 14:19:21,165 - DataPipeline - INFO - 결과 저장 완료: /Users/jojongho/KDT/P2_Default-invest/data/final
+2025-06-30 14:19:21,165 - DataPipeline - INFO - 결과 리포트 생성 중...
+2025-06-30 14:19:21,166 - DataPipeline - INFO - 리포트 생성 완료
+2025-06-30 14:19:21,166 - DataPipeline - INFO - === 데이터 전처리 파이프라인 완료 ===
+2025-06-30 14:30:25,558 - DataPipeline - INFO - 데이터 전처리 파이프라인이 초기화되었습니다 (스케일링 및 피처 선택 제외).
+2025-06-30 14:30:25,558 - DataPipeline - INFO - === 데이터 전처리 파이프라인 시작 ===
+2025-06-30 14:30:25,558 - DataPipeline - INFO - 데이터 로드 시작
+2025-06-30 14:30:25,682 - DataPipeline - INFO - 데이터 로드 완료: (23049, 108)
+2025-06-30 14:30:25,685 - DataPipeline - INFO - 랜덤 기반 데이터 분할 시작
+2025-06-30 14:30:25,685 - DataPipeline - INFO - 거래소코드 그룹핑 기반 랜덤 데이터 분할 시작
+2025-06-30 14:30:25,704 - DataPipeline - INFO - 결측치 처리 시작
+2025-06-30 14:30:25,714 - DataPipeline - INFO - 행 삭제 후 - Train: (13300, 108), Val: (4672, 108), Test: (4513, 108)
+2025-06-30 14:30:25,826 - DataPipeline - INFO - 결측값 대체 완료 (median)
+2025-06-30 14:30:25,827 - DataPipeline - INFO - 윈저라이징 적용 시작
+2025-06-30 14:30:25,949 - DataPipeline - INFO - 윈저라이징 완료 (하위 0.5%, 상위 99.5%)
+2025-06-30 14:30:25,949 - DataPipeline - INFO - 결과 저장 시작
+2025-06-30 14:30:26,402 - DataPipeline - INFO - 저장 완료: X_train.csv, y_train.csv
+2025-06-30 14:30:26,563 - DataPipeline - INFO - 저장 완료: X_val.csv, y_val.csv
+2025-06-30 14:30:26,720 - DataPipeline - INFO - 저장 완료: X_test.csv, y_test.csv
+2025-06-30 14:30:26,721 - DataPipeline - INFO - 결과 저장 완료: /Users/jojongho/KDT/P2_Default-invest/data/final
+2025-06-30 14:30:26,721 - DataPipeline - INFO - 결과 리포트 생성 중...
+2025-06-30 14:30:26,721 - DataPipeline - INFO - 리포트 생성 완료
+2025-06-30 14:30:26,721 - DataPipeline - INFO - === 데이터 전처리 파이프라인 완료 ===
+2025-06-30 14:38:38,333 - DataPipeline - INFO - 데이터 전처리 파이프라인이 초기화되었습니다 (스케일링 및 피처 선택 제외).
+2025-06-30 14:38:38,334 - DataPipeline - INFO - === 데이터 전처리 파이프라인 시작 ===
+2025-06-30 14:38:38,334 - DataPipeline - INFO - 데이터 로드 시작
+2025-06-30 14:38:38,454 - DataPipeline - INFO - 데이터 로드 완료: (23049, 102)
+2025-06-30 14:38:38,457 - DataPipeline - INFO - 랜덤 기반 데이터 분할 시작
+2025-06-30 14:38:38,457 - DataPipeline - INFO - 거래소코드 그룹핑 기반 랜덤 데이터 분할 시작
+2025-06-30 14:38:38,475 - DataPipeline - INFO - 결측치 처리 시작
+2025-06-30 14:38:38,486 - DataPipeline - INFO - 행 삭제 후 - Train: (13300, 102), Val: (4672, 102), Test: (4513, 102)
+2025-06-30 14:38:38,598 - DataPipeline - INFO - 결측값 대체 완료 (median)
+2025-06-30 14:38:38,599 - DataPipeline - INFO - 윈저라이징 적용 시작
+2025-06-30 14:38:38,714 - DataPipeline - INFO - 윈저라이징 완료 (하위 0.5%, 상위 99.5%)
+2025-06-30 14:38:38,714 - DataPipeline - INFO - 결과 저장 시작
+2025-06-30 14:38:39,144 - DataPipeline - INFO - 저장 완료: X_train.csv, y_train.csv
+2025-06-30 14:38:39,297 - DataPipeline - INFO - 저장 완료: X_val.csv, y_val.csv
+2025-06-30 14:38:39,448 - DataPipeline - INFO - 저장 완료: X_test.csv, y_test.csv
+2025-06-30 14:38:39,448 - DataPipeline - INFO - 결과 저장 완료: /Users/jojongho/KDT/P2_Default-invest/data/final
+2025-06-30 14:38:39,448 - DataPipeline - INFO - 결과 리포트 생성 중...
+2025-06-30 14:38:39,449 - DataPipeline - INFO - 리포트 생성 완료
+2025-06-30 14:38:39,449 - DataPipeline - INFO - === 데이터 전처리 파이프라인 완료 ===
+2025-06-30 14:43:42,855 - DataPipeline - INFO - 데이터 전처리 파이프라인이 초기화되었습니다 (스케일링 및 피처 선택 제외).
+2025-06-30 14:43:42,855 - DataPipeline - INFO - === 데이터 전처리 파이프라인 시작 ===
+2025-06-30 14:43:42,856 - DataPipeline - INFO - 데이터 로드 시작
+2025-06-30 14:43:42,964 - DataPipeline - INFO - 데이터 로드 완료: (23049, 96)
+2025-06-30 14:43:42,967 - DataPipeline - INFO - 랜덤 기반 데이터 분할 시작
+2025-06-30 14:43:42,967 - DataPipeline - INFO - 거래소코드 그룹핑 기반 랜덤 데이터 분할 시작
+2025-06-30 14:43:42,987 - DataPipeline - INFO - 결측치 처리 시작
+2025-06-30 14:43:42,996 - DataPipeline - INFO - 행 삭제 후 - Train: (13300, 96), Val: (4672, 96), Test: (4513, 96)
+2025-06-30 14:43:43,098 - DataPipeline - INFO - 결측값 대체 완료 (median)
+2025-06-30 14:43:43,099 - DataPipeline - INFO - 윈저라이징 적용 시작
+2025-06-30 14:43:43,204 - DataPipeline - INFO - 윈저라이징 완료 (하위 0.5%, 상위 99.5%)
+2025-06-30 14:43:43,204 - DataPipeline - INFO - 결과 저장 시작
+2025-06-30 14:43:43,613 - DataPipeline - INFO - 저장 완료: X_train.csv, y_train.csv
+2025-06-30 14:43:43,756 - DataPipeline - INFO - 저장 완료: X_val.csv, y_val.csv
+2025-06-30 14:43:43,895 - DataPipeline - INFO - 저장 완료: X_test.csv, y_test.csv
+2025-06-30 14:43:43,895 - DataPipeline - INFO - 결과 저장 완료: /Users/jojongho/KDT/P2_Default-invest/data/final
+2025-06-30 14:43:43,895 - DataPipeline - INFO - 결과 리포트 생성 중...
+2025-06-30 14:43:43,896 - DataPipeline - INFO - 리포트 생성 완료
+2025-06-30 14:43:43,896 - DataPipeline - INFO - === 데이터 전처리 파이프라인 완료 ===
+2025-06-30 15:01:37,735 - DataPipeline - INFO - 데이터 전처리 파이프라인이 초기화되었습니다 (스케일링 및 피처 선택 제외).
+2025-06-30 15:01:37,735 - DataPipeline - INFO - === 데이터 전처리 파이프라인 시작 ===
+2025-06-30 15:01:37,735 - DataPipeline - INFO - 데이터 로드 시작
+2025-06-30 15:01:37,870 - DataPipeline - INFO - 데이터 로드 완료: (23049, 92)
+2025-06-30 15:01:37,873 - DataPipeline - INFO - 랜덤 기반 데이터 분할 시작
+2025-06-30 15:01:37,873 - DataPipeline - INFO - 거래소코드 그룹핑 기반 랜덤 데이터 분할 시작
+2025-06-30 15:01:37,891 - DataPipeline - INFO - 결측치 처리 시작
+2025-06-30 15:01:37,900 - DataPipeline - INFO - 행 삭제 후 - Train: (13300, 92), Val: (4672, 92), Test: (4513, 92)
+2025-06-30 15:01:37,995 - DataPipeline - INFO - 결측값 대체 완료 (median)
+2025-06-30 15:01:37,996 - DataPipeline - INFO - 윈저라이징 적용 시작
+2025-06-30 15:01:38,096 - DataPipeline - INFO - 윈저라이징 완료 (하위 0.5%, 상위 99.5%)
+2025-06-30 15:01:38,096 - DataPipeline - INFO - 결과 저장 시작
+2025-06-30 15:01:38,481 - DataPipeline - INFO - 저장 완료: X_train.csv, y_train.csv
+2025-06-30 15:01:38,618 - DataPipeline - INFO - 저장 완료: X_val.csv, y_val.csv
+2025-06-30 15:01:38,750 - DataPipeline - INFO - 저장 완료: X_test.csv, y_test.csv
+2025-06-30 15:01:38,751 - DataPipeline - INFO - 결과 저장 완료: /Users/jojongho/KDT/P2_Default-invest/data/final
+2025-06-30 15:01:38,751 - DataPipeline - INFO - 결과 리포트 생성 중...
+2025-06-30 15:01:38,752 - DataPipeline - INFO - 리포트 생성 완료
+2025-06-30 15:01:38,752 - DataPipeline - INFO - === 데이터 전처리 파이프라인 완료 ===
+2025-06-30 15:05:46,002 - DataPipeline - INFO - 데이터 전처리 파이프라인이 초기화되었습니다 (스케일링 및 피처 선택 제외).
+2025-06-30 15:05:46,003 - DataPipeline - INFO - === 데이터 전처리 파이프라인 시작 ===
+2025-06-30 15:05:46,003 - DataPipeline - INFO - 데이터 로드 시작
+2025-06-30 15:05:46,111 - DataPipeline - INFO - 데이터 로드 완료: (23049, 92)
+2025-06-30 15:05:46,113 - DataPipeline - INFO - 랜덤 기반 데이터 분할 시작
+2025-06-30 15:05:46,114 - DataPipeline - INFO - 거래소코드 그룹핑 기반 랜덤 데이터 분할 시작
+2025-06-30 15:05:46,131 - DataPipeline - INFO - 결측치 처리 시작
+2025-06-30 15:05:46,141 - DataPipeline - INFO - 행 삭제 후 - Train: (13300, 92), Val: (4672, 92), Test: (4513, 92)
+2025-06-30 15:05:46,241 - DataPipeline - INFO - 결측값 대체 완료 (median)
+2025-06-30 15:05:46,242 - DataPipeline - INFO - 윈저라이징 적용 시작
+2025-06-30 15:05:46,341 - DataPipeline - INFO - 윈저라이징 완료 (하위 0.5%, 상위 99.5%)
+2025-06-30 15:05:46,341 - DataPipeline - INFO - 결과 저장 시작
+2025-06-30 15:05:46,723 - DataPipeline - INFO - 저장 완료: X_train.csv, y_train.csv
+2025-06-30 15:05:46,861 - DataPipeline - INFO - 저장 완료: X_val.csv, y_val.csv
+2025-06-30 15:05:46,994 - DataPipeline - INFO - 저장 완료: X_test.csv, y_test.csv
+2025-06-30 15:05:46,994 - DataPipeline - INFO - 결과 저장 완료: /Users/jojongho/KDT/P2_Default-invest/data/final
+2025-06-30 15:05:46,995 - DataPipeline - INFO - 결과 리포트 생성 중...
+2025-06-30 15:05:46,995 - DataPipeline - INFO - 리포트 생성 완료
+2025-06-30 15:05:46,995 - DataPipeline - INFO - === 데이터 전처리 파이프라인 완료 ===
+2025-06-30 15:13:12,956 - DataPipeline - INFO - 데이터 전처리 파이프라인이 초기화되었습니다 (스케일링 및 피처 선택 제외).
+2025-06-30 15:13:12,957 - DataPipeline - INFO - === 데이터 전처리 파이프라인 시작 ===
+2025-06-30 15:13:12,958 - DataPipeline - INFO - 데이터 로드 시작
+2025-06-30 15:13:13,061 - DataPipeline - INFO - 데이터 로드 완료: (23049, 91)
+2025-06-30 15:13:13,064 - DataPipeline - INFO - 랜덤 기반 데이터 분할 시작
+2025-06-30 15:13:13,064 - DataPipeline - INFO - 거래소코드 그룹핑 기반 랜덤 데이터 분할 시작
+2025-06-30 15:13:13,084 - DataPipeline - INFO - 결측치 처리 시작
+2025-06-30 15:13:13,093 - DataPipeline - INFO - 행 삭제 후 - Train: (17984, 91), Val: (2256, 91), Test: (2245, 91)
+2025-06-30 15:13:13,217 - DataPipeline - INFO - 결측값 대체 완료 (median)
+2025-06-30 15:13:13,217 - DataPipeline - INFO - 윈저라이징 적용 시작
+2025-06-30 15:13:13,329 - DataPipeline - INFO - 윈저라이징 완료 (하위 0.5%, 상위 99.5%)
+2025-06-30 15:13:13,329 - DataPipeline - INFO - 결과 저장 시작
+2025-06-30 15:13:13,879 - DataPipeline - INFO - 저장 완료: X_train.csv, y_train.csv
+2025-06-30 15:13:13,945 - DataPipeline - INFO - 저장 완료: X_val.csv, y_val.csv
+2025-06-30 15:13:14,013 - DataPipeline - INFO - 저장 완료: X_test.csv, y_test.csv
+2025-06-30 15:13:14,013 - DataPipeline - INFO - 결과 저장 완료: /Users/jojongho/KDT/P2_Default-invest/data/final
+2025-06-30 15:13:14,013 - DataPipeline - INFO - 결과 리포트 생성 중...
+2025-06-30 15:13:14,014 - DataPipeline - INFO - 리포트 생성 완료
+2025-06-30 15:13:14,014 - DataPipeline - INFO - === 데이터 전처리 파이프라인 완료 ===
+2025-06-30 15:13:51,147 - DataPipeline - INFO - 데이터 전처리 파이프라인이 초기화되었습니다 (스케일링 및 피처 선택 제외).
+2025-06-30 15:13:51,147 - DataPipeline - INFO - === 데이터 전처리 파이프라인 시작 ===
+2025-06-30 15:13:51,147 - DataPipeline - INFO - 데이터 로드 시작
+2025-06-30 15:13:51,252 - DataPipeline - INFO - 데이터 로드 완료: (23049, 91)
+2025-06-30 15:13:51,254 - DataPipeline - INFO - 랜덤 기반 데이터 분할 시작
+2025-06-30 15:13:51,255 - DataPipeline - INFO - 거래소코드 그룹핑 기반 랜덤 데이터 분할 시작
+2025-06-30 15:13:51,273 - DataPipeline - INFO - 결측치 처리 시작
+2025-06-30 15:13:51,283 - DataPipeline - INFO - 행 삭제 후 - Train: (17984, 91), Val: (2256, 91), Test: (2245, 91)
+2025-06-30 15:13:51,406 - DataPipeline - INFO - 결측값 대체 완료 (median)
+2025-06-30 15:13:51,407 - DataPipeline - INFO - 윈저라이징 적용 시작
+2025-06-30 15:13:51,514 - DataPipeline - INFO - 윈저라이징 완료 (하위 0.5%, 상위 99.5%)
+2025-06-30 15:13:51,514 - DataPipeline - INFO - 결과 저장 시작
+2025-06-30 15:13:52,026 - DataPipeline - INFO - 저장 완료: X_train.csv, y_train.csv
+2025-06-30 15:13:52,092 - DataPipeline - INFO - 저장 완료: X_val.csv, y_val.csv
+2025-06-30 15:13:52,159 - DataPipeline - INFO - 저장 완료: X_test.csv, y_test.csv
+2025-06-30 15:13:52,159 - DataPipeline - INFO - 결과 저장 완료: /Users/jojongho/KDT/P2_Default-invest/data/final
+2025-06-30 15:13:52,159 - DataPipeline - INFO - 결과 리포트 생성 중...
+2025-06-30 15:13:52,159 - DataPipeline - INFO - 리포트 생성 완료
+2025-06-30 15:13:52,159 - DataPipeline - INFO - === 데이터 전처리 파이프라인 완료 ===
