@@ -502,15 +502,10 @@ class ModelingPipeline:
                 continue
             
             try:
-                # 스케일러 생성 및 적용
+                # 로그 변환은 별도의 apply_log_transform 함수에서 처리하므로 여기서는 건너뛰기
                 if scaler_type.lower() == 'log':
-                    # 로그 변환 처리
-                    self._apply_log_transform(X_train, X_val, X_test, existing_columns, scaler_type)
-                    scalers[scaler_type] = {
-                        'scaler': 'log_transform',
-                        'columns': existing_columns,
-                        'missing_columns': missing_columns
-                    }
+                    # self.logger.info(f"로그 변환은 apply_log_transform에서 처리됩니다. {scaler_type} 그룹 건너뜀")
+                    continue
                 else:
                     # 기존 스케일러들
                     if scaler_type.lower() == 'standard':
@@ -583,9 +578,78 @@ class ModelingPipeline:
         
         return X_train, X_val, X_test, scalers
     
+    def apply_log_transform(self, X_train: pd.DataFrame, X_val: pd.DataFrame, X_test: pd.DataFrame, data_type: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, Dict]:
+        """
+        로그 변환을 스케일링 전에 별도로 적용
+        
+        Args:
+            X_train: 훈련 데이터
+            X_val: 검증 데이터  
+            X_test: 테스트 데이터
+            data_type: 데이터 타입
+            
+        Returns:
+            tuple: (X_train_transformed, X_val_transformed, X_test_transformed, transform_info)
+        """
+        if not self.config.get('scaling', {}).get('enabled', False):
+            self.logger.info(f"스케일링이 비활성화되어 있어 로그 변환도 건너뜁니다 ({data_type.upper()})")
+            return X_train, X_val, X_test, {}
+        
+        scaling_config = self.config['scaling']
+        column_groups = scaling_config.get('column_groups', {})
+        
+        # 로그 변환할 컬럼 찾기
+        log_columns = column_groups.get('log', [])
+        if not log_columns:
+            # self.logger.info(f"로그 변환할 컬럼이 없습니다 ({data_type.upper()})")
+            return X_train, X_val, X_test, {}
+        
+        # 실제 존재하는 컬럼만 필터링
+        total_available_columns = set(X_train.columns)
+        existing_log_columns = [col for col in log_columns if col in total_available_columns]
+        missing_log_columns = [col for col in log_columns if col not in total_available_columns]
+        
+        # if missing_log_columns:
+            # self.logger.info(f"로그 변환 - 데이터에 없는 컬럼 ({len(missing_log_columns)}개): {missing_log_columns[:5]}{'...' if len(missing_log_columns) > 5 else ''}")
+        
+        if not existing_log_columns:
+            # self.logger.info(f"로그 변환 - 적용 가능한 컬럼이 없습니다 ({data_type.upper()})")
+            return X_train, X_val, X_test, {}
+        
+        # self.logger.info(f"로그 변환 적용 ({data_type.upper()}): {len(existing_log_columns)}개 컬럼")
+        
+        # 로그 변환 적용
+        transform_info = {}
+        for col in existing_log_columns:
+            transform_info[col] = {}
+            for df_name, df in [('train', X_train), ('val', X_val), ('test', X_test)]:
+                # 음수 또는 0 값 확인
+                min_val = df[col].min()
+                
+                if min_val <= 0:
+                    # 음수나 0이 있는 경우 shift 적용 (최소값을 1로 만들기)
+                    shift_value = 1 - min_val
+                    df[col] = np.log1p(df[col] + shift_value)  # log1p = log(1+x)
+                    transform_info[col][df_name] = f"shift({shift_value:.4f}) + log1p"
+                else:
+                    # 양수만 있는 경우 직접 로그 변환
+                    df[col] = np.log1p(df[col])  # log1p는 수치적으로 더 안정적
+                    transform_info[col][df_name] = "log1p"
+        
+        log_transform_summary = {
+            'enabled': True,
+            'applied_columns': existing_log_columns,
+            'applied_count': len(existing_log_columns),
+            'missing_columns': missing_log_columns,
+            'missing_count': len(missing_log_columns),
+            'transform_details': transform_info
+        }
+        
+        return X_train, X_val, X_test, log_transform_summary
+
     def _apply_log_transform(self, X_train: pd.DataFrame, X_val: pd.DataFrame, X_test: pd.DataFrame, columns: List[str], scaler_type: str):
         """
-        로그 변환 적용 (음수/0 값 처리 포함)
+        로그 변환 적용 (기존 함수 - 하위 호환성 유지)
         
         Args:
             X_train, X_val, X_test: 데이터프레임들
@@ -1149,11 +1213,18 @@ class ModelingPipeline:
         
         model = LogisticRegression(**best_params)
         
-        # 최종 모델 훈련: 전체 훈련 데이터에 스케일링 → 샘플링 적용
-        X_train_scaled, _, _, scalers = self.apply_scaling(
+        # 최종 모델 훈련: 전체 훈련 데이터에 로그 변환 → 스케일링 → 샘플링 적용
+        X_train_log, _, _, log_info = self.apply_log_transform(
             X_train.copy(),
             X_train.copy(),  # 더미 데이터
             X_train.copy(),  # 더미 데이터
+            data_type
+        )
+        
+        X_train_scaled, _, _, scalers = self.apply_scaling(
+            X_train_log,
+            X_train_log,  # 더미 데이터
+            X_train_log,  # 더미 데이터
             data_type
         )
         
@@ -1213,11 +1284,18 @@ class ModelingPipeline:
         best_params['class_weight'] = class_weight  # Config에서 가져온 클래스 가중치 적용
         model = RandomForestClassifier(**best_params)
         
-        # 최종 모델 훈련: 전체 훈련 데이터에 스케일링 → 샘플링 적용
-        X_train_scaled, _, _, scalers = self.apply_scaling(
+        # 최종 모델 훈련: 전체 훈련 데이터에 로그 변환 → 스케일링 → 샘플링 적용
+        X_train_log, _, _, log_info = self.apply_log_transform(
             X_train.copy(),
             X_train.copy(),  # 더미 데이터
             X_train.copy(),  # 더미 데이터
+            data_type
+        )
+        
+        X_train_scaled, _, _, scalers = self.apply_scaling(
+            X_train_log,
+            X_train_log,  # 더미 데이터
+            X_train_log,  # 더미 데이터
             data_type
         )
         
@@ -1300,11 +1378,18 @@ class ModelingPipeline:
         best_params['scale_pos_weight'] = scale_pos_weight  # Config에서 계산된 클래스 가중치 적용
         model = xgb.XGBClassifier(**best_params)
         
-        # 최종 모델 훈련: 전체 훈련 데이터에 스케일링 → 샘플링 적용
-        X_train_scaled, _, _, scalers = self.apply_scaling(
+        # 최종 모델 훈련: 전체 훈련 데이터에 로그 변환 → 스케일링 → 샘플링 적용
+        X_train_log, _, _, log_info = self.apply_log_transform(
             X_train.copy(),
             X_train.copy(),  # 더미 데이터
             X_train.copy(),  # 더미 데이터
+            data_type
+        )
+        
+        X_train_scaled, _, _, scalers = self.apply_scaling(
+            X_train_log,
+            X_train_log,  # 더미 데이터
+            X_train_log,  # 더미 데이터
             data_type
         )
         
@@ -1333,11 +1418,24 @@ class ModelingPipeline:
             y_fold_train, y_fold_val = y.iloc[train_idx], y.iloc[val_idx]
             
             try:
-                # 1단계: 스케일링 적용 (훈련 fold에서 fit, 검증 fold에서 transform)
-                scaling_result = self.apply_scaling(
+                # 1단계: 로그 변환 적용
+                log_result = self.apply_log_transform(
                     X_fold_train.copy(),
                     X_fold_val.copy(), 
                     X_fold_val.copy(),  # 더미 테스트 데이터 (사용 안 함)
+                    data_type
+                )
+                
+                if log_result is None or len(log_result) != 4:
+                    raise ValueError("apply_log_transform 함수가 None 또는 잘못된 형태를 반환했습니다")
+                
+                X_fold_train_log, X_fold_val_log, _, log_info = log_result
+                
+                # 2단계: 스케일링 적용 (로그 변환된 데이터에)
+                scaling_result = self.apply_scaling(
+                    X_fold_train_log,
+                    X_fold_val_log, 
+                    X_fold_val_log,  # 더미 테스트 데이터 (사용 안 함)
                     data_type
                 )
                 
@@ -1347,7 +1445,7 @@ class ModelingPipeline:
                 
                 X_fold_train_scaled, X_fold_val_scaled, _, scalers = scaling_result
                 
-                # 2단계: 샘플링 적용 (스케일링된 훈련 데이터에만)  
+                # 3단계: 샘플링 적용 (스케일링된 훈련 데이터에만)  
                 sampling_result = self.apply_sampling_strategy(
                     X_fold_train_scaled, y_fold_train, data_type
                 )
@@ -1433,11 +1531,24 @@ class ModelingPipeline:
             y_fold_train, y_fold_val = y.iloc[train_idx], y.iloc[val_idx]
             
             try:
-                # 1단계: 스케일링 적용
-                scaling_result = self.apply_scaling(
+                # 1단계: 로그 변환 적용
+                log_result = self.apply_log_transform(
                     X_fold_train.copy(),
                     X_fold_val.copy(), 
                     X_fold_val.copy(),  # 더미 테스트 데이터
+                    data_type
+                )
+                
+                if log_result is None or len(log_result) != 4:
+                    raise ValueError("apply_log_transform 함수가 None 또는 잘못된 형태를 반환했습니다")
+                
+                X_fold_train_log, X_fold_val_log, _, log_info = log_result
+                
+                # 2단계: 스케일링 적용 (로그 변환된 데이터에)
+                scaling_result = self.apply_scaling(
+                    X_fold_train_log,
+                    X_fold_val_log, 
+                    X_fold_val_log,  # 더미 테스트 데이터
                     data_type
                 )
                 
@@ -1447,7 +1558,7 @@ class ModelingPipeline:
                 
                 X_fold_train_scaled, X_fold_val_scaled, _, scalers = scaling_result
                 
-                # 2단계: 샘플링 적용 (훈련 데이터에만)
+                # 3단계: 샘플링 적용 (훈련 데이터에만)
                 sampling_result = self.apply_sampling_strategy(
                     X_fold_train_scaled, y_fold_train, data_type
                 )
@@ -1574,15 +1685,23 @@ class ModelingPipeline:
         y_test = self.data[data_type]['y_test']
         
         # 평가용 데이터 전처리 (모델 훈련과 동일한 방식)
-        # 1단계: 스케일링 적용 (훈련 데이터로 fit, 검증/테스트 데이터로 transform)
-        X_train_scaled, X_val_scaled, X_test_scaled, scalers = self.apply_scaling(
+        # 1단계: 로그 변환 적용
+        X_train_log, X_val_log, X_test_log, log_info = self.apply_log_transform(
             X_train.copy(),
             X_val.copy(),
             X_test.copy(),
             data_type
         )
         
-        # 2단계: 훈련 데이터에만 샘플링 적용 (평가 데이터는 원본 유지)
+        # 2단계: 스케일링 적용 (훈련 데이터로 fit, 검증/테스트 데이터로 transform)
+        X_train_scaled, X_val_scaled, X_test_scaled, scalers = self.apply_scaling(
+            X_train_log,
+            X_val_log,
+            X_test_log,
+            data_type
+        )
+        
+        # 3단계: 훈련 데이터에만 샘플링 적용 (평가 데이터는 원본 유지)
         X_train_final, y_train_final = self.apply_sampling_strategy(
             X_train_scaled, y_train, data_type
         )
@@ -1628,8 +1747,8 @@ class ModelingPipeline:
             self.logger.warning("최적 threshold 찾기 실패, 기본값 0.5 사용")
             optimal_threshold = 0.5
             threshold_analysis = {}
+            threshold_df = pd.DataFrame()  # 빈 DataFrame 생성
         else:
-        # 결과를 DataFrame으로 변환
             threshold_df = pd.DataFrame(threshold_results)
         
         # 주요 메트릭별 최적 threshold 찾기

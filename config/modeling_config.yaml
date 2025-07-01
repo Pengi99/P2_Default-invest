@@ -43,7 +43,7 @@ sampling:
       enabled: true
       description: "언더샘플링"
       method: "tomek"  # random, edited_nearest_neighbours, tomek (노이즈 제거)
-      sampling_strategy: 1  # 정상 클래스 유지 비율 (정상 30% 유지)
+      sampling_strategy: 0.5  # 정상 클래스 유지 비율 (정상 30% 유지)
       random_state: 42
     
     ctgan:
@@ -61,7 +61,7 @@ sampling:
       description: "SMOTE + 언더샘플링 조합"
       # SMOTE 설정
       smote:
-        sampling_strategy: 0.2  # 부실 클래스 비율 목표 (원래 0.7% → 20%로 증가)
+        sampling_strategy: 0.05  # 부실 클래스 비율 목표 (원래 0.7% → 20%로 증가)
         k_neighbors: 5
         m_neighbors: 10 
         kind: "borderline-1"  # borderline-1, borderline-2, svm
@@ -74,15 +74,15 @@ sampling:
 # 특성 선택 설정
 feature_selection:
   enabled: true
-  method: "shap"  # logistic_regression_cv, lasso_cv, permutation_importance, shap
+  method: "logistic_regression_cv"  # logistic_regression_cv, lasso_cv, permutation_importance, shap
   
   logistic_regression_cv:
-    Cs: [0.001, 0.01, 0.1, 1.0, 10.0, 100.0]  # 정규화 강도의 역수 (C 값들)
+    Cs: [0.01, 0.1, 1.0, 10.0]  # 정규화 강도의 역수 (C 값들)
     cv_folds: 5
     penalty: "l1"  # l1 (Lasso), l2 (Ridge), elasticnet
-    solver: "liblinear"  # l1 penalty를 위해서는 liblinear 또는 saga 사용
-    max_iter: 1000
-    threshold: "median"  # median, mean, 또는 숫자값 (계수 임계값)
+    solver: "saga"  # l1 penalty를 위해서는 liblinear 또는 saga 사용
+    max_iter: 10000
+    threshold: "0.000001"  # median, mean, 또는 숫자값 (계수 임계값)
     scoring: "f1"  # roc_auc, f1, average_precision 등
   
   # 기존 lasso_cv (연속 회귀용, 참고용으로 유지)
@@ -152,7 +152,7 @@ feature_selection:
 models:
   # 최적화 메트릭 설정
   optimization:
-    primary_metric: "average_precision"  # roc_auc, f1, average_precision, balanced_accuracy
+    primary_metric: "f1"  # roc_auc, f1, average_precision, balanced_accuracy
     description: "하이퍼파라미터 최적화 시 사용할 주요 메트릭"
   
   logistic_regression:
@@ -191,7 +191,7 @@ models:
 # Threshold 최적화 설정
 threshold_optimization:
   enabled: true
-  metric_priority: "average_precision"  # f1, precision, recall, balanced_accuracy
+  metric_priority: "f1"  # f1, precision, recall, balanced_accuracy
   search_range:
     low: 0.0005  # 최소 임계값
     high: 0.50   # 최대 임계값  
@@ -207,7 +207,7 @@ ensemble:
   data_types: ["normal", "smote", "undersampling", "combined"]  # combined 비활성화 시
   threshold_optimization:
     enabled: true
-    metric_priority: "average_precision"
+    metric_priority: "f1"
 
 # 출력 설정
 output:
@@ -224,102 +224,94 @@ performance:
 # 랜덤 시드
 random_state: 42
 
-# 스케일링 설정
+# 데이터 변환 설정 
+# ==================================================================================
+# 실행 순서: 1) 로그 변환 → 2) 스케일링 → 3) 샘플링
+# 
+# 분산 분석 결과 반영:
+# - 극도 분산(CV > 50): 로그 변환 → RobustScaler
+# - 높은 분산(CV 5-50): 로그 변환 또는 RobustScaler  
+# - 낮은 분산(CV < 5): StandardScaler
+# - 다중공선성 고려: VIF > 5인 변수는 별도 모니터링
+# ==================================================================================
 scaling:
   enabled: true
+  
+  # ==============================================================================
+  # 1단계: 로그 변환 (스케일링 전에 먼저 적용)
+  # 극도 분산(CV > 50) 및 왜도가 매우 높은 변수들 (분산 안정화 목적)
+  # ==============================================================================
   column_groups:
-    Standard:  # 표준 스케일링 적용할 컬럼명들 (정규분포에 가까운 변수들, 스케일링 점수 0-3)
-      - 사내유보율
-      - 재고자산증가율
-      - 유동자산구성비율
-      - 총자본투자효율
-      - 경영자본순이익률
-      - 차입금의존도
-      - 이자보상배율
+    log:  # 로그 변환 적용 (1단계)
+      - 총자산
       - 유동비율
+      - 차입금의존도
+      - 매출원가율
+      - 세금과공과총비용비율
+      - 누적감가상각률
+      - 지급이자율
+      - 매출채권비율
+      - 매입채무재고자산비율
+      - 매입채무회전률
+      - 재고자산회전률
+      - 매출채권회전률
+      - PER최고
+      - PBR최저
+      - PCR최저
+    # ==============================================================================
+    # 2단계: 스케일링 (로그 변환 후 적용)
+    # ==============================================================================
+    
+    robust:  # RobustScaler - 이상치에 강함 (로그 변환된 변수 + 높은 분산 변수)
+      - 경영자본순이익률
+      - 이자보상배율
       - 매출액증가율
       - 매출액총이익률
-      - 자기자본순이익률
       - 총자본증가율
       - 유형자산증가율
-      - 비유동생물자산증가율
-      - 투자부동산증가율
-      - 비유동자산증가율
+      - 유동비율
+      - 차입금의존도
       - 유동자산증가율
       - 자기자본증가율
       - 영업이익증가율
       - 순이익증가율
       - 총포괄이익증가율
-      - 종업원당부가가치증가율
       - 종업원수증가율
-      - 종업원당인건비증가율
-      - 자기자본영업이익률
       - 경영자본영업이익률
       - 매출원가율
       - 금융손익비율
       - 금융비용부담률
       - 외환이익비율
-      - 세금과공과비율
-      - 수지비율
+
+      # 애매한 변수
       - 인건비비율
-      - R&D투자효율
+
       - 세금과공과총비용비율
       - 금융비용총비용비율
-      - 감가상각비총비용비율
-      - 감가상각률
       - 누적감가상각률
       - 이자부담률
       - 지급이자율
-      - 차입금평균이자율
-      - 유보율
-      - 사내유보자기자본비율
-      - 평균배당률
-      - 자기자본배당률
-      - 배당성향
-      - 주당매출액
-      - 주당순자산
-      - 주당영업이익
-      - 재고자산유동자산비율
-      - 유동비유동자산비율
-      - 비유동장기적합률
       - 매출채권비율
-      - 매출채권상제품비율
       - 매입채무재고자산비율
-      - 유동부채비율
-      - 단기차입금총차입금비율
-      - 비유동부채비율
-      - 비유동부채순운전자본비율
       - 순운전자본비율
-      - 유보액대비율
       - 현금흐름부채비율
       - 현금흐름차입금비율
       - 현금흐름총자본비율
       - 현금흐름매출액비율
       - 영업이익이자보상배율
-      - 경영자본회전률
-      - 자기자본회전률
-      - 자본금회전률
-      - 타인자본회전률
       - 매입채무회전률
-      - 매입채무회전기간
-      - 당좌자산회전률
       - 재고자산회전률
-      - 재고자산회전기간
-      - 상품제품회전률
-      - 원부재료회전률
-      - 재공품회전률
       - 매출채권회전률
-      - 매출채권회전기간
-      - 비유동자산회전률
-      - 유형자산회전률
       - 주당순이익
       - PER최고
       - PBR최저
       - PCR최저
-    
-    Robust:  # 로버스트 스케일링 적용할 컬럼명들 (이상치 많음, 높은 왜도/첨도, 스케일링 점수 4-12)
-      
-    MinMax:  # 최소-최대 스케일링 적용할 컬럼명들 (매우 큰 범위, 극단값 제한 필요)
-    
-    Log:  # 로그 변환 적용할 컬럼명들 (극도로 치우친 분포, 양수 값만 가능, 부실기업이 극단값)
-      # 절대값 변수들 (기업 규모 차이가 극심한 변수들)
+
+      - 총자산
+      - 영업현금흐름
+      - EBITDA매출액비율
+
+    standard:  # StandardScaler - 정규분포에 가까운 변수들 (분산 분석 Low Priority)
+
+    minmax:  # MinMaxScaler - 매우 큰 범위를 가지지만 분포가 상대적으로 안정적인 변수들
+      # 현재 해당 변수 없음 (필요 시 추가)

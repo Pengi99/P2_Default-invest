@@ -1,0 +1,81 @@
+2025-06-30 22:32:48,519 - ModelingPipeline - INFO - 모델링 파이프라인이 초기화되었습니다.
+2025-06-30 22:32:48,519 - ModelingPipeline - INFO - 실행 이름: default_modeling_run_20250630_223248
+2025-06-30 22:32:48,519 - ModelingPipeline - INFO - 출력 경로: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250630_223248
+2025-06-30 22:32:48,519 - ModelingPipeline - INFO - === 모델링 파이프라인 시작 ===
+2025-06-30 22:32:48,519 - ModelingPipeline - INFO - 데이터 로드 시작
+2025-06-30 22:32:48,519 - ModelingPipeline - INFO - 오버라이드된 데이터 경로 사용: data/final
+2025-06-30 22:32:48,572 - ModelingPipeline - INFO - Train: (17263, 44), 부실비율: 0.76%
+2025-06-30 22:32:48,572 - ModelingPipeline - INFO - Validation: (2225, 44), 부실비율: 0.40%
+2025-06-30 22:32:48,572 - ModelingPipeline - INFO - Test: (2197, 44), 부실비율: 0.55%
+2025-06-30 22:32:48,573 - ModelingPipeline - INFO - 모든 모델 실행 시작
+2025-06-30 22:32:48,573 - ModelingPipeline - INFO - 특성 선택 방법: LOGISTIC_REGRESSION_CV (NORMAL)
+2025-06-30 22:32:54,670 - ModelingPipeline - INFO - 최적 C: 0.100000
+2025-06-30 22:32:54,671 - ModelingPipeline - INFO - CV 점수: 0.1674 (±0.0509)
+2025-06-30 22:32:54,681 - ModelingPipeline - INFO - 선택된 특성: 10/44
+2025-06-30 22:32:54,682 - ModelingPipeline - INFO - 활성화된 데이터 타입: ['normal', 'smote', 'undersampling', 'combined']
+2025-06-30 22:32:54,682 - ModelingPipeline - INFO - 활성화된 모델: ['logistic_regression', 'random_forest', 'xgboost']
+2025-06-30 22:32:54,682 - ModelingPipeline - INFO - NORMAL 데이터 처리
+2025-06-30 22:32:54,683 - ModelingPipeline - INFO - logistic_regression 최적화 시작 (NORMAL)
+2025-06-30 22:32:54,683 - ModelingPipeline - INFO - Logistic Regression 클래스 불균형 가중치: class_weight=None
+2025-06-30 22:32:54,683 - ModelingPipeline - INFO - 최적화 메트릭: AVERAGE_PRECISION
+2025-06-30 22:32:54,686 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,686 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,714 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,715 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,729 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,729 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,743 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,743 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,760 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,760 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,778 - ModelingPipeline - INFO - Trial 1/20 - Current: 0.1532, Best: 0.1532
+2025-06-30 22:32:54,780 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,780 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,802 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,802 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,824 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,824 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,846 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,846 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,868 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,868 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,891 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,892 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,905 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,905 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,920 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,920 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,933 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,933 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,948 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,948 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,964 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,964 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:54,986 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:54,986 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:55,009 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:55,009 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:55,031 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:55,031 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:55,055 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:55,055 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:55,079 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:55,079 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:55,098 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:55,098 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:55,116 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:55,117 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:55,134 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:55,134 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:55,152 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:55,152 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:55,171 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:55,171 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:55,191 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:55,191 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:55,209 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:55,209 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:55,227 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:55,227 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)
+2025-06-30 22:32:55,245 - ModelingPipeline - INFO - 로그 변환 - 데이터에 없는 컬럼 (3개): ['총자산', '영업현금흐름', 'EBITDA매출액비율']
+2025-06-30 22:32:55,245 - ModelingPipeline - INFO - 로그 변환 - 적용 가능한 컬럼이 없습니다 (NORMAL)

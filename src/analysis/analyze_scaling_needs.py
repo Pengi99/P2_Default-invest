@@ -1013,10 +1013,6 @@ if 'vif_df' in locals() and len(vif_df) > 0:
     if 'high_corr_pairs' in locals() and high_corr_pairs:
         print(f"   📄 outputs/reports/high_correlation_pairs_FS.csv : 높은 상관관계 (FS.csv)")
 
-if 'vif_filtered_df' in locals() and len(vif_filtered_df) > 0:
-    print(f"   📄 outputs/reports/vif_analysis_FS_filtered.csv : VIF 분석 (FS_filtered.csv)")
-    if 'high_corr_pairs_filtered' in locals() and high_corr_pairs_filtered:
-        print(f"   📄 outputs/reports/high_correlation_pairs_FS_filtered.csv : 높은 상관관계 (FS_filtered.csv)")
 print(f"✅ 시각화 파일 저장:")
 print(f"   📁 missing_analysis/ : 4개 결측치 분석 차트")
 print(f"   📁 distributions/ : {len(ratio_columns)}개 개별 히스토그램")
@@ -1036,12 +1032,6 @@ if 'vif_df' in locals() and len(vif_df) > 0:
     low_vif_count = len(vif_df[vif_df['VIF'] <= 5])
     print(f"🔗 다중공선성 현황 (FS.csv): 높음 {high_vif_count}개, 중간 {medium_vif_count}개, 낮음 {low_vif_count}개")
 
-# FS_filtered.csv VIF 현황
-if 'vif_filtered_df' in locals() and len(vif_filtered_df) > 0:
-    high_vif_filtered_count = len(vif_filtered_df[vif_filtered_df['VIF'] > 10])
-    medium_vif_filtered_count = len(vif_filtered_df[(vif_filtered_df['VIF'] > 5) & (vif_filtered_df['VIF'] <= 10)])
-    low_vif_filtered_count = len(vif_filtered_df[vif_filtered_df['VIF'] <= 5])
-    print(f"🔗 다중공선성 현황 (FS_filtered.csv): 높음 {high_vif_filtered_count}개, 중간 {medium_vif_filtered_count}개, 낮음 {low_vif_filtered_count}개")
 print(f"📈 고우선순위: {len(high_priority)}개, 중우선순위: {len(medium_priority)}개, 저우선순위: {len(low_priority)}개")
 print(f"📊 결측치 현황: 결측치 없음 {len(no_missing)}개, 낮은 결측치 {len(low_missing)}개, 중간 결측치 {len(medium_missing)}개, 높은 결측치 {len(high_missing)}개")
 print(f"📂 파일 구조:")
