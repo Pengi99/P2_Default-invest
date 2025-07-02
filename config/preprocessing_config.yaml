@@ -3,7 +3,7 @@
 
 # 데이터 경로
 data:
-  input_path: "data/processed/FS_filtered.csv"
+  input_path: "data/processed/FS2_filtered.csv"
   output_dir: "data/final"
   
 # 데이터 분할 설정
@@ -20,9 +20,9 @@ data_split:
   
   # 랜덤 분할 설정 (split_method가 'random'일 때 사용)
   random:
-    train_ratio: 0.8
-    val_ratio: 0.1
-    test_ratio: 0.1
+    train_ratio: 0.5
+    val_ratio: 0.2
+    test_ratio: 0.3
     random_state: 42
     stratify: true      # 타겟 변수 기준 층화 샘플링
     group_by_exchange: true  # 거래소코드별 그룹핑 여부 (true: 거래소코드가 같은 행들을 그룹화해서 분할)
@@ -30,7 +30,7 @@ data_split:
 # 결측치 처리 설정
 missing_data:
   # 행 삭제 임계값 (50% 이상 결측치인 행 삭제)
-  row_missing_threshold: 0.2
+  row_missing_threshold: 0.8
   # 결측값 대체 방법
   imputation_method: "median"  # median, mean, mode, knn
   # 결측치가 모두 0인 컬럼 처리 여부
@@ -51,7 +51,7 @@ feature_engineering:
   exclude_columns:
     - "회사명"
     - "거래소코드"
-    - "회계년도"
+    - "연도"
   # 타겟 변수
   target_column: "default"
 

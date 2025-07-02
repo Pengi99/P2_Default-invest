@@ -717,13 +717,14 @@ class ModelingPipeline:
         from sklearn.pipeline import Pipeline
         
         config = self.config['feature_selection']['logistic_regression_cv']
+        cv_folds = self.config['cv_folds']  # 공통 config cv_folds 사용
         
         # Pipeline을 사용하여 CV 내부에서 스케일링 적용
         pipeline = Pipeline([
             ('scaler', StandardScaler()),
             ('logistic', LogisticRegressionCV(
                 Cs=config['Cs'],
-                cv=config['cv_folds'],
+                cv=cv_folds,
                 penalty=config['penalty'],
                 solver=config['solver'],
                 max_iter=config['max_iter'],
@@ -778,6 +779,7 @@ class ModelingPipeline:
         from sklearn.preprocessing import StandardScaler
         
         config = self.config['feature_selection']['lasso_cv']
+        cv_folds = self.config['cv_folds']  # 공통 config cv_folds 사용
         
         # 스케일링
         scaler = StandardScaler()
@@ -786,7 +788,7 @@ class ModelingPipeline:
         # Lasso CV
         lasso_cv = LassoCV(
             alphas=config['alphas'],
-            cv=config['cv_folds'],
+            cv=cv_folds,
             random_state=self.config['random_state'],
             n_jobs=self.config.get('performance', {}).get('n_jobs', 1)
         )
@@ -1135,6 +1137,7 @@ class ModelingPipeline:
         config = self.config['models']['logistic_regression']
         optimization_config = self.config['models'].get('optimization', {})
         primary_metric = optimization_config.get('primary_metric', 'roc_auc')
+        cv_folds = self.config['cv_folds']  # 공통 config cv_folds 사용
         
         # Config에서 class_weight 설정 가져오기
         class_weight = config.get('class_weight', None)
@@ -1181,7 +1184,7 @@ class ModelingPipeline:
             
             try:
                 # Cross validation with proper sampling (데이터 누수 방지)
-                scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=5, scoring=primary_metric)
+                scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=cv_folds, scoring=primary_metric)
             
                 return scores.mean()
                 
@@ -1244,6 +1247,7 @@ class ModelingPipeline:
         config = self.config['models']['random_forest']
         optimization_config = self.config['models'].get('optimization', {})
         primary_metric = optimization_config.get('primary_metric', 'roc_auc')
+        cv_folds = self.config['cv_folds']  # 공통 config cv_folds 사용
         
         # Config에서 class_weight 설정 가져오기
         class_weight = config.get('class_weight', None)
@@ -1265,7 +1269,7 @@ class ModelingPipeline:
             model = RandomForestClassifier(**params)
             
             # Cross validation with proper sampling (데이터 누수 방지)
-            scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=5, scoring=primary_metric)
+            scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=cv_folds, scoring=primary_metric)
             
             return scores.mean()
         
@@ -1315,6 +1319,7 @@ class ModelingPipeline:
         config = self.config['models']['xgboost']
         optimization_config = self.config['models'].get('optimization', {})
         primary_metric = optimization_config.get('primary_metric', 'roc_auc')
+        cv_folds = self.config['cv_folds']  # 공통 config cv_folds 사용
         
         # Config에서 클래스 불균형 처리 방식 가져오기
         class_weight_mode = config.get('class_weight_mode', 'scale_pos_weight')
@@ -1359,7 +1364,7 @@ class ModelingPipeline:
             model = xgb.XGBClassifier(**params)
             
             # Cross validation with proper sampling (데이터 누수 방지)
-            scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=5, scoring=primary_metric)
+            scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=cv_folds, scoring=primary_metric)
             
             return scores.mean()
         
@@ -1404,11 +1409,13 @@ class ModelingPipeline:
         
         return model, best_params, study.best_value
     
-    def _proper_cv_with_sampling(self, model, X: pd.DataFrame, y: pd.Series, data_type: str, cv_folds: int = 5, scoring='roc_auc'):
+    def _proper_cv_with_sampling(self, model, X: pd.DataFrame, y: pd.Series, data_type: str, cv_folds: int = None, scoring='roc_auc'):
         """
         샘플링 Data Leakage를 방지하는 올바른 Cross Validation
         각 CV fold마다 스케일링 → 샘플링을 순서대로 적용
         """
+        if cv_folds is None:
+            cv_folds = self.config['cv_folds']  # 공통 config cv_folds 사용
         skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=self.config['random_state'])
         scores = []
                 
@@ -1513,11 +1520,13 @@ class ModelingPipeline:
         scores_array = np.array(scores)        
         return scores_array
     
-    def _proper_cv_with_all_metrics(self, model, X: pd.DataFrame, y: pd.Series, data_type: str, cv_folds: int = 5) -> Dict[str, float]:
+    def _proper_cv_with_all_metrics(self, model, X: pd.DataFrame, y: pd.Series, data_type: str, cv_folds: int = None) -> Dict[str, float]:
         """
         최적화된 CV: 한 번의 CV로 모든 메트릭을 동시에 계산
         시간을 3배 단축 (15 fold → 5 fold)
         """
+        if cv_folds is None:
+            cv_folds = self.config['cv_folds']  # 공통 config cv_folds 사용
         skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=self.config['random_state'])
         
         # 각 메트릭별 점수 저장
@@ -1778,9 +1787,13 @@ class ModelingPipeline:
         if metric_priority in optimal_thresholds:
                 optimal_threshold = optimal_thresholds[metric_priority]['threshold']
                 final_value = optimal_thresholds[metric_priority]['value']
-        else:
+        elif 'f1' in optimal_thresholds:
                 optimal_threshold = optimal_thresholds['f1']['threshold']
                 final_value = optimal_thresholds['f1']['value']
+        else:
+                # optimal_thresholds가 비어있는 경우 (threshold optimization 실패)
+                optimal_threshold = 0.5
+                final_value = 0.0
         
         self.logger.info(f"최종 선택: {optimal_threshold:.3f} ({metric_priority.upper()}: {final_value:.4f})")
         

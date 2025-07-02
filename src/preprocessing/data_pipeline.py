@@ -548,15 +548,15 @@ class DataPreprocessingPipeline:
         if split_method == 'timeseries':
             split_details = f"""1. 데이터 분할 (시계열 기반)
    - 방법: 시계열 분할
-   - Train: {split_info['train_shape']} ({split_info['train_years'][0]}-{split_info['train_years'][-1]}년)
-   - Validation: {split_info['val_shape']} ({split_info['val_years'][0]}-{split_info['val_years'][-1]}년)
-   - Test: {split_info['test_shape']} ({split_info['test_years'][0]}-{split_info['test_years'][-1]}년)"""
+   - Train: {split_info['train_shape']} ({split_info['train_years'][0]}-{split_info['train_years'][-1]}년), 부실기업: {split_info['train_target_dist'].get(1, 0)}개
+   - Validation: {split_info['val_shape']} ({split_info['val_years'][0]}-{split_info['val_years'][-1]}년), 부실기업: {split_info['val_target_dist'].get(1, 0)}개
+   - Test: {split_info['test_shape']} ({split_info['test_years'][0]}-{split_info['test_years'][-1]}년), 부실기업: {split_info['test_target_dist'].get(1, 0)}개"""
         elif split_info['method'] == 'random_grouped':
             split_details = f"""1. 데이터 분할 (거래소코드 그룹핑 기반)
    - 방법: 거래소코드 그룹핑 랜덤 분할 (5:3:2)
-   - Train: {split_info['train_shape']} (거래소코드: {split_info['exchange_distribution']['train']}개)
-   - Validation: {split_info['val_shape']} (거래소코드: {split_info['exchange_distribution']['val']}개)
-   - Test: {split_info['test_shape']} (거래소코드: {split_info['exchange_distribution']['test']}개)
+   - Train: {split_info['train_shape']} (거래소코드: {split_info['exchange_distribution']['train']}개), 부실기업: {split_info['train_target_dist'].get(1, 0)}개
+   - Validation: {split_info['val_shape']} (거래소코드: {split_info['exchange_distribution']['val']}개), 부실기업: {split_info['val_target_dist'].get(1, 0)}개
+   - Test: {split_info['test_shape']} (거래소코드: {split_info['exchange_distribution']['test']}개), 부실기업: {split_info['test_target_dist'].get(1, 0)}개
    - Train 거래소코드: {split_info['train_exchange_codes']}
    - Val 거래소코드: {split_info['val_exchange_codes']}
    - Test 거래소코드: {split_info['test_exchange_codes']}"""
@@ -566,9 +566,9 @@ class DataPreprocessingPipeline:
                 group_info = " (거래소코드 그룹핑 적용)"
             split_details = f"""1. 데이터 분할 (랜덤 기반{group_info})
    - 방법: 랜덤 분할 (5:3:2)
-   - Train: {split_info['train_shape']}
-   - Validation: {split_info['val_shape']}
-   - Test: {split_info['test_shape']}"""
+   - Train: {split_info['train_shape']}, 부실기업: {split_info['train_target_dist'].get(1, 0)}개
+   - Validation: {split_info['val_shape']}, 부실기업: {split_info['val_target_dist'].get(1, 0)}개
+   - Test: {split_info['test_shape']}, 부실기업: {split_info['test_target_dist'].get(1, 0)}개"""
         
         report = f"""
 데이터 전처리 파이프라인 실행 결과 리포트 (스케일링 및 피처 선택 제외)
@@ -585,6 +585,7 @@ class DataPreprocessingPipeline:
 --------------
 - 데이터 크기: {self.results['data_info']['original_shape']}
 - 타겟 분포: {self.results['data_info']['target_distribution']}
+- 총 부실기업: {self.results['data_info']['target_distribution'].get(1, 0)}개
 
 전처리 단계별 결과
 ----------------

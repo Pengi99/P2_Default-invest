@@ -513,8 +513,8 @@ def process_fs_data():
     
     # 파일 경로 설정 (프로젝트 루트 기준으로 절대 경로 사용)
     project_root = Path(__file__).parent.parent.parent
-    input_file = project_root / 'data' / 'processed' / 'FS.csv'
-    output_file = project_root / 'data' / 'processed' / 'FS_filtered.csv'
+    input_file = project_root / 'data' / 'processed' / 'FS2_features.csv'
+    output_file = project_root / 'data' / 'processed' / 'FS2_filtered.csv'
     config_file = project_root / 'config' / 'column_config.yaml'
     
     try:

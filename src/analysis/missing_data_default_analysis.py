@@ -43,7 +43,7 @@ print("=== 결측치 비율별 행 제거 시 Default 분포 분석 ===")
 # 1. 프로젝트 경로 설정
 current_dir = Path(__file__).parent
 project_root = current_dir.parent.parent
-data_path = project_root / 'data' / 'processed' / 'FS.csv'
+data_path = project_root / 'data' / 'processed' / 'FS2_features.csv'
 output_base = project_root / 'outputs' / 'analysis' / 'missing_data_default_analysis'
 
 # 출력 디렉토리 생성
@@ -96,7 +96,7 @@ print("\n3️⃣ 결측치 비율별 행 제거 시나리오")
 print("="*50)
 
 # 결측치 비율 임계값 설정
-threshold_scenarios = [0, 5, 10, 15, 20, 25, 30, 40, 50]
+threshold_scenarios = [0, 10, 20, 30, 40, 50, 60, 70, 80]
 scenario_results = []
 missing_pattern_results = []
 
@@ -319,7 +319,7 @@ plt.savefig(viz_dir / '05_remaining_missing_analysis.png', dpi=300, bbox_inches=
 plt.close()
 
 # 6-5. 컬럼별 결측치 변화 히트맵 (주요 임계값만)
-key_thresholds = [0, 10, 20, 30, 50]
+key_thresholds = [0, 20, 40, 60, 80]
 column_changes_data = []
 
 for threshold in key_thresholds:
@@ -486,7 +486,7 @@ print(f"\n🎯 주요 발견사항:")
 print(f"- 원본 데이터: {len(df):,}행, Default 비율: {df['default'].mean():.4f}")
 
 # 주요 임계값들의 결과 출력 (결측치 정보 포함)
-key_thresholds = [0, 10, 20, 30]
+key_thresholds = [0, 20, 40, 60]
 for threshold in key_thresholds:
     if threshold in results_df['임계값(%)'].values:
         row = results_df[results_df['임계값(%)'] == threshold].iloc[0]

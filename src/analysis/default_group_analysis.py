@@ -44,7 +44,7 @@ print("=== Default 그룹별 재무비율 통계 분석 (스케일링 포함) ==
 # 1. 프로젝트 경로 설정
 current_dir = Path(__file__).parent
 project_root = current_dir.parent.parent
-data_path = project_root / 'data' / 'processed' / 'FS.csv'
+data_path = project_root / 'data' / 'processed' / 'FS2_filtered.csv'
 output_base = project_root / 'outputs' / 'analysis' / 'default_group_analysis'
 
 # 출력 디렉토리 생성
