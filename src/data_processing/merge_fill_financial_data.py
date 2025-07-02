@@ -213,6 +213,7 @@ class FinancialDataMerger:
             '노동소득분배율(IFRS연결)': '노동소득분배율(IFRS)',
             '자본분배율(IFRS연결)': '자본분배율(IFRS)',
             '이윤분배율(IFRS연결)': '이윤분배율(IFRS)',
+            '납입자본금(IFRS연결)(천원)': '납입자본금(천원)',
             
             # 추가 손익 및 비용 지표들
             '법인세비용차감전(계속사업)손익(IFRS연결)(백만원)': '법인세비용차감전(계속사업)손익(IFRS)(백만원)',
@@ -448,13 +449,13 @@ def main():
     parser.add_argument(
         '--primary', '-p',
         type=str,
-        default='data/raw/c_fs.csv',  # 실제 파일명으로 변경하세요
+        default='data/raw/data_연결.csv',  # 실제 파일명으로 변경하세요
         help='첫 번째 CSV 파일 경로 (메인 데이터)'
     )
     parser.add_argument(
         '--secondary', '-s',
         type=str,
-        default='data/raw/i_fs.csv',  # 실제 파일명으로 변경하세요
+        default='data/raw/data_일반.csv',  # 실제 파일명으로 변경하세요
         help='두 번째 CSV 파일 경로 (보완 데이터)'
     )
     

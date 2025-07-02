@@ -153,7 +153,7 @@ feature_selection:
 models:
   # 최적화 메트릭 설정
   optimization:
-    primary_metric: "precision"  # roc_auc, f1, average_precision, balanced_accuracy
+    primary_metric: "f1"  # roc_auc, f1, average_precision, balanced_accuracy
     description: "하이퍼파라미터 최적화 시 사용할 주요 메트릭"
   
   logistic_regression:
@@ -192,7 +192,7 @@ models:
 # Threshold 최적화 설정
 threshold_optimization:
   enabled: true
-  metric_priority: "precision"  # f1, precision, recall, balanced_accuracy
+  metric_priority: "f1"  # f1, precision, recall, balanced_accuracy
   search_range:
     low: 0.0005  # 최소 임계값
     high: 0.50   # 최대 임계값  
@@ -208,7 +208,7 @@ ensemble:
   data_types: ["normal", "smote", "undersampling", "combined"]  # combined 비활성화 시
   threshold_optimization:
     enabled: true
-    metric_priority: "precision"
+    metric_priority: "f1"
 
 # 출력 설정
 output:
@@ -283,6 +283,8 @@ scaling:
       - Δ자본비율
       - Δ총자산회전율
       - Δ현금흐름대부채비율
+      - 납입자본금
+
 
     standard:  # StandardScaler - 정규분포에 가까운 변수들 (분산 분석 Low Priority)
 
