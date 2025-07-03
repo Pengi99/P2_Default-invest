@@ -45,7 +45,7 @@ sampling:
       description: "원본 데이터 (샘플링 없음)"
     
     smote:
-      enabled: true
+      enabled: false
       description: "BorderlineSMOTE 오버샘플링"
       sampling_strategy: 0.1  # 부실 클래스 비율 목표 (양성 2%, 원래 0.7%에서 증가)
       k_neighbors: 5
@@ -54,7 +54,7 @@ sampling:
       random_state: 42
     
     undersampling:
-      enabled: true
+      enabled: false
       description: "언더샘플링"
       method: "tomek"  # random, edited_nearest_neighbours, tomek (노이즈 제거)
       sampling_strategy: 1  # 정상 클래스 유지 비율 (정상 30% 유지)
@@ -71,7 +71,7 @@ sampling:
         discriminator_dim: [256, 256]  # Discriminator 네트워크 차원
     
     combined:
-      enabled: true
+      enabled: false
       description: "SMOTE + 언더샘플링 조합"
       # SMOTE 설정
       smote:
@@ -175,7 +175,7 @@ models:
     C_range: [0.01, 100]  # 수렴 안정성을 위해 범위 축소
     max_iter_range: [100, 10000]  # 충분한 반복 횟수 보장
     l1_ratio_range: [0.1, 0.9]  # elasticnet용
-    n_trials: 100  # trial 수 감소로 빠른 수렴
+    n_trials: 10  # trial 수 감소로 빠른 수렴
   
   random_forest:
     enabled: true
@@ -185,7 +185,7 @@ models:
     min_samples_split_range: [2, 20]
     min_samples_leaf_range: [1, 10]
     max_features_range: [0.1, 1.0]
-    n_trials: 100
+    n_trials: 10
   
   xgboost:
     enabled: true
@@ -198,7 +198,7 @@ models:
     colsample_bytree_range: [0.6, 1.0]
     reg_alpha_range: [0.0, 10.0]
     reg_lambda_range: [1.0, 10.0]
-    n_trials: 100
+    n_trials: 10
 
 # Threshold 최적화 설정
 threshold_optimization:

@@ -1,21 +1,39 @@
 """
-Factor Investing Backtesting Framework - Full Rewrite
-11개 팩터 전략 백테스트 및 성과 분석 (Long-Only Top-10 Equal-Weight)
+Factor Investing Backtesting Framework - Updated Version
+FF3 통합 전략, B/M 제거, DOL/DFL 제거 버전
 """
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.graph_objects as go
-import plotly.express as px
-from plotly.subplots import make_subplots
-from sklearn.preprocessing import StandardScaler
+try:
+    import plotly.graph_objects as go
+    import plotly.express as px
+    from plotly.subplots import make_subplots
+    PLOTLY_AVAILABLE = True
+except ImportError:
+    PLOTLY_AVAILABLE = False
+    print("Warning: plotly not available. Visualization will be limited.")
+
+try:
+    from sklearn.preprocessing import StandardScaler
+    SKLEARN_AVAILABLE = True
+except ImportError:
+    SKLEARN_AVAILABLE = False
+    print("Warning: scikit-learn not available. Some features may be limited.")
+
 from scipy import stats
 import warnings
 import glob
 import os
 import argparse
+try:
+    from pykrx import stock, bond
+    PYKRX_AVAILABLE = True
+except ImportError:
+    PYKRX_AVAILABLE = False
+    print("Warning: pykrx not available. FF3 factor builder will use mock data.")
 from datetime import datetime
 warnings.filterwarnings('ignore')
 
@@ -33,18 +51,27 @@ plt.rcParams['axes.unicode_minus'] = False
 plt.style.use('seaborn-v0_8')
 
 class FactorBacktester:
-    """팩터 투자 백테스트 클래스 - Long-Only Top-10 Equal-Weight"""
+    """팩터 투자 백테스트 클래스 - Updated with FF3 Integration"""
     
-    def __init__(self, data_path=None, output_dir=None):
+    def __init__(self, data_path=None, output_dir=None, top_n=10, fscore_min_score=8, momentum_period=12):
         # 단순한 경로 설정 - 현재 디렉토리 기준
         self.data_path = data_path or 'data/processed'
         self.df = None
         self.factor_returns = {}
         self.performance_stats = {}
         
-        # 출력 디렉토리 설정
-        self.output_dir = output_dir or 'outputs/backtesting'
+        # 포트폴리오 설정
+        self.top_n = top_n  # 상위 n개 종목 선택
+        self.fscore_min_score = fscore_min_score  # F-score 최소 점수
+        self.momentum_period = momentum_period  # 모멘텀 기간 (개월)
+        
+        # 출력 디렉토리 설정 - 파라미터 조합별로 하위 폴더 생성
+        base_output_dir = output_dir or 'outputs/backtesting'
+        param_suffix = f"top{top_n}_f{fscore_min_score}_mom{momentum_period}m"
+        self.output_dir = os.path.join(base_output_dir, param_suffix)
         os.makedirs(self.output_dir, exist_ok=True)
+        
+        print(f"📁 결과 저장 경로: {self.output_dir}")
         
     def load_data(self):
         """1단계: 데이터 로딩 및 병합"""
@@ -166,7 +193,7 @@ class FactorBacktester:
         return self
     
     def compute_factor_signals(self):
-        """3단계: 11개 팩터 시그널 계산"""
+        """3단계: 팩터 시그널 계산 (업데이트된 버전)"""
         print("🎯 팩터 시그널 계산 중...")
         
         # 데이터 정렬
@@ -216,26 +243,23 @@ class FactorBacktester:
         # 2. EV/EBITDA
         self._compute_ev_ebitda()
         
-        # 3. Book-to-Market (BM)
-        self._compute_book_to_market()
-        
-        # 4. Momentum (12-1)
+        # 3. Momentum (customizable period)
         self._compute_momentum()
         
-        # 5. Piotroski F-Score
+        # 4. Piotroski F-Score
         self._compute_fscore()
         
-        # 6. QMJ (Quality Minus Junk)
+        # 5. QMJ (Quality Minus Junk)
         self._compute_qmj()
         
-        # 7. Low Volatility
+        # 6. Low Volatility
         self._compute_low_volatility()
         
-        # 8. SMB & HML (Fama-French)
-        self._compute_ff_factors()
+        # 7. BM 계산 (FF3에서 사용)
+        self._compute_book_to_market()
         
-        # 9. DOL & DFL (Leverage)
-        self._compute_leverage_factors()
+        # 8. Fama-French 3Factor (통합 전략)
+        self._compute_ff3_factors()
         
         print("  ✅ 팩터 시그널 계산 완료")
         
@@ -403,19 +427,42 @@ class FactorBacktester:
         self.df['ev_ebitda_signal'] = -self.df['EV_EBITDA']  # 낮을수록 좋음
     
     def _compute_book_to_market(self):
-        """Book-to-Market (BM)"""
+        """Book-to-Market (BM) - FF3에서만 사용"""
         self.df['bm'] = self.df['총자본'] / self.df['시가총액']  # 높을수록 좋음
     
     def _compute_momentum(self):
-        """Momentum (12-1)"""
-        # 월수익률이 없으므로 연간 수익률 기반으로 계산
-        # 가정: 전년도 대비 수익률을 momentum으로 사용
+        """Momentum (customizable period)"""
+        print(f"  🔄 모멘텀 계산 ({self.momentum_period}개월 기간)")
+        
+        # 연간 데이터이므로 모멘텀 기간을 연도 단위로 변환
+        # 1-3개월: 당년 기준, 4-11개월: 1년 전, 12개월 이상: 해당 연도 수만큼 과거
+        if self.momentum_period <= 3:
+            # 1-3개월: 당년도 데이터 사용 (최근 성과)
+            shift_periods = 0
+            period_desc = f"{self.momentum_period}개월(당년)"
+        elif self.momentum_period <= 11:
+            # 4-11개월: 1년 전 데이터 사용
+            shift_periods = 1
+            period_desc = f"{self.momentum_period}개월(1년전)"
+        else:
+            # 12개월 이상: 해당 연도 수만큼 과거
+            shift_periods = max(1, self.momentum_period // 12)
+            period_desc = f"{self.momentum_period}개월({shift_periods}년전)"
+        
+        print(f"    📊 실제 적용: {period_desc}")
+        
         if '주가수익률' in self.df.columns:
-            self.df['mom'] = self.df.groupby('거래소코드')['주가수익률'].shift(1)
+            self.df['mom'] = self.df.groupby('거래소코드')['주가수익률'].shift(shift_periods)
         else:
             # 종가 기반 수익률 계산
             price_col = '종가' if '종가' in self.df.columns else '시가총액'
-            self.df['mom'] = self.df.groupby('거래소코드')[price_col].pct_change().shift(1)
+            # shift_periods만큼 과거의 수익률 계산
+            if shift_periods == 0:
+                # 당년도 기준: 전년 대비 수익률
+                self.df['mom'] = self.df.groupby('거래소코드')[price_col].pct_change()
+            else:
+                # N년 전 기준: N년 전 대비 수익률
+                self.df['mom'] = self.df.groupby('거래소코드')[price_col].pct_change(periods=shift_periods)
     
     def _compute_fscore(self):
         """Piotroski F-Score (0~9점)"""
@@ -576,10 +623,10 @@ class FactorBacktester:
         self.df['vol_3y'] = self.df.groupby('거래소코드')[ret_col].rolling(3).std().reset_index(0, drop=True)
         self.df['lowvol'] = -self.df['vol_3y']  # 변동성 낮을수록 좋음
     
-    def _compute_ff_factors(self):
-        """SMB & HML (Fama-French 3-Factor)"""
-        # 연도별 Size median, BM 30/70% 분위수로 2×3 포트폴리오 구성
+    def _compute_ff3_factors(self):
+        """Fama-French 3Factor 통합 전략"""
         ff_scores = []
+        self.ff_factors = pd.DataFrame()  # Store factor returns
         
         for year in self.df['연도'].unique():
             year_df = self.df[self.df['연도'] == year].copy()
@@ -599,75 +646,145 @@ class FactorBacktester:
             bm_30 = year_df['bm'].quantile(0.3)
             bm_70 = year_df['bm'].quantile(0.7)
             
-            # 6개 포트폴리오 구성
-            portfolios = {}
-            portfolios['SL'] = year_df[(year_df['시가총액'] <= size_median) & (year_df['bm'] <= bm_30)]
-            portfolios['SM'] = year_df[(year_df['시가총액'] <= size_median) & (year_df['bm'] > bm_30) & (year_df['bm'] <= bm_70)]
-            portfolios['SH'] = year_df[(year_df['시가총액'] <= size_median) & (year_df['bm'] > bm_70)]
-            portfolios['BL'] = year_df[(year_df['시가총액'] > size_median) & (year_df['bm'] <= bm_30)]
-            portfolios['BM'] = year_df[(year_df['시가총액'] > size_median) & (year_df['bm'] > bm_30) & (year_df['bm'] <= bm_70)]
-            portfolios['BH'] = year_df[(year_df['시가총액'] > size_median) & (year_df['bm'] > bm_70)]
+            # FF3 통합 시그널 계산 (각 종목별로)
+            for idx, row in year_df.iterrows():
+                size_score = 1 if row['시가총액'] <= size_median else -1  # Small = +1, Big = -1
+                value_score = 0
+                if row['bm'] <= bm_30:
+                    value_score = -1  # Growth = -1
+                elif row['bm'] > bm_70:
+                    value_score = 1   # Value = +1
+                else:
+                    value_score = 0   # Neutral = 0
+                
+                # FF3 통합 시그널: Size + Value 신호 결합
+                # 직접 조합으로 명확한 시그널 생성
+                if size_score == 1 and value_score == 1:      # Small + Value
+                    ff3_signal = 1.0
+                elif size_score == 1 and value_score == 0:    # Small + Neutral  
+                    ff3_signal = 0.5
+                elif size_score == 1 and value_score == -1:   # Small + Growth
+                    ff3_signal = 0.0
+                elif size_score == -1 and value_score == 1:   # Big + Value
+                    ff3_signal = -0.5
+                elif size_score == -1 and value_score == 0:   # Big + Neutral
+                    ff3_signal = -1.0
+                else:  # Big + Growth (size_score == -1 and value_score == -1)
+                    ff3_signal = -1.5
+                
+                year_df.loc[idx, 'ff3_signal'] = ff3_signal
             
-            # 다음해 수익률 계산을 위한 준비 (현재는 단순히 factor 값으로 대체)
-            # SMB = (S/H + S/M + S/L)/3 - (B/H + B/M + B/L)/3
-            small_factor = sum([len(portfolios[p]) for p in ['SL', 'SM', 'SH']]) / 3
-            big_factor = sum([len(portfolios[p]) for p in ['BL', 'BM', 'BH']]) / 3
-            smb_factor = small_factor - big_factor
-            
-            # HML = (H/S + H/B)/2 - (L/S + L/B)/2
-            high_factor = (len(portfolios['SH']) + len(portfolios['BH'])) / 2
-            low_factor = (len(portfolios['SL']) + len(portfolios['BL'])) / 2
-            hml_factor = high_factor - low_factor
-            
-            # 각 종목에 SMB, HML 할당
-            year_df['smb'] = smb_factor / len(year_df)  # 정규화
-            year_df['hml'] = hml_factor / len(year_df)  # 정규화
-            
-            ff_scores.append(year_df[['거래소코드', '연도', 'smb', 'hml']])
+            ff_scores.append(year_df[['거래소코드', '연도', 'ff3_signal']])
         
         if ff_scores:
             ff_df = pd.concat(ff_scores)
             self.df = self.df.merge(ff_df, on=['거래소코드', '연도'], how='left')
         else:
-            self.df['smb'] = 0
-            self.df['hml'] = 0
+            self.df['ff3_signal'] = 0
     
-    def _compute_leverage_factors(self):
-        """Leverage Factors - DOL & DFL만 계산"""
-        # DOL (Degree of Operating Leverage)
-        if '매출액증가율' in self.df.columns and '영업이익증가율' in self.df.columns:
-            # DOL = 영업이익증가율 / 매출액증가율
-            self.df['DOL'] = self.df['영업이익증가율'] / self.df['매출액증가율']
-            # 무한값 처리
-            self.df['DOL'] = self.df['DOL'].replace([np.inf, -np.inf], np.nan)
-        else:
-            self.df['DOL'] = np.nan
+    def build_signal(self, factor_cols, weights=None, winsorize_pct=0.005, 
+                    sector_map=None, direction_map=None):
+        """SIGNAL BUILDER - 멀티팩터 시그널 구성"""
+        print(f"Building composite signal from factors: {factor_cols}")
         
-        # DFL (Degree of Financial Leverage)
-        if '영업이익' in self.df.columns and '총이자비용' in self.df.columns:
-            # DFL = 영업이익 / (영업이익 - 이자비용)
-            denominator = self.df['영업이익'] - self.df['총이자비용']
-            # 분모가 0 이하인 경우 NaN 처리
-            self.df['DFL'] = np.where(denominator > 0, 
-                                     self.df['영업이익'] / denominator, 
-                                     np.nan)
+        if weights is None:
+            weights = {col: 1.0 for col in factor_cols}
+        
+        if direction_map is None:
+            direction_map = {col: 1 for col in factor_cols}  # 1: 높을수록 좋음, -1: 낮을수록 좋음
+        
+        signals_by_year = []
+        
+        for year in self.df['연도'].unique():
+            year_data = self.df[self.df['연도'] == year].copy()
+            
+            if len(year_data) < 20:
+                continue
+            
+            composite_signal = pd.Series(0, index=year_data.index)
+            valid_factors = 0
+            
+            for factor_col in factor_cols:
+                if factor_col not in year_data.columns:
+                    continue
+                
+                factor_values = pd.to_numeric(year_data[factor_col], errors='coerce')
+                
+                if factor_values.notna().sum() < 5:
+                    continue
+                
+                # Winsorization
+                lower_bound = factor_values.quantile(winsorize_pct)
+                upper_bound = factor_values.quantile(1 - winsorize_pct)
+                factor_values = factor_values.clip(lower_bound, upper_bound)
+                
+                # Z-score standardization
+                factor_zscore = (factor_values - factor_values.mean()) / factor_values.std()
+                
+                # Direction adjustment
+                factor_zscore *= direction_map.get(factor_col, 1)
+                
+                # Weight and add to composite
+                weight = weights.get(factor_col, 1.0)
+                composite_signal += factor_zscore.fillna(0) * weight
+                valid_factors += 1
+            
+            if valid_factors > 0:
+                composite_signal /= valid_factors  # Normalize by number of factors
+                
+                # Convert to percentile (0~1)
+                composite_percentile = composite_signal.rank(pct=True)
+                
+                # Apply sector adjustment if provided
+                if sector_map is not None and 'sector' in year_data.columns:
+                    for sector, adjustment in sector_map.items():
+                        sector_mask = year_data['sector'] == sector
+                        composite_percentile[sector_mask] *= adjustment
+                
+                # Create MultiIndex Series
+                signal_series = pd.Series(
+                    composite_percentile.values,
+                    index=pd.MultiIndex.from_tuples(
+                        [(pd.to_datetime(f'{year}-04-01'), ticker) for ticker in year_data['거래소코드']],
+                        names=['date', 'ticker']
+                    )
+                )
+                signals_by_year.append(signal_series)
+        
+        if signals_by_year:
+            return pd.concat(signals_by_year).sort_index()
         else:
-            self.df['DFL'] = np.nan
+            return pd.Series(dtype=float, name='signal')
     
-    def construct_long_portfolio(self, df, signal_col, date, top_n=10):
-        """Long-Only Top-10 Equal-Weight 포트폴리오 구성"""
+    def construct_long_portfolio(self, df, signal_col, date, top_n=None, signal_df=None):
+        """Long-Only Top-N Equal-Weight 포트폴리오 구성"""
+        if top_n is None:
+            top_n = self.top_n
+            
         universe = df[df['rebal_date'] == date].copy()
         
-        # Piotroski F-Score의 경우 F-Score >= 8 필터 적용
+        # 팩터별 특수 필터링 로직
         if signal_col == 'fscore':
-            universe = universe[universe['fscore'] >= 8]
-        
-        # 상위 top_n개 종목 선택
-        if len(universe) == 0:
-            return pd.Series(dtype=float)
-        
-        winners = universe.sort_values(signal_col, ascending=False).head(top_n)
-        n = len(winners)
+            # F-Score의 경우: 최소 점수 이상만 선택
+            universe = universe[universe['fscore'] >= self.fscore_min_score]
+            # F-Score에서는 조건을 만족하는 모든 종목을 선택 (top_n 제한 없음)
+            if len(universe) == 0:
+                return pd.Series(dtype=float)
+            winners = universe.sort_values(signal_col, ascending=False)
+            n = len(winners)
+            print(f"  F-Score {self.fscore_min_score}점 이상: {n}개 종목 선택 (요청: {top_n}개)")
+        else:
+            # 다른 팩터들: 상위 top_n개 종목 선택
+            if len(universe) == 0:
+                return pd.Series(dtype=float)
+            
+            # 팩터 값이 높을수록 좋은지 낮을수록 좋은지 판단
+            ascending = False
+            if signal_col in ['pbr', 'per', 'ev_ebitda', 'debt_to_equity']:
+                ascending = True  # 낮을수록 좋은 팩터들
+                
+            winners = universe.sort_values(signal_col, ascending=ascending).head(top_n)
+            n = len(winners)
         
         if n == 0:
             return pd.Series(dtype=float)
@@ -675,12 +792,60 @@ class FactorBacktester:
         # Equal weight
         return pd.Series(1/n, index=winners.index)
     
-    def backtest(self):
+    def backtest(self, signal_df=None, price_df=None, top_n=30):
+        """BACKTEST LOGIC with signal_df support"""
+        if signal_df is not None:
+            return self._backtest_with_signal(signal_df, price_df, top_n)
+        else:
+            return self._backtest_original()
+    
+    def _backtest_with_signal(self, signal_df, price_df, top_n):
+        """Backtest using external signal_df"""
+        print("📈 백테스트 실행 중 (External Signal)...")
+        
+        portfolio_returns = []
+        rebal_dates = sorted(signal_df.index.get_level_values('date').unique())
+        
+        for date in rebal_dates:
+            # Get signal for this date (use t-1 to prevent look-ahead bias)
+            prev_date = date - pd.DateOffset(years=1)
+            if prev_date not in signal_df.index.get_level_values('date'):
+                continue
+                
+            date_signals = signal_df.xs(prev_date, level='date').sort_values(ascending=False)
+            top_stocks = date_signals.head(top_n)
+            
+            if len(top_stocks) == 0:
+                continue
+            
+            # Equal weight portfolio
+            weights = pd.Series(1/len(top_stocks), index=top_stocks.index)
+            
+            # Calculate portfolio return (simplified - using price_df if provided)
+            if price_df is not None:
+                returns = price_df.loc[date, top_stocks.index] if date in price_df.index else 0
+                port_ret = (weights * returns).sum() if hasattr(returns, 'sum') else 0
+            else:
+                port_ret = 0  # Placeholder
+            
+            portfolio_returns.append({
+                'date': date,
+                'return': port_ret,
+                'n_stocks': len(top_stocks)
+            })
+        
+        if portfolio_returns:
+            ret_df = pd.DataFrame(portfolio_returns).set_index('date')
+            self.factor_returns['Signal_Strategy'] = ret_df
+        
+        return self
+    
+    def _backtest_original(self):
         """4단계: 백테스트 실행 - 부실기업 vs 정상기업 구분"""
         print("📈 백테스트 실행 중...")
         
-        # 리밸런싱 날짜 설정 (연말 기준)
-        self.df['rebal_date'] = pd.to_datetime(self.df['연도'].astype(str) + '-12-31')
+        # 리밸런싱 날짜 설정 (4월 1일 기준)
+        self.df['rebal_date'] = pd.to_datetime(self.df['연도'].astype(str) + '-04-01')
         
         # 다음해 수익률 계산 (t+1 수익률)
         self.df = self.df.sort_values(['거래소코드', '연도'])
@@ -713,19 +878,15 @@ class FactorBacktester:
         if len(normal_data) == len(backtest_data):
             print("  ⚠️ 모든 기업이 정상기업으로 분류되었습니다. 구분 분석이 의미가 없습니다.")
         
-        # 팩터 시그널 매핑
+        # 팩터 시그널 매핑 (업데이트된 버전)
         factor_signals = {
             'Magic Formula': 'magic_signal',
             'EV/EBITDA': 'ev_ebitda_signal',
-            'Book-to-Market': 'bm',
-            'Momentum 12-1': 'mom',
-            'Piotroski': 'fscore',
+            f'Momentum {self.momentum_period}m': 'mom',
+            'F-score': 'fscore',
             'QMJ': 'qmj',
             'LowVol': 'lowvol',
-            'SMB': 'smb',
-            'HML': 'hml',
-            'DOL': 'DOL',
-            'DFL': 'DFL'
+            'FF3 Strategy': 'ff3_signal'
         }
         
         # 각 팩터별로 부실기업, 정상기업, 전체기업 백테스트
@@ -742,11 +903,11 @@ class FactorBacktester:
             else:
                 print(f"    ⚠️ 정상기업 데이터 부족 ({len(normal_data)}개), 건너뜀")
             
-            # 2) 부실기업 백테스트 (충분한 데이터가 있을 때만)
-            if len(default_data) > 50:  # 최소 50개 관측치 필요
-                self._run_group_backtest(default_data, signal_col, f"{strategy_name}_부실기업")
-            else:
-                print(f"    ⚠️ 부실기업 데이터 부족 ({len(default_data)}개), 건너뜀")
+            # 2) 부실기업 백테스트 SKIPPED - 정상기업, 전체기업만 분석
+            # if len(default_data) > 50:  # 최소 50개 관측치 필요
+            #     self._run_group_backtest(default_data, signal_col, f"{strategy_name}_부실기업")
+            # else:
+            #     print(f"    ⚠️ 부실기업 데이터 부족 ({len(default_data)}개), 건너뜀")
             
             # 3) 전체기업 백테스트 (항상 실행)
             self._run_group_backtest(backtest_data, signal_col, f"{strategy_name}_전체기업")
@@ -768,7 +929,7 @@ class FactorBacktester:
         
         for date in rebal_dates:
             # 포트폴리오 구성
-            weights = self.construct_long_portfolio(data, signal_col, date, top_n=10)
+            weights = self.construct_long_portfolio(data, signal_col, date)
             
             if len(weights) == 0:
                 continue
@@ -825,16 +986,154 @@ class FactorBacktester:
             # 칼마 비율
             calmar = cagr / abs(max_dd) if max_dd != 0 else 0
             
+            # 최종 누적수익률 (새로 추가)
+            final_cum_return = cum_ret.iloc[-1] - 1  # 누적수익률 (%)
+            
             self.performance_stats[strategy_name] = {
                 'CAGR': cagr,
+                'CumulativeReturn': final_cum_return,  # 누적수익률 추가
                 'AnnVol': ann_vol,
                 'Sharpe': sharpe,
                 'MaxDD': max_dd,
                 'Calmar': calmar
             }
         
+        # 성과지표 출력 (새로 추가)
+        if self.performance_stats:
+            print("\n" + "="*80)
+            print("📊 성과지표 요약")
+            print("="*80)
+            
+            stats_df = pd.DataFrame(self.performance_stats).T
+            
+            # 콘솔 출력용: CAGR과 CumulativeReturn을 %로 표시
+            stats_df_display = stats_df.copy()
+            for col in ['CAGR', 'CumulativeReturn']:
+                if col in stats_df_display.columns:
+                    stats_df_display[col] = stats_df_display[col] * 100
+            
+            # 컬럼명을 한글로 변경
+            column_mapping = {
+                'CAGR': 'CAGR(%)',
+                'CumulativeReturn': '누적수익률(%)',
+                'AnnVol': '연간변동성',
+                'Sharpe': '샤프비율',
+                'MaxDD': '최대낙폭',
+                'Calmar': '칼마비율'
+            }
+            stats_df_display = stats_df_display.rename(columns=column_mapping)
+            
+            print(stats_df_display.round(2))
+            
+            # 정상기업 vs 전체기업 비교 분석
+            self._print_performance_comparison(stats_df_display)
+        
         print("✅ 성과지표 계산 완료")
         return self
+    
+    def _print_performance_comparison(self, stats_df_display):
+        """정상기업 vs 전체기업 성과 비교 분석"""
+        print("\n" + "="*80)
+        print("🔍 정상기업 vs 전체기업 성과 비교")
+        print("="*80)
+        
+        # 전략별로 정상기업과 전체기업 비교
+        normal_strategies = [idx for idx in stats_df_display.index if '_정상기업' in idx]
+        
+        if not normal_strategies:
+            print("   정상기업 전략 데이터가 없습니다.")
+            return
+        
+        comparison_data = []
+        
+        for normal_strategy in normal_strategies:
+            factor_name = normal_strategy.replace('_정상기업', '')
+            all_strategy = f"{factor_name}_전체기업"
+            
+            if all_strategy in stats_df_display.index:
+                normal_stats = stats_df_display.loc[normal_strategy]
+                all_stats = stats_df_display.loc[all_strategy]
+                
+                # 주요 지표 비교
+                cagr_diff = normal_stats['CAGR(%)'] - all_stats['CAGR(%)']
+                sharpe_diff = normal_stats['샤프비율'] - all_stats['샤프비율']
+                
+                comparison_data.append({
+                    '전략': factor_name,
+                    '정상기업_CAGR(%)': normal_stats['CAGR(%)'],
+                    '전체기업_CAGR(%)': all_stats['CAGR(%)'],
+                    'CAGR_차이(%)': cagr_diff,
+                    '정상기업_샤프': normal_stats['샤프비율'],
+                    '전체기업_샤프': all_stats['샤프비율'],
+                    '샤프_차이': sharpe_diff
+                })
+        
+        if comparison_data:
+            comparison_df = pd.DataFrame(comparison_data)
+            print(comparison_df.round(2))
+            
+            # 요약 분석
+            print(f"\n📈 분석 결과:")
+            avg_cagr_diff = comparison_df['CAGR_차이(%)'].mean()
+            avg_sharpe_diff = comparison_df['샤프_차이'].mean()
+            
+            print(f"   평균 CAGR 차이: {avg_cagr_diff:.2f}%p ({'정상기업 우세' if avg_cagr_diff > 0 else '전체기업 우세'})")
+            print(f"   평균 샤프비율 차이: {avg_sharpe_diff:.3f} ({'정상기업 우세' if avg_sharpe_diff > 0 else '전체기업 우세'})")
+            
+            # 가장 큰 차이를 보이는 전략
+            max_cagr_diff_idx = comparison_df['CAGR_차이(%)'].abs().idxmax()
+            max_sharpe_diff_idx = comparison_df['샤프_차이'].abs().idxmax()
+            
+            best_cagr_strategy = comparison_df.loc[max_cagr_diff_idx]
+            best_sharpe_strategy = comparison_df.loc[max_sharpe_diff_idx]
+            
+            print(f"   CAGR 차이 최대: {best_cagr_strategy['전략']} ({best_cagr_strategy['CAGR_차이(%)']:.2f}%p)")
+            print(f"   샤프비율 차이 최대: {best_sharpe_strategy['전략']} ({best_sharpe_strategy['샤프_차이']:.3f})")
+    
+    def _generate_comparison_html(self, stats_df):
+        """정상기업 vs 전체기업 비교표 HTML 생성"""
+        normal_strategies = [idx for idx in stats_df.index if '_정상기업' in idx]
+        
+        if not normal_strategies:
+            return ""
+        
+        comparison_data = []
+        
+        for normal_strategy in normal_strategies:
+            factor_name = normal_strategy.replace('_정상기업', '')
+            all_strategy = f"{factor_name}_전체기업"
+            
+            if all_strategy in stats_df.index:
+                normal_stats = stats_df.loc[normal_strategy]
+                all_stats = stats_df.loc[all_strategy]
+                
+                # %로 변환
+                normal_cagr = normal_stats['CAGR'] * 100
+                all_cagr = all_stats['CAGR'] * 100
+                cagr_diff = normal_cagr - all_cagr
+                sharpe_diff = normal_stats['Sharpe'] - all_stats['Sharpe']
+                
+                comparison_data.append({
+                    '전략': factor_name,
+                    '정상기업_CAGR(%)': f"{normal_cagr:.2f}%",
+                    '전체기업_CAGR(%)': f"{all_cagr:.2f}%",
+                    'CAGR_차이': f"{cagr_diff:+.2f}%p",
+                    '정상기업_샤프': f"{normal_stats['Sharpe']:.3f}",
+                    '전체기업_샤프': f"{all_stats['Sharpe']:.3f}",
+                    '샤프_차이': f"{sharpe_diff:+.3f}"
+                })
+        
+        if not comparison_data:
+            return ""
+        
+        comparison_df = pd.DataFrame(comparison_data)
+        
+        return f"""
+        <div style="margin-top: 30px;">
+            <h3 style="color: #333; font-family: Arial, sans-serif;">🔍 정상기업 vs 전체기업 성과 비교</h3>
+            {comparison_df.to_html(classes='table table-striped', table_id='comparison-table', escape=False, index=False)}
+        </div>
+        """
     
     def plot_results(self):
         """6단계: 시각화"""
@@ -844,28 +1143,102 @@ class FactorBacktester:
             print("  ⚠️ 백테스트 결과가 없습니다.")
             return self
         
-        # 부실기업 vs 정상기업 비교 차트 생성
-        # 팩터별로 그룹화
+        if not PLOTLY_AVAILABLE:
+            return self._plot_results_matplotlib()
+        else:
+            return self._plot_results_plotly()
+    
+    def _plot_results_matplotlib(self):
+        """Matplotlib을 사용한 시각화 (plotly 대안)"""
+        print("  📊 Matplotlib을 사용한 시각화 생성 중...")
+        
+        # 정상기업 vs 전체기업 비교 차트 생성
         factor_groups = {}
         for strategy_name in self.factor_returns.keys():
-            # 전략명에서 팩터명 추출 (예: "Magic Formula_정상기업" -> "Magic Formula")
             if '_정상기업' in strategy_name:
                 factor_name = strategy_name.replace('_정상기업', '')
                 if factor_name not in factor_groups:
                     factor_groups[factor_name] = {}
                 factor_groups[factor_name]['정상기업'] = strategy_name
-            elif '_부실기업' in strategy_name:
-                factor_name = strategy_name.replace('_부실기업', '')
-                if factor_name not in factor_groups:
-                    factor_groups[factor_name] = {}
-                factor_groups[factor_name]['부실기업'] = strategy_name
             elif '_전체기업' in strategy_name:
                 factor_name = strategy_name.replace('_전체기업', '')
                 if factor_name not in factor_groups:
                     factor_groups[factor_name] = {}
                 factor_groups[factor_name]['전체기업'] = strategy_name
         
-        # 팩터별 서브플롯 생성
+        n_factors = len(factor_groups)
+        if n_factors == 0:
+            print("  ⚠️ 플롯할 팩터 그룹이 없습니다.")
+            return self
+        
+        # 서브플롯 생성
+        cols = 2
+        rows = (n_factors + cols - 1) // cols
+        
+        fig, axes = plt.subplots(rows, cols, figsize=(15, 5*rows))
+        if rows == 1 and cols == 1:
+            axes = [axes]
+        elif rows == 1 or cols == 1:
+            axes = axes.flatten()
+        else:
+            axes = axes.flatten()
+        
+        # 사용하지 않는 서브플롯 숨기기
+        for i in range(n_factors, len(axes)):
+            axes[i].set_visible(False)
+        
+        colors = {'정상기업': 'blue', '전체기업': 'gray'}
+        
+        for i, (factor_name, group_strategies) in enumerate(factor_groups.items()):
+            ax = axes[i]
+            
+            # 각 그룹별 누적수익률 차트 추가
+            for group_name, strategy_name in group_strategies.items():
+                if strategy_name in self.factor_returns:
+                    returns_df = self.factor_returns[strategy_name]
+                    if len(returns_df) > 0:
+                        cum_ret = (1 + returns_df['return']).cumprod()
+                        ax.plot(cum_ret.index, cum_ret.values, 
+                               label=f"{group_name}", 
+                               color=colors.get(group_name, 'black'),
+                               linewidth=2)
+            
+            ax.axhline(y=1, color='black', linestyle='--', alpha=0.5, label='기준선 (0%)')
+            ax.set_title(factor_name)
+            ax.set_xlabel('연도')
+            ax.set_ylabel('누적수익률')
+            ax.legend()
+            ax.grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        
+        # 파일 저장
+        output_path = os.path.join(self.output_dir, 'factor_performance_charts.png')
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        print(f"  📊 차트 저장: {output_path}")
+        
+        # plt.show() 주석 처리 - 콘솔 출력 방지
+        # plt.show()
+        plt.close()  # 메모리 정리
+        
+        return self
+    
+    def _plot_results_plotly(self):
+        """Plotly를 사용한 시각화"""
+        # 정상기업 vs 전체기업 비교 차트 생성
+        factor_groups = {}
+        for strategy_name in self.factor_returns.keys():
+            if '_정상기업' in strategy_name:
+                factor_name = strategy_name.replace('_정상기업', '')
+                if factor_name not in factor_groups:
+                    factor_groups[factor_name] = {}
+                factor_groups[factor_name]['정상기업'] = strategy_name
+            elif '_전체기업' in strategy_name:
+                factor_name = strategy_name.replace('_전체기업', '')
+                if factor_name not in factor_groups:
+                    factor_groups[factor_name] = {}
+                factor_groups[factor_name]['전체기업'] = strategy_name
+        
         n_factors = len(factor_groups)
         if n_factors == 0:
             return self
@@ -882,11 +1255,9 @@ class FactorBacktester:
             horizontal_spacing=0.1
         )
         
-        # 색상 설정
-        colors = {'정상기업': 'blue', '부실기업': 'red', '전체기업': 'gray'}
+        colors = {'정상기업': 'blue', '전체기업': 'gray'}
         
         for i, (factor_name, group_strategies) in enumerate(factor_groups.items()):
-            # 행, 열 위치 계산
             row = (i // cols) + 1
             col = (i % cols) + 1
             
@@ -902,58 +1273,98 @@ class FactorBacktester:
                                 x=cum_ret.index,
                                 y=cum_ret.values,
                                 name=f"{factor_name}_{group_name}",
-                                line=dict(color=colors.get(group_name, 'black')),
-                                showlegend=(i == 0)  # 첫 번째 차트에만 범례 표시
+                                line=dict(color=colors.get(group_name, 'black'), width=2),
+                                showlegend=(i == 0)
                             ),
                             row=row, col=col
                         )
         
         # 레이아웃 업데이트
         fig.update_layout(
-            title="팩터별 부실기업 vs 정상기업 누적수익률 비교",
+            title="팩터별 정상기업 vs 전체기업 누적수익률 비교 (FF3 통합 버전)",
             font=dict(family='AppleGothic'),
-            height=300 * rows,
+            height=350 * rows,
             showlegend=True
         )
         
-        # X축, Y축 라벨 설정
-        for i in range(1, rows + 1):
-            for j in range(1, cols + 1):
-                fig.update_xaxes(title_text="연도", row=i, col=j)
-                fig.update_yaxes(title_text="누적수익률", row=i, col=j)
+        # y축 제목 업데이트
+        fig.update_yaxes(title_text="누적수익률")
         
-        # 차트 표시 및 저장
+        # 파일 저장
         output_path = os.path.join(self.output_dir, 'factor_performance_charts.html')
         fig.write_html(output_path)
-        print(f"  📊 차트 저장: {output_path}")
         
-        fig.show()
-        
-        # 그룹별 성과지표 비교 출력
+        # 성과지표 테이블을 HTML에 추가
         if self.performance_stats:
-            print("\n📊 부실기업 vs 정상기업 성과 비교:")
-            print("=" * 100)
-            
-            # 팩터별로 그룹화하여 출력
-            for factor_name in factor_groups.keys():
-                print(f"\n🎯 {factor_name}")
-                print("-" * 60)
-                
-                # 해당 팩터의 각 그룹별 성과지표 출력
-                for group_name in ['정상기업', '부실기업', '전체기업']:
-                    strategy_name = f"{factor_name}_{group_name}"
-                    if strategy_name in self.performance_stats:
-                        stats = self.performance_stats[strategy_name]
-                        print(f"   {group_name:>6}: CAGR {stats['CAGR']:>7.2%} | "
-                              f"변동성 {stats['AnnVol']:>6.2%} | "
-                              f"샤프 {stats['Sharpe']:>6.3f} | "
-                              f"MDD {stats['MaxDD']:>7.2%} | "
-                              f"칼마 {stats['Calmar']:>6.3f}")
-            
-            # 전체 성과지표 테이블
+            import pandas as pd
             stats_df = pd.DataFrame(self.performance_stats).T
-            print(f"\n📋 전체 성과지표 요약표:")
-            print(stats_df.round(4))
+            
+            # CAGR과 CumulativeReturn을 %로 변환
+            stats_df_formatted = stats_df.copy()
+            if 'CAGR' in stats_df_formatted.columns:
+                stats_df_formatted['CAGR'] = (stats_df_formatted['CAGR'] * 100).round(2).astype(str) + '%'
+            if 'CumulativeReturn' in stats_df_formatted.columns:
+                stats_df_formatted['CumulativeReturn'] = (stats_df_formatted['CumulativeReturn'] * 100).round(2).astype(str) + '%'
+            
+            # HTML 파일 읽기
+            with open(output_path, 'r', encoding='utf-8') as f:
+                html_content = f.read()
+            
+            # 컬럼명을 한글로 변경 (HTML용)
+            column_mapping = {
+                'CAGR': 'CAGR',
+                'CumulativeReturn': '누적수익률',
+                'AnnVol': '연간변동성',
+                'Sharpe': '샤프비율',
+                'MaxDD': '최대낙폭',
+                'Calmar': '칼마비율'
+            }
+            stats_df_formatted = stats_df_formatted.rename(columns=column_mapping)
+            
+            # 정상기업 vs 전체기업 비교표 생성
+            comparison_html = self._generate_comparison_html(stats_df)
+            
+            # 성과지표 테이블 HTML 생성
+            stats_table_html = f"""
+            <div style="margin-top: 50px; padding: 20px; background-color: #f8f9fa; border-radius: 10px;">
+                <h2 style="color: #333; font-family: Arial, sans-serif;">📊 성과지표 요약</h2>
+                {stats_df_formatted.to_html(classes='table table-striped', table_id='performance-table', escape=False)}
+                
+                {comparison_html}
+                <style>
+                    #performance-table {{
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 15px;
+                        font-family: Arial, sans-serif;
+                    }}
+                    #performance-table th, #performance-table td {{
+                        padding: 8px 12px;
+                        text-align: right;
+                        border: 1px solid #ddd;
+                    }}
+                    #performance-table th {{
+                        background-color: #e9ecef;
+                        font-weight: bold;
+                    }}
+                    #performance-table tr:nth-child(even) {{
+                        background-color: #f8f9fa;
+                    }}
+                </style>
+            </div>
+            """
+            
+            # HTML에 테이블 추가
+            html_content = html_content.replace('</body>', f'{stats_table_html}</body>')
+            
+            # 수정된 HTML 저장
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(html_content)
+        
+        print(f"  📊 차트 및 성과지표 저장: {output_path}")
+        
+        # fig.show() 주석 처리 - 콘솔에 HTML 코드 출력 방지
+        # fig.show()
         
         print("✅ 시각화 완료")
         return self
@@ -986,34 +1397,140 @@ class FactorBacktester:
         
         # 요약 출력
         print("\n" + "="*60)
-        print("📊 FACTOR BACKTESTING SUMMARY (Long-Only Top-10)")
+        print("📊 FACTOR BACKTESTING SUMMARY (Updated Version)")
         print("="*60)
+        print("🎯 전략 구성 (7개):")
+        print("   1. Magic Formula")
+        print("   2. EV/EBITDA") 
+        print("   3. Momentum")
+        print("   4. F-score")
+        print("   5. QMJ")
+        print("   6. Low Volatility")
+        print("   7. FF3 Strategy (통합) ⭐")
         
         if self.performance_stats:
+            print("\n📈 성과 요약:")
             for strategy, stats in self.performance_stats.items():
-                print(f"\n🎯 {strategy}")
-                print(f"   CAGR: {stats['CAGR']:.2%}")
-                print(f"   샤프비율: {stats['Sharpe']:.3f}")
-                print(f"   최대낙폭: {stats['MaxDD']:.2%}")
-                print(f"   칼마비율: {stats['Calmar']:.3f}")
+                if 'FF3' in strategy:
+                    print(f"\n🎯 {strategy}")
+                    print(f"   CAGR: {stats['CAGR']:.2%}")
+                    print(f"   샤프비율: {stats['Sharpe']:.3f}")
+                    print(f"   최대낙폭: {stats['MaxDD']:.2%}")
+                    print(f"   칼마비율: {stats['Calmar']:.3f}")
         
         return self
 
+    def build_ff3_factors(self, start_date, end_date, smb_series, hml_series):
+        """FF-3 FACTOR BUILDER (monthly → annual)"""
+        print(f"Building FF3 factors from {start_date} to {end_date}")
+        
+        # Convert dates for pykrx API calls
+        start_dt = pd.to_datetime(start_date)
+        end_dt = pd.to_datetime(end_date)
+        
+        if PYKRX_AVAILABLE:
+            # KOSPI price index (monthly close)
+            kospi_data = stock.get_index_ohlcv(
+                start_dt.strftime('%Y%m%d'), 
+                end_dt.strftime('%Y%m%d'), 
+                "1001"
+            )["종가"]
+            
+            # CD(91일) daily yields
+            cd_data = bond.get_otc_treasury_yields(
+                start_dt.strftime('%Y%m%d'),
+                end_dt.strftime('%Y%m%d'), 
+                "CD(91일)"
+            )["수익률"] / 100
+        else:
+            # Mock data for testing when pykrx is not available
+            print("Using mock data for testing (pykrx not available)")
+            date_range = pd.date_range(start_dt, end_dt, freq='M')
+            kospi_data = pd.Series(
+                np.random.normal(0.01, 0.05, len(date_range)) * 100 + 2000,
+                index=date_range
+            )
+            cd_data = pd.Series(
+                np.random.normal(0.02, 0.01, len(date_range)),
+                index=date_range
+            )
+        
+        # Convert to monthly data (end of month)
+        kospi_monthly = kospi_data.resample('M').last().pct_change()
+        cd_monthly = cd_data.resample('M').last()
+        
+        # Align all series to same monthly index
+        common_idx = kospi_monthly.index.intersection(cd_monthly.index)
+        common_idx = common_idx.intersection(smb_series.index)
+        common_idx = common_idx.intersection(hml_series.index)
+        
+        kospi_monthly = kospi_monthly.reindex(common_idx)
+        cd_monthly = cd_monthly.reindex(common_idx)
+        smb_monthly = smb_series.reindex(common_idx)
+        hml_monthly = hml_series.reindex(common_idx)
+        
+        # Create annual periods (Apr-Mar)
+        monthly_df = pd.DataFrame({
+            'MKT': kospi_monthly,
+            'RF': cd_monthly,
+            'SMB': smb_monthly,
+            'HML': hml_monthly
+        })
+        
+        # Group by annual periods (Apr-Mar)
+        monthly_df.index = pd.to_datetime(monthly_df.index)
+        annual_groups = monthly_df.groupby(pd.Grouper(freq='A-APR'))
+        
+        # Calculate annual cumulative returns
+        annual_factors = []
+        for period, group in annual_groups:
+            if len(group) >= 6:  # Minimum 6 months of data
+                mkt_annual = (1 + group['MKT'].fillna(0)).prod() - 1
+                rf_annual = (1 + group['RF'].fillna(0)).prod() - 1
+                smb_annual = (1 + group['SMB'].fillna(0)).prod() - 1
+                hml_annual = (1 + group['HML'].fillna(0)).prod() - 1
+                
+                annual_factors.append({
+                    'period': period,
+                    'MKT_RF': mkt_annual - rf_annual,
+                    'SMB': smb_annual,
+                    'HML': hml_annual
+                })
+        
+        ff3_df = pd.DataFrame(annual_factors).set_index('period')
+        ff3_df.index = pd.PeriodIndex(ff3_df.index, freq='A-APR')
+        
+        return ff3_df
+
 def main():
     """메인 실행 함수"""
-    parser = argparse.ArgumentParser(description='Factor Backtesting - Long-Only Top-10 Equal-Weight')
+    parser = argparse.ArgumentParser(description='Factor Backtesting - Updated Version with FF3 Integration')
     parser.add_argument('--data_path', type=str, default='data/processed', 
                        help='Data directory path (default: data/processed)')
     parser.add_argument('--output_dir', type=str, default='outputs/backtesting',
                        help='Output directory path (default: outputs/backtesting)')
+    parser.add_argument('--top_n', '-t', type=int, default=10,
+                       help='Number of top stocks to select (default: 10)')
+    parser.add_argument('--fscore_min_score', '-f', type=int, default=8,
+                       help='Minimum F-Score for selection (default: 8)')
+    parser.add_argument('--momentum_period', '-m', type=int, default=12,
+                       help='Momentum period in months (default: 12)')
     
     args = parser.parse_args()
     
-    print("🚀 Factor Investing Backtesting 시작 (Long-Only Top-10)")
+    print(f"🚀 Factor Investing Backtesting 시작 (Updated with FF3 Integration)")
+    print(f"📊 F-Score 최소 점수: {args.fscore_min_score}점")
+    print(f"📈 모멘텀 기간: {args.momentum_period}개월")
     print("="*60)
     
     # 백테스터 초기화 및 실행
-    backtester = FactorBacktester(data_path=args.data_path, output_dir=args.output_dir)
+    backtester = FactorBacktester(
+        data_path=args.data_path, 
+        output_dir=args.output_dir,
+        top_n=args.top_n,
+        fscore_min_score=args.fscore_min_score,
+        momentum_period=args.momentum_period
+    )
     
     backtester.load_data() \
               .compute_features() \
@@ -1025,6 +1542,22 @@ def main():
     
     print("\n🎉 백테스트 완료!")
     return backtester
+
+def example_ff3():
+    """FF3 팩터 사용 예시"""
+    print("FF3 Factor Builder Example")
+    
+    # 예시: 월간 SMB, HML 시리즈 로드 (CSV 파일에서)
+    try:
+        sm = pd.read_csv('smb.csv', index_col=0).iloc[:, 0]  # squeeze=True 대신
+        hm = pd.read_csv('hml.csv', index_col=0).iloc[:, 0]  # squeeze=True 대신
+        
+        # FF3 팩터 구축
+        backtester = FactorBacktester()
+        ff3 = backtester.build_ff3_factors("2000-01", "2025-06", sm, hm)
+        print(ff3.tail())
+    except FileNotFoundError:
+        print("SMB/HML CSV files not found. Please provide monthly factor series.")
 
 if __name__ == "__main__":
     results = main()

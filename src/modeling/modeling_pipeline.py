@@ -2196,11 +2196,11 @@ class ModelingPipeline:
                 'CV_F1_Mean': cv_metrics.get('cv_f1_mean', 0),
                 'Val_AUC': val_metrics.get('auc', 0),
                 'Val_F1': val_metrics.get('f1', 0),
-                'Test_AUC': test_metrics.get('auc', 0),
-                'Test_Precision': test_metrics.get('precision', 0),
-                'Test_Recall': test_metrics.get('recall', 0),
-                'Test_F1': test_metrics.get('f1', 0),
-                'Test_Balanced_Acc': test_metrics.get('balanced_accuracy', 0),
+                'Test_AUC': test_metrics.get('roc_auc', 0),
+                'Test_Precision': test_metrics.get('precision_optimal', test_metrics.get('precision_default', 0)),
+                'Test_Recall': test_metrics.get('recall_optimal', test_metrics.get('recall_default', 0)),
+                'Test_F1': test_metrics.get('f1_optimal', test_metrics.get('f1_default', 0)),
+                'Test_Balanced_Acc': test_metrics.get('balanced_accuracy_optimal', 0),
                 'Test_Average_Precision': test_metrics.get('average_precision', 0)
             })
         
@@ -2400,9 +2400,9 @@ class ModelingPipeline:
             # test_metrics 구조 확인 후 안전하게 접근
             test_metrics = result.get('test_metrics', {})
             metric_values['test_auc'].append(test_metrics.get('auc', test_metrics.get('roc_auc', 0)))
-            metric_values['test_f1'].append(test_metrics.get('f1', 0))
-            metric_values['test_precision'].append(test_metrics.get('precision', 0))
-            metric_values['test_recall'].append(test_metrics.get('recall', 0))
+            metric_values['test_f1'].append(test_metrics.get('f1_optimal', test_metrics.get('f1_default', 0)))
+            metric_values['test_precision'].append(test_metrics.get('precision_optimal', test_metrics.get('precision_default', 0)))
+            metric_values['test_recall'].append(test_metrics.get('recall_optimal', test_metrics.get('recall_default', 0)))
         
         # 서브플롯 생성
         fig, axes = plt.subplots(2, 2, figsize=(15, 12))
@@ -2783,11 +2783,11 @@ class ModelingPipeline:
                     if metric == 'test_auc':
                         score = test_metrics.get('auc', test_metrics.get('roc_auc', 0))
                     elif metric == 'test_f1':
-                        score = test_metrics.get('f1', 0)
+                        score = test_metrics.get('f1_optimal', test_metrics.get('f1_default', 0))
                     elif metric == 'test_precision':
-                        score = test_metrics.get('precision', 0)
+                        score = test_metrics.get('precision_optimal', test_metrics.get('precision_default', 0))
                     elif metric == 'test_recall':
-                        score = test_metrics.get('recall', 0)
+                        score = test_metrics.get('recall_optimal', test_metrics.get('recall_default', 0))
                     else:
                         score = result.get(metric, 0)
                     
