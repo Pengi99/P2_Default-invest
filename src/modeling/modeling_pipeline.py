@@ -25,6 +25,8 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Tuple, Any, Optional, Union
 import joblib
+import matplotlib
+matplotlib.use('Agg')  # 헤드리스 환경에서 사용
 import matplotlib.pyplot as plt
 import seaborn as sns
 warnings.filterwarnings('ignore')
@@ -39,7 +41,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_validate
 from sklearn.metrics import (
     roc_auc_score, precision_score, recall_score, f1_score,
-    classification_report, confusion_matrix, roc_curve, auc,
+    classification_report, confusion_matrix, roc_curve,
     precision_recall_curve, average_precision_score, balanced_accuracy_score
 )
 from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler
@@ -78,10 +80,12 @@ class ModelingPipeline:
         
         # 실행 정보 설정
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.run_name = f"{self.config['experiment']['name']}_{self.timestamp}"
+        experiment_name = self.config.get('experiment', {}).get('name', 'default_modeling_run')
+        self.run_name = f"{experiment_name}_{self.timestamp}"
         
         # 출력 디렉토리 설정 (로거 설정 전에 해야 함)
-        self.output_dir = self.project_root / self.config['output']['base_dir'] / self.run_name
+        output_base_dir = self.config.get('output', {}).get('base_dir', 'outputs/modeling_runs')
+        self.output_dir = self.project_root / output_base_dir / self.run_name
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
         # 하위 디렉토리 생성
@@ -125,7 +129,14 @@ class ModelingPipeline:
     def _setup_logging(self) -> logging.Logger:
         """로깅 설정"""
         logger = logging.getLogger('ModelingPipeline')
-        logger.setLevel(getattr(logging, self.config['logging']['level']))
+        
+        # 로깅 레벨 설정 (안전하게)
+        logging_config = self.config.get('logging', {})
+        log_level = logging_config.get('level', 'INFO')
+        try:
+            logger.setLevel(getattr(logging, log_level))
+        except AttributeError:
+            logger.setLevel(logging.INFO)
         
         # 핸들러 제거 (중복 방지)
         for handler in logger.handlers[:]:
@@ -138,7 +149,7 @@ class ModelingPipeline:
         logger.addHandler(console_handler)
         
         # 파일 핸들러
-        if self.config['logging']['save_to_file']:
+        if logging_config.get('save_to_file', True):
             log_dir = self.output_dir / 'logs'
             log_dir.mkdir(parents=True, exist_ok=True)
             
@@ -159,21 +170,38 @@ class ModelingPipeline:
             data_path = self.project_root / self.data_path_override
             self.logger.info(f"오버라이드된 데이터 경로 사용: {self.data_path_override}")
         else:
-            data_path = self.project_root / self.config['data']['input_path']
-            self.logger.info(f"기본 데이터 경로 사용: {self.config['data']['input_path']}")
+            default_path = self.config.get('data', {}).get('input_path', 'data/final')
+            data_path = self.project_root / default_path
+            self.logger.info(f"기본 데이터 경로 사용: {default_path}")
         
-        # 데이터 로드
-        self.data['normal'] = {
-            'X_train': pd.read_csv(data_path / self.config['data']['files']['X_train']),
-            'X_val': pd.read_csv(data_path / self.config['data']['files']['X_val']),
-            'X_test': pd.read_csv(data_path / self.config['data']['files']['X_test']),
-            'y_train': pd.read_csv(data_path / self.config['data']['files']['y_train']).iloc[:, 0],
-            'y_val': pd.read_csv(data_path / self.config['data']['files']['y_val']).iloc[:, 0],
-            'y_test': pd.read_csv(data_path / self.config['data']['files']['y_test']).iloc[:, 0]
+        # 파일 이름 설정 (기본값 제공)
+        data_files = self.config.get('data', {}).get('files', {})
+        file_names = {
+            'X_train': data_files.get('X_train', 'X_train.csv'),
+            'X_val': data_files.get('X_val', 'X_val.csv'),
+            'X_test': data_files.get('X_test', 'X_test.csv'),
+            'y_train': data_files.get('y_train', 'y_train.csv'),
+            'y_val': data_files.get('y_val', 'y_val.csv'),
+            'y_test': data_files.get('y_test', 'y_test.csv')
         }
         
+        # 데이터 로드 (안전하게)
+        try:
+            self.data['normal'] = {
+                'X_train': pd.read_csv(data_path / file_names['X_train']),
+                'X_val': pd.read_csv(data_path / file_names['X_val']),
+                'X_test': pd.read_csv(data_path / file_names['X_test']),
+                'y_train': pd.read_csv(data_path / file_names['y_train']).iloc[:, 0],
+                'y_val': pd.read_csv(data_path / file_names['y_val']).iloc[:, 0],
+                'y_test': pd.read_csv(data_path / file_names['y_test']).iloc[:, 0]
+            }
+        except Exception as e:
+            self.logger.error(f"데이터 로드 중 오류: {e}")
+            raise
+        
         # 활성화된 데이터 타입별로 복사 (동적 샘플링을 위해)
-        enabled_data_types = [dt for dt, config in self.config['sampling']['data_types'].items() if config['enabled']]
+        sampling_config = self.config.get('sampling', {}).get('data_types', {})
+        enabled_data_types = [dt for dt, config in sampling_config.items() if config.get('enabled', False)]
         for data_type in enabled_data_types:
             if data_type != 'normal':
                 self.data[data_type] = {k: v.copy() for k, v in self.data['normal'].items()}
@@ -244,7 +272,7 @@ class ModelingPipeline:
                 # BorderlineSMOTE 시도
                 smote = BorderlineSMOTE(
                     sampling_strategy=config['sampling_strategy'],
-                        random_state=config.get('random_state', self.config['random_state']),
+                        random_state=config.get('random_state', self.config.get('random_state', 42)),
                         k_neighbors=k_neighbors,
                         m_neighbors=min(config.get('m_neighbors', 10), k_neighbors),
                         kind=config.get('kind', 'borderline-1')
@@ -259,7 +287,7 @@ class ModelingPipeline:
                     from imblearn.over_sampling import SMOTE
                     smote = SMOTE(
                         sampling_strategy=config['sampling_strategy'],
-                        random_state=config.get('random_state', self.config['random_state']),
+                        random_state=config.get('random_state', self.config.get('random_state', 42)),
                         k_neighbors=k_neighbors
                     )
                     X_resampled, y_resampled = smote.fit_resample(X, y)
@@ -275,7 +303,7 @@ class ModelingPipeline:
             if method == 'random':
                 undersampler = RandomUnderSampler(
                     sampling_strategy=config['sampling_strategy'],
-                    random_state=config.get('random_state', self.config['random_state'])
+                    random_state=config.get('random_state', self.config.get('random_state', 42))
                 )
             elif method == 'edited_nearest_neighbours':
                 from imblearn.under_sampling import EditedNearestNeighbours
@@ -290,7 +318,7 @@ class ModelingPipeline:
                 self.logger.warning(f"지원하지 않는 언더샘플링 방법: {method}, RandomUnderSampler 사용")
                 undersampler = RandomUnderSampler(
                     sampling_strategy=config['sampling_strategy'],
-                    random_state=config.get('random_state', self.config['random_state'])
+                    random_state=config.get('random_state', self.config.get('random_state', 42))
                 )
             
             X_resampled, y_resampled = undersampler.fit_resample(X, y)
@@ -386,7 +414,7 @@ class ModelingPipeline:
                 # BorderlineSMOTE 시도
                 smote = BorderlineSMOTE(
                         sampling_strategy=smote_config['sampling_strategy'],
-                        random_state=smote_config.get('random_state', self.config['random_state']),
+                        random_state=smote_config.get('random_state', self.config.get('random_state', 42)),
                         k_neighbors=k_neighbors,
                         m_neighbors=min(smote_config.get('m_neighbors', 10), k_neighbors),
                         kind=smote_config.get('kind', 'borderline-1')
@@ -400,7 +428,7 @@ class ModelingPipeline:
                     from imblearn.over_sampling import SMOTE
                     smote = SMOTE(
                         sampling_strategy=smote_config['sampling_strategy'],
-                        random_state=smote_config.get('random_state', self.config['random_state']),
+                        random_state=smote_config.get('random_state', self.config.get('random_state', 42)),
                         k_neighbors=k_neighbors
                     )
                     X_smote, y_smote = smote.fit_resample(X, y)
@@ -417,7 +445,7 @@ class ModelingPipeline:
             if method == 'random':
                 undersampler = RandomUnderSampler(
                         sampling_strategy=undersampling_config['sampling_strategy'],
-                        random_state=undersampling_config.get('random_state', self.config['random_state'])
+                        random_state=undersampling_config.get('random_state', self.config.get('random_state', 42))
                     )
             elif method == 'edited_nearest_neighbours':
                 from imblearn.under_sampling import EditedNearestNeighbours
@@ -432,7 +460,7 @@ class ModelingPipeline:
                 self.logger.warning(f"지원하지 않는 언더샘플링 방법: {method}, RandomUnderSampler 사용")
                 undersampler = RandomUnderSampler(
                     sampling_strategy=undersampling_config['sampling_strategy'],
-                    random_state=undersampling_config.get('random_state', self.config['random_state'])
+                    random_state=undersampling_config.get('random_state', self.config.get('random_state', 42))
                 )
             
             X_combined, y_combined = undersampler.fit_resample(X_smote, y_smote)
@@ -457,7 +485,10 @@ class ModelingPipeline:
             tuple: (X_train_scaled, X_val_scaled, X_test_scaled, scalers)
         """
         if not self.config.get('scaling', {}).get('enabled', False):
-            self.logger.info(f"스케일링이 비활성화되어 있습니다 ({data_type.upper()})")
+            # 첫 번째 호출에서만 로그 출력 (중복 방지)
+            if not hasattr(self, '_scaling_disabled_logged'):
+                self.logger.info(f"스케일링이 비활성화되어 있습니다")
+                self._scaling_disabled_logged = True
             return X_train, X_val, X_test, {}
         
         # self.logger.info(f"스케일링 적용 시작 ({data_type.upper()})")  # 로그 제거
@@ -592,7 +623,10 @@ class ModelingPipeline:
             tuple: (X_train_transformed, X_val_transformed, X_test_transformed, transform_info)
         """
         if not self.config.get('scaling', {}).get('enabled', False):
-            self.logger.info(f"스케일링이 비활성화되어 있어 로그 변환도 건너뜁니다 ({data_type.upper()})")
+            # 첫 번째 호출에서만 로그 출력 (중복 방지)  
+            if not hasattr(self, '_log_transform_disabled_logged'):
+                self.logger.info(f"스케일링이 비활성화되어 있어 로그 변환도 건너뜁니다")
+                self._log_transform_disabled_logged = True
             return X_train, X_val, X_test, {}
         
         scaling_config = self.config['scaling']
@@ -717,7 +751,7 @@ class ModelingPipeline:
         from sklearn.pipeline import Pipeline
         
         config = self.config['feature_selection']['logistic_regression_cv']
-        cv_folds = self.config['cv_folds']  # 공통 config cv_folds 사용
+        cv_folds = self.config.get('cv_folds', 3)  # 공통 config cv_folds 사용
         
         # Pipeline을 사용하여 CV 내부에서 스케일링 적용
         pipeline = Pipeline([
@@ -729,7 +763,7 @@ class ModelingPipeline:
                 solver=config['solver'],
                 max_iter=config['max_iter'],
                 scoring=config.get('scoring', 'roc_auc'),
-                random_state=self.config['random_state'],
+                random_state=self.config.get('random_state', 42),
                 n_jobs=self.config.get('performance', {}).get('n_jobs', 1)
             ))
         ])
@@ -779,7 +813,7 @@ class ModelingPipeline:
         from sklearn.preprocessing import StandardScaler
         
         config = self.config['feature_selection']['lasso_cv']
-        cv_folds = self.config['cv_folds']  # 공통 config cv_folds 사용
+        cv_folds = self.config.get('cv_folds', 3)  # 공통 config cv_folds 사용
         
         # 스케일링
         scaler = StandardScaler()
@@ -789,7 +823,7 @@ class ModelingPipeline:
         lasso_cv = LassoCV(
             alphas=config['alphas'],
             cv=cv_folds,
-            random_state=self.config['random_state'],
+            random_state=self.config.get('random_state', 42),
             n_jobs=self.config.get('performance', {}).get('n_jobs', 1)
         )
         lasso_cv.fit(X_train_scaled, y_train)
@@ -839,7 +873,7 @@ class ModelingPipeline:
         
         if estimator_name == 'random_forest':
             estimator = RandomForestClassifier(
-                random_state=self.config['random_state'],
+                random_state=self.config.get('random_state', 42),
                 n_jobs=-1,
                 **estimator_params
             )
@@ -849,14 +883,14 @@ class ModelingPipeline:
             scaler = StandardScaler()
             X_train_processed = scaler.fit_transform(X_train)
             estimator = LogisticRegression(
-                random_state=self.config['random_state'],
+                random_state=self.config.get('random_state', 42),
                 **estimator_params
             )
         elif estimator_name == 'xgboost':
             estimator = xgb.XGBClassifier(
                 objective='binary:logistic',
                 eval_metric='auc',
-                random_state=self.config['random_state'],
+                random_state=self.config.get('random_state', 42),
                 n_jobs=-1,
                 verbosity=0,
                 **estimator_params
@@ -874,7 +908,7 @@ class ModelingPipeline:
         perm_importance = permutation_importance(
             estimator, X_train_processed, y_train,
             n_repeats=config.get('n_repeats', 10),
-            random_state=config.get('random_state', self.config['random_state']),
+            random_state=config.get('random_state', self.config.get('random_state', 42)),
             scoring=config.get('scoring', 'roc_auc'),
             n_jobs=self.config.get('performance', {}).get('n_jobs', 1)
         )
@@ -943,7 +977,7 @@ class ModelingPipeline:
         
         if estimator_name == 'random_forest':
             estimator = RandomForestClassifier(
-                random_state=self.config['random_state'],
+                random_state=self.config.get('random_state', 42),
                 n_jobs=-1,
                 **estimator_params
             )
@@ -954,14 +988,14 @@ class ModelingPipeline:
             X_train_scaled = scaler.fit_transform(X_train)
             X_train_processed = pd.DataFrame(X_train_scaled, columns=X_train.columns, index=X_train.index)
             estimator = LogisticRegression(
-                random_state=self.config['random_state'],
+                random_state=self.config.get('random_state', 42),
                 **estimator_params
             )
         elif estimator_name == 'xgboost':
             estimator = xgb.XGBClassifier(
                 objective='binary:logistic',
                 eval_metric='auc',
-                random_state=self.config['random_state'],
+                random_state=self.config.get('random_state', 42),
                 n_jobs=-1,
                 verbosity=0,
                 **estimator_params
@@ -1137,7 +1171,7 @@ class ModelingPipeline:
         config = self.config['models']['logistic_regression']
         optimization_config = self.config['models'].get('optimization', {})
         primary_metric = optimization_config.get('primary_metric', 'roc_auc')
-        cv_folds = self.config['cv_folds']  # 공통 config cv_folds 사용
+        cv_folds = self.config.get('cv_folds', 3)  # 공통 config cv_folds 사용
         
         # Config에서 class_weight 설정 가져오기
         class_weight = config.get('class_weight', None)
@@ -1173,7 +1207,7 @@ class ModelingPipeline:
                 'solver': solver,
                 'max_iter': max_iter,
                 'class_weight': class_weight,  # Config에서 가져온 클래스 가중치 적용
-                'random_state': self.config['random_state'],
+                'random_state': self.config.get('random_state', 42),
                 'tol': 1e-4  # 수렴 기준 완화
             }
             
@@ -1183,8 +1217,21 @@ class ModelingPipeline:
             model = LogisticRegression(**params)
             
             try:
-                # Cross validation with proper sampling (데이터 누수 방지)
-                scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=cv_folds, scoring=primary_metric)
+                # config에서 validation 방법 결정
+                validation_method = self.config.get('validation', {}).get('method', 'logistic_holdout')
+                
+                if validation_method == 'nested_cv':
+                    # Nested CV 사용 - 단일 trial에서는 inner CV만 수행
+                    scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=cv_folds, scoring=primary_metric)
+                elif validation_method == 'k_fold':
+                    # 기존 K-fold CV 사용
+                    scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=cv_folds, scoring=primary_metric)
+                else:  # logistic_holdout
+                    # 로지스틱 홀드아웃 + 반복 샘플링 사용
+                    holdout_config = self.config.get('validation', {}).get('logistic_holdout', {})
+                    n_iterations = holdout_config.get('n_iterations', 10)
+                    test_size = holdout_config.get('test_size', 0.2)
+                    scores = self._logistic_holdout_repeated_sampling(model, X_train, y_train, data_type, n_iterations=n_iterations, test_size=test_size, scoring=primary_metric)
             
                 return scores.mean()
                 
@@ -1192,16 +1239,17 @@ class ModelingPipeline:
                 # 모든 예외에 대해 낮은 점수 반환
                 return 0.5
         
-        study = optuna.create_study(direction='maximize', sampler=TPESampler(seed=self.config['random_state']))
+        study = optuna.create_study(direction='maximize', sampler=TPESampler(seed=self.config.get('random_state', 42)))
         
         # optuna 기본 로그만 억제 (trial finished 메시지 등)
         optuna.logging.set_verbosity(optuna.logging.WARNING)
         
-        # 콜백 함수로 진행상황 표시
+        # 콜백 함수로 진행상황 표시 (더 간결하게)
         def progress_callback(study, trial):
-            if trial.number % 5 == 0 or trial.number == config['n_trials'] - 1:
+            # 진행상황을 더 간결하게 출력
+            if trial.number == 0 or trial.number == config['n_trials'] // 2 or trial.number == config['n_trials'] - 1:
                 best_value = study.best_value if study.best_value else 0
-                self.logger.info(f"Trial {trial.number + 1}/{config['n_trials']} - Current: {trial.value:.4f}, Best: {best_value:.4f}")
+                self.logger.info(f"  Trial {trial.number + 1}/{config['n_trials']} - Current: {trial.value:.4f}, Best: {best_value:.4f}")
         
         study.optimize(objective, n_trials=config['n_trials'], callbacks=[progress_callback])
         
@@ -1247,7 +1295,7 @@ class ModelingPipeline:
         config = self.config['models']['random_forest']
         optimization_config = self.config['models'].get('optimization', {})
         primary_metric = optimization_config.get('primary_metric', 'roc_auc')
-        cv_folds = self.config['cv_folds']  # 공통 config cv_folds 사용
+        cv_folds = self.config.get('cv_folds', 3)  # 공통 config cv_folds 사용
         
         # Config에서 class_weight 설정 가져오기
         class_weight = config.get('class_weight', None)
@@ -1262,24 +1310,37 @@ class ModelingPipeline:
                 'min_samples_leaf': trial.suggest_int('min_samples_leaf', *config['min_samples_leaf_range']),
                 'max_features': trial.suggest_float('max_features', *config['max_features_range']),
                 'class_weight': class_weight,  # Config에서 가져온 클래스 가중치 적용
-                'random_state': self.config['random_state'],
+                'random_state': self.config.get('random_state', 42),
                 'n_jobs': -1
             }
             
             model = RandomForestClassifier(**params)
             
-            # Cross validation with proper sampling (데이터 누수 방지)
-            scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=cv_folds, scoring=primary_metric)
+            # config에서 validation 방법 결정
+            validation_method = self.config.get('validation', {}).get('method', 'logistic_holdout')
+            
+            if validation_method == 'nested_cv':
+                # Nested CV 사용 - 단일 trial에서는 inner CV만 수행
+                scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=cv_folds, scoring=primary_metric)
+            elif validation_method == 'k_fold':
+                # 기존 K-fold CV 사용
+                scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=cv_folds, scoring=primary_metric)
+            else:  # logistic_holdout
+                # 로지스틱 홀드아웃 + 반복 샘플링 사용
+                holdout_config = self.config.get('validation', {}).get('logistic_holdout', {})
+                n_iterations = holdout_config.get('n_iterations', 10)
+                test_size = holdout_config.get('test_size', 0.2)
+                scores = self._logistic_holdout_repeated_sampling(model, X_train, y_train, data_type, n_iterations=n_iterations, test_size=test_size, scoring=primary_metric)
             
             return scores.mean()
         
-        study = optuna.create_study(direction='maximize', sampler=TPESampler(seed=self.config['random_state']))
+        study = optuna.create_study(direction='maximize', sampler=TPESampler(seed=self.config.get('random_state', 42)))
         
-        # 진행상황 콜백 함수
+        # 진행상황 콜백 함수 (더 간결하게)
         def progress_callback(study, trial):
-            if trial.number % 5 == 0 or trial.number == config['n_trials'] - 1:
+            if trial.number == 0 or trial.number == config['n_trials'] // 2 or trial.number == config['n_trials'] - 1:
                 best_value = study.best_value if study.best_value else 0
-                self.logger.info(f"Trial {trial.number + 1}/{config['n_trials']} - Current: {trial.value:.4f}, Best: {best_value:.4f}")
+                self.logger.info(f"  Trial {trial.number + 1}/{config['n_trials']} - Current: {trial.value:.4f}, Best: {best_value:.4f}")
         
         study.optimize(objective, n_trials=config['n_trials'], callbacks=[progress_callback])
         
@@ -1319,7 +1380,7 @@ class ModelingPipeline:
         config = self.config['models']['xgboost']
         optimization_config = self.config['models'].get('optimization', {})
         primary_metric = optimization_config.get('primary_metric', 'roc_auc')
-        cv_folds = self.config['cv_folds']  # 공통 config cv_folds 사용
+        cv_folds = self.config.get('cv_folds', 3)  # 공통 config cv_folds 사용
         
         # Config에서 클래스 불균형 처리 방식 가져오기
         class_weight_mode = config.get('class_weight_mode', 'scale_pos_weight')
@@ -1356,25 +1417,38 @@ class ModelingPipeline:
                 'reg_alpha': trial.suggest_float('reg_alpha', *config['reg_alpha_range']),
                 'reg_lambda': trial.suggest_float('reg_lambda', *config['reg_lambda_range']),
                 'scale_pos_weight': scale_pos_weight,  # Config에서 계산된 불균형 가중치
-                'random_state': self.config['random_state'],
+                'random_state': self.config.get('random_state', 42),
                 'n_jobs': -1,
                 'verbosity': 0
             }
             
             model = xgb.XGBClassifier(**params)
             
-            # Cross validation with proper sampling (데이터 누수 방지)
-            scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=cv_folds, scoring=primary_metric)
+            # config에서 validation 방법 결정
+            validation_method = self.config.get('validation', {}).get('method', 'logistic_holdout')
+            
+            if validation_method == 'nested_cv':
+                # Nested CV 사용 - 단일 trial에서는 inner CV만 수행
+                scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=cv_folds, scoring=primary_metric)
+            elif validation_method == 'k_fold':
+                # 기존 K-fold CV 사용
+                scores = self._proper_cv_with_sampling(model, X_train, y_train, data_type, cv_folds=cv_folds, scoring=primary_metric)
+            else:  # logistic_holdout
+                # 로지스틱 홀드아웃 + 반복 샘플링 사용
+                holdout_config = self.config.get('validation', {}).get('logistic_holdout', {})
+                n_iterations = holdout_config.get('n_iterations', 10)
+                test_size = holdout_config.get('test_size', 0.2)
+                scores = self._logistic_holdout_repeated_sampling(model, X_train, y_train, data_type, n_iterations=n_iterations, test_size=test_size, scoring=primary_metric)
             
             return scores.mean()
         
-        study = optuna.create_study(direction='maximize', sampler=TPESampler(seed=self.config['random_state']))
+        study = optuna.create_study(direction='maximize', sampler=TPESampler(seed=self.config.get('random_state', 42)))
         
-        # 진행상황 콜백 함수
+        # 진행상황 콜백 함수 (더 간결하게)
         def progress_callback(study, trial):
-            if trial.number % 5 == 0 or trial.number == config['n_trials'] - 1:
+            if trial.number == 0 or trial.number == config['n_trials'] // 2 or trial.number == config['n_trials'] - 1:
                 best_value = study.best_value if study.best_value else 0
-                self.logger.info(f"Trial {trial.number + 1}/{config['n_trials']} - Current: {trial.value:.4f}, Best: {best_value:.4f}")
+                self.logger.info(f"  Trial {trial.number + 1}/{config['n_trials']} - Current: {trial.value:.4f}, Best: {best_value:.4f}")
         
         study.optimize(objective, n_trials=config['n_trials'], callbacks=[progress_callback])
         
@@ -1402,21 +1476,225 @@ class ModelingPipeline:
             X_train_scaled, y_train, data_type
         )
         
-        model.fit(X_train_final, y_train_final)
+        # Version-agnostic XGBoost fitting with robust error handling (from baseline)
+        try:
+            import inspect
+            # Check if early_stopping_rounds parameter is supported
+            sig = inspect.signature(model.fit).parameters
+            if "early_stopping_rounds" in sig:
+                # XGBoost ≤ 1.7.x
+                self.logger.info("Using XGBoost ≤ 1.7.x early stopping")
+                eval_set = [(X_train_final[:int(0.8*len(X_train_final))], y_train_final[:int(0.8*len(y_train_final))]),
+                           (X_train_final[int(0.8*len(X_train_final)):], y_train_final[int(0.8*len(y_train_final)):])]
+                model.fit(
+                    X_train_final, y_train_final,
+                    eval_set=eval_set,
+                    early_stopping_rounds=50,
+                    verbose=False
+                )
+            else:
+                # XGBoost ≥ 2.0
+                self.logger.info("Using XGBoost ≥ 2.0 callbacks")
+                from xgboost.callback import EarlyStopping
+                eval_set = [(X_train_final[:int(0.8*len(X_train_final))], y_train_final[:int(0.8*len(y_train_final))]),
+                           (X_train_final[int(0.8*len(X_train_final)):], y_train_final[int(0.8*len(y_train_final)):])]
+                model.fit(
+                    X_train_final, y_train_final,
+                    eval_set=eval_set,
+                    callbacks=[EarlyStopping(rounds=50, save_best=True)],
+                    verbose=False
+                )
+        except Exception as e:
+            self.logger.warning(f"Early stopping failed, using fallback: {e}")
+            # Fallback: train without early stopping
+            model.fit(X_train_final, y_train_final)
         
         self.logger.info(f"최적 AUC: {study.best_value:.4f}")
         self.logger.info(f"최적 파라미터: {best_params}")
         
         return model, best_params, study.best_value
     
+    def _nested_cv_with_sampling(self, model_class, param_space: dict, X: pd.DataFrame, y: pd.Series, data_type: str, outer_cv_folds: int = 5, inner_cv_folds: int = 3, n_trials: int = 50, scoring='roc_auc'):
+        """
+        Nested Cross Validation with proper sampling
+        Outer CV: 모델 성능 평가
+        Inner CV: 하이퍼파라미터 튜닝
+        """
+        outer_skf = StratifiedKFold(n_splits=outer_cv_folds, shuffle=True, random_state=self.config.get('random_state', 42))
+        nested_scores = []
+        
+        self.logger.info(f"Nested CV 시작: Outer={outer_cv_folds} folds, Inner={inner_cv_folds} folds, Trials={n_trials}")
+        
+        for outer_fold, (train_idx, test_idx) in enumerate(outer_skf.split(X, y)):
+            self.logger.info(f"Outer fold {outer_fold + 1}/{outer_cv_folds} 진행 중...")
+            
+            # Outer loop data split
+            X_train_outer, X_test_outer = X.iloc[train_idx], X.iloc[test_idx]
+            y_train_outer, y_test_outer = y.iloc[train_idx], y.iloc[test_idx]
+            
+            # Inner CV for hyperparameter optimization
+            def objective(trial):
+                # Generate hyperparameters based on param_space
+                params = {}
+                for param_name, param_config in param_space.items():
+                    if param_config['type'] == 'float':
+                        params[param_name] = trial.suggest_float(
+                            param_name, 
+                            param_config['low'], 
+                            param_config['high'],
+                            log=param_config.get('log', False)
+                        )
+                    elif param_config['type'] == 'int':
+                        params[param_name] = trial.suggest_int(
+                            param_name,
+                            param_config['low'],
+                            param_config['high']
+                        )
+                    elif param_config['type'] == 'categorical':
+                        params[param_name] = trial.suggest_categorical(
+                            param_name,
+                            param_config['choices']
+                        )
+                
+                # Create model with suggested parameters
+                model = model_class(**params)
+                
+                # Inner CV with current train data
+                scores = self._proper_cv_with_sampling(
+                    model, X_train_outer, y_train_outer, data_type, 
+                    cv_folds=inner_cv_folds, scoring=scoring
+                )
+                
+                return scores.mean()
+            
+            # Inner optimization
+            study = optuna.create_study(direction='maximize', sampler=TPESampler(seed=self.config.get('random_state', 42) + outer_fold))
+            study.optimize(objective, n_trials=n_trials, show_progress_bar=False)
+            
+            # Train best model on full outer train set
+            best_params = study.best_params
+            best_model = model_class(**best_params)
+            
+            # Apply preprocessing to outer train data
+            try:
+                X_train_log, X_test_log, _, log_info = self.apply_log_transform(
+                    X_train_outer.copy(), X_test_outer.copy(), X_test_outer.copy(), data_type
+                )
+                
+                X_train_scaled, X_test_scaled, _, scalers = self.apply_scaling(
+                    X_train_log, X_test_log, X_test_log, data_type
+                )
+                
+                X_train_final, y_train_final = self.apply_sampling_strategy(
+                    X_train_scaled, y_train_outer, data_type
+                )
+                
+                # Train on processed data
+                best_model.fit(X_train_final, y_train_final)
+                
+                # Evaluate on outer test set (scaled but not sampled)
+                y_pred_proba = best_model.predict_proba(X_test_scaled)[:, 1]
+                
+                if scoring == 'roc_auc':
+                    outer_score = roc_auc_score(y_test_outer, y_pred_proba)
+                elif scoring == 'average_precision':
+                    outer_score = average_precision_score(y_test_outer, y_pred_proba)
+                elif scoring == 'f1':
+                    y_pred = (y_pred_proba >= 0.5).astype(int)
+                    outer_score = f1_score(y_test_outer, y_pred, zero_division=0)
+                else:
+                    outer_score = roc_auc_score(y_test_outer, y_pred_proba)
+                
+                nested_scores.append(outer_score)
+                self.logger.info(f"Outer fold {outer_fold + 1} score: {outer_score:.4f}")
+                
+            except Exception as e:
+                self.logger.warning(f"Outer fold {outer_fold + 1} failed: {e}")
+                nested_scores.append(0.5 if scoring == 'roc_auc' else 0.0)
+        
+        nested_scores_array = np.array(nested_scores)
+        self.logger.info(f"Nested CV 완료: {nested_scores_array.mean():.4f} ± {nested_scores_array.std():.4f}")
+        
+        return nested_scores_array
+
+    def _logistic_holdout_repeated_sampling(self, model, X: pd.DataFrame, y: pd.Series, data_type: str, n_iterations: int = 10, test_size: float = 0.2, scoring='roc_auc'):
+        """
+        로지스틱 홀드아웃 + 반복 샘플링 검증
+        매번 다른 train/validation split으로 여러 번 반복하여 robust한 성능 추정
+        """
+        from sklearn.model_selection import train_test_split
+        
+        scores = []
+        # 간결한 시작 로그
+        # self.logger.info(f"  Holdout validation: {n_iterations} iterations")
+        
+        for iteration in range(n_iterations):
+            try:
+                # Random train/validation split with stratification
+                X_train_split, X_val_split, y_train_split, y_val_split = train_test_split(
+                    X, y, 
+                    test_size=test_size, 
+                    stratify=y, 
+                    random_state=self.config.get('random_state', 42) + iteration
+                )
+                
+                # Apply preprocessing pipeline to current split
+                X_train_log, X_val_log, _, log_info = self.apply_log_transform(
+                    X_train_split.copy(), X_val_split.copy(), X_val_split.copy(), data_type
+                )
+                
+                X_train_scaled, X_val_scaled, _, scalers = self.apply_scaling(
+                    X_train_log, X_val_log, X_val_log, data_type
+                )
+                
+                # Apply sampling only to training data
+                X_train_resampled, y_train_resampled = self.apply_sampling_strategy(
+                    X_train_scaled, y_train_split, data_type
+                )
+                
+                # Train model on resampled training data
+                model_copy = model.__class__(**model.get_params())
+                model_copy.fit(X_train_resampled, y_train_resampled)
+                
+                # Evaluate on validation set (scaled but not resampled)
+                y_pred_proba = model_copy.predict_proba(X_val_scaled)[:, 1]
+                
+                # Calculate score based on specified metric
+                if scoring == 'roc_auc':
+                    score = roc_auc_score(y_val_split, y_pred_proba)
+                elif scoring == 'average_precision':
+                    score = average_precision_score(y_val_split, y_pred_proba)
+                elif scoring == 'f1':
+                    y_pred = (y_pred_proba >= 0.5).astype(int)
+                    score = f1_score(y_val_split, y_pred, zero_division=0)
+                else:
+                    score = roc_auc_score(y_val_split, y_pred_proba)
+                
+                scores.append(score)
+                
+                # # 진행상황을 더 간결하게 출력 (처음, 중간, 마지막만)
+                # if iteration == 0 or iteration == n_iterations // 2 or iteration == n_iterations - 1:
+                #     self.logger.info(f"  Iteration {iteration + 1}/{n_iterations}: {score:.4f}")
+                    
+            except Exception as e:
+                # self.logger.warning(f"Iteration {iteration + 1} failed: {e}")
+                # Add default score for failed iterations
+                default_score = 0.5 if scoring == 'roc_auc' else 0.0
+                scores.append(default_score)
+        
+        scores_array = np.array(scores)
+        # self.logger.info(f"  Holdout complete: {scores_array.mean():.4f} ± {scores_array.std():.4f}")
+        
+        return scores_array
+
     def _proper_cv_with_sampling(self, model, X: pd.DataFrame, y: pd.Series, data_type: str, cv_folds: int = None, scoring='roc_auc'):
         """
         샘플링 Data Leakage를 방지하는 올바른 Cross Validation
         각 CV fold마다 스케일링 → 샘플링을 순서대로 적용
         """
         if cv_folds is None:
-            cv_folds = self.config['cv_folds']  # 공통 config cv_folds 사용
-        skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=self.config['random_state'])
+            cv_folds = self.config.get('cv_folds', 3)  # 공통 config cv_folds 사용
+        skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=self.config.get('random_state', 42))
         scores = []
                 
         for fold, (train_idx, val_idx) in enumerate(skf.split(X, y)):
@@ -1526,8 +1804,8 @@ class ModelingPipeline:
         시간을 3배 단축 (15 fold → 5 fold)
         """
         if cv_folds is None:
-            cv_folds = self.config['cv_folds']  # 공통 config cv_folds 사용
-        skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=self.config['random_state'])
+            cv_folds = self.config.get('cv_folds', 3)  # 공통 config cv_folds 사용
+        skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=self.config.get('random_state', 42))
         
         # 각 메트릭별 점수 저장
         auc_scores = []
@@ -1681,199 +1959,104 @@ class ModelingPipeline:
 
     
     def evaluate_model(self, model_key: str):
-        """모델 평가 (최적 threshold 사용)"""
+        """
+        단일 모델의 성능을 평가하고 결과를 저장
+
+        - Validation set에서 최적의 threshold를 찾음
+        - Test set에 최적 threshold를 적용하여 최종 성능 평가
+        """
+        self.logger.info(f"모델 평가 시작: {model_key}")
+        data_type, model_name = model_key.split('__')
+        
+        # 앙상블 모델의 경우 별도 처리
+        if model_name == 'ensemble':
+            self.logger.info(f"앙상블 모델은 이미 평가됨: {model_key}")
+            return
+        
+        # 모델 및 데이터 로드
         model = self.models[model_key]
-        data_type = self.model_results[model_key]['data_type']
+        X_train, y_train = self.data[data_type]['X_train'], self.data[data_type]['y_train']
+        X_val, y_val = self.data[data_type]['X_val'], self.data[data_type]['y_val']
+        X_test, y_test = self.data[data_type]['X_test'], self.data[data_type]['y_test']
+
+        self.model_results[model_key] = {
+            'model_name': model_name,
+            'data_type': data_type
+        }
+
+        # --- CV 평가 (Train set) ---
+        cv_scores = self._calculate_cv_metrics(model, X_train, y_train, data_type)
+        self.model_results[model_key]['cv_scores'] = cv_scores
+        # 주요 메트릭을 cv_score로 저장 (앙상블에서 사용)
+        self.model_results[model_key]['cv_score'] = cv_scores.get('f1', {}).get('mean', 0)
+        self.logger.info(f"[{model_key}] Cross-Validation (Train): {cv_scores}")
         
-        # 원본 데이터 가져오기
-        X_train = self.data[data_type]['X_train']
-        y_train = self.data[data_type]['y_train']
-        X_val = self.data[data_type]['X_val']
-        y_val = self.data[data_type]['y_val']
-        X_test = self.data[data_type]['X_test']
-        y_test = self.data[data_type]['y_test']
-        
-        # 평가용 데이터 전처리 (모델 훈련과 동일한 방식)
-        # 1단계: 로그 변환 적용
-        X_train_log, X_val_log, X_test_log, log_info = self.apply_log_transform(
-            X_train.copy(),
-            X_val.copy(),
-            X_test.copy(),
-            data_type
-        )
-        
-        # 2단계: 스케일링 적용 (훈련 데이터로 fit, 검증/테스트 데이터로 transform)
-        X_train_scaled, X_val_scaled, X_test_scaled, scalers = self.apply_scaling(
-            X_train_log,
-            X_val_log,
-            X_test_log,
-            data_type
-        )
-        
-        # 3단계: 훈련 데이터에만 샘플링 적용 (평가 데이터는 원본 유지)
-        X_train_final, y_train_final = self.apply_sampling_strategy(
-            X_train_scaled, y_train, data_type
-        )
-        
-        # 최적 threshold 찾기 (스케일링된 검증 데이터 사용)
-        y_val_proba = model.predict_proba(X_val_scaled)[:, 1]
-        
-        # 임계값 범위 설정 (config에서 가져오기)
-        threshold_config = self.config.get('threshold_optimization', {}).get('search_range', {})
-        pos_rate = y_val.mean()
-        
-        # 동적 임계값 범위 계산
-        low_threshold = max(threshold_config.get('low', 0.0005), pos_rate/5)
-        high_threshold = threshold_config.get('high', 0.30)
-        n_grid = threshold_config.get('n_grid', 300)
-        
-        # 임계값 배열 생성
-        thresholds = np.linspace(low_threshold, high_threshold, n_grid)
-        threshold_results = []
-        
-        self.logger.info(f"{model_key} 최적 Threshold 탐색")
-        self.logger.info(f"임계값 범위: {low_threshold:.4f} ~ {high_threshold:.4f} ({n_grid}개 점)")
-        
-        for threshold in thresholds:
-            y_val_pred = (y_val_proba >= threshold).astype(int)
-            
-            if len(np.unique(y_val_pred)) == 1:
-                continue
-            
-            try:
-                metrics = {
-                    'threshold': threshold,
-                    'precision': precision_score(y_val, y_val_pred, zero_division=0),
-                    'recall': recall_score(y_val, y_val_pred, zero_division=0),
-                    'f1': f1_score(y_val, y_val_pred, zero_division=0),
-                    'balanced_accuracy': balanced_accuracy_score(y_val, y_val_pred)
-                }
-                threshold_results.append(metrics)
-            except:
-                continue
-        
-        if not threshold_results:
-            self.logger.warning("최적 threshold 찾기 실패, 기본값 0.5 사용")
-            optimal_threshold = 0.5
-            threshold_analysis = {}
-            threshold_df = pd.DataFrame()  # 빈 DataFrame 생성
-        else:
-            threshold_df = pd.DataFrame(threshold_results)
-        
-        # 주요 메트릭별 최적 threshold 찾기
-        metric_priority = self.config.get('threshold_optimization', {}).get('metric_priority', 'f1')
-        
-        optimal_thresholds = {}
-        for metric in ['f1', 'precision', 'recall', 'balanced_accuracy']:
-            if metric in threshold_df.columns:
-                best_idx = threshold_df[metric].idxmax()
-                optimal_thresholds[metric] = {
-                    'threshold': threshold_df.loc[best_idx, 'threshold'],
-                    'value': threshold_df.loc[best_idx, metric]
-                }
-        
-        # average_precision은 별도로 계산 (임계값과 무관하므로 F1 기준 threshold 사용)
-        if metric_priority == 'average_precision':
-            ap_score = average_precision_score(y_val, y_val_proba)
-            # F1 기준 threshold 사용 (average_precision은 임계값 무관)
-            f1_threshold = optimal_thresholds.get('f1', {}).get('threshold', 0.5)
-            
-            optimal_thresholds['average_precision'] = {
-                'threshold': f1_threshold,
-                'value': ap_score
-            }
-        
-        # 우선순위 메트릭으로 최종 threshold 선택
-        if metric_priority in optimal_thresholds:
-                optimal_threshold = optimal_thresholds[metric_priority]['threshold']
-                final_value = optimal_thresholds[metric_priority]['value']
-        elif 'f1' in optimal_thresholds:
-                optimal_threshold = optimal_thresholds['f1']['threshold']
-                final_value = optimal_thresholds['f1']['value']
-        else:
-                # optimal_thresholds가 비어있는 경우 (threshold optimization 실패)
-                optimal_threshold = 0.5
-                final_value = 0.0
-        
-        self.logger.info(f"최종 선택: {optimal_threshold:.3f} ({metric_priority.upper()}: {final_value:.4f})")
-        
-        # Precision-Recall 곡선 데이터 저장
-        precision_vals, recall_vals, pr_thresholds = precision_recall_curve(y_val, y_val_proba)
-        
-            # 시각화를 위한 임계값별 성능 데이터 추가
-        threshold_analysis = {
-            'all_thresholds': threshold_results,
-            'optimal_by_metric': optimal_thresholds,
-                'final_threshold': optimal_threshold,
-            'final_metric': metric_priority,
-            'final_value': final_value,
-                'thresholds': [t['threshold'] for t in threshold_results],
-                'f1_scores': [t['f1'] for t in threshold_results],
-                'precisions': [t['precision'] for t in threshold_results],
-                'recalls': [t['recall'] for t in threshold_results],
-            'pr_curve': {
-                'precision': precision_vals.tolist(),
-                'recall': recall_vals.tolist(),
-                'thresholds': pr_thresholds.tolist()
+        # --- Validation 세트 평가 ---
+        y_proba_val = model.predict_proba(X_val)[:, 1]
+
+        # Validation 세트에서 최적 Threshold 찾기 (F1 score 기준)
+        f1_optimal_threshold, optimal_f1_score = self.find_optimal_threshold(model, X_val, y_val)
+        optimal_thresholds = {
+            'f1': {
+                'threshold': f1_optimal_threshold,
+                'score': optimal_f1_score
             }
         }
+        self.model_results[model_key]['optimal_thresholds'] = optimal_thresholds
         
-        # 예측 (최적 threshold 사용, 스케일링된 데이터 사용)
-        y_train_proba = model.predict_proba(X_train_final)[:, 1]
-        y_train_pred = (y_train_proba >= optimal_threshold).astype(int)
+        # Validation 세트 평가 (최적 Threshold 적용)
+        y_pred_val_optimal = (y_proba_val >= f1_optimal_threshold).astype(int)
         
-        y_val_pred = (y_val_proba >= optimal_threshold).astype(int)
-        
-        y_test_proba = model.predict_proba(X_test_scaled)[:, 1]
-        y_test_pred = (y_test_proba >= optimal_threshold).astype(int)
-        
-        # 훈련 성능 (샘플링된 데이터 기준)
-        train_metrics = {
-            'auc': roc_auc_score(y_train_final, y_train_proba),
-            'precision': precision_score(y_train_final, y_train_pred, zero_division=0),
-            'recall': recall_score(y_train_final, y_train_pred, zero_division=0),
-            'f1': f1_score(y_train_final, y_train_pred, zero_division=0),
-            'balanced_accuracy': balanced_accuracy_score(y_train_final, y_train_pred),
-            'average_precision': average_precision_score(y_train_final, y_train_proba)
+        val_metrics_optimal = {
+            'roc_auc': roc_auc_score(y_val, y_proba_val),
+            'f1': f1_score(y_val, y_pred_val_optimal, zero_division=0),
+            'precision': precision_score(y_val, y_pred_val_optimal, zero_division=0),
+            'recall': recall_score(y_val, y_pred_val_optimal, zero_division=0),
+            'balanced_accuracy': balanced_accuracy_score(y_val, y_pred_val_optimal),
+            'threshold': f1_optimal_threshold
         }
+        self.model_results[model_key]['val_metrics_optimal'] = val_metrics_optimal
+        self.logger.info(f"[{model_key}] Validation (Optimal Threshold): F1={val_metrics_optimal['f1']:.4f}, Recall={val_metrics_optimal['recall']:.4f}")
+
+        # --- 테스트 세트 평가 ---
+        y_proba_test = model.predict_proba(X_test)[:, 1]
         
-        # 검증 성능 (원본 라벨 기준)
-        val_metrics = {
-            'auc': roc_auc_score(y_val, y_val_proba),
-            'precision': precision_score(y_val, y_val_pred, zero_division=0),
-            'recall': recall_score(y_val, y_val_pred, zero_division=0),
-            'f1': f1_score(y_val, y_val_pred, zero_division=0),
-            'balanced_accuracy': balanced_accuracy_score(y_val, y_val_pred),
-            'average_precision': average_precision_score(y_val, y_val_proba)
-        }
-        
-        # 테스트 성능 (원본 라벨 기준)
+        # 최적 임계값 적용
+        y_pred_test_optimal = (y_proba_test >= f1_optimal_threshold).astype(int)
+
+        # 기본 임계값(0.5) 적용
+        y_pred_test_default = (y_proba_test >= 0.5).astype(int)
+
         test_metrics = {
-            'auc': roc_auc_score(y_test, y_test_proba),
-            'precision': precision_score(y_test, y_test_pred, zero_division=0),
-            'recall': recall_score(y_test, y_test_pred, zero_division=0),
-            'f1': f1_score(y_test, y_test_pred, zero_division=0),
-            'balanced_accuracy': balanced_accuracy_score(y_test, y_test_pred),
-            'average_precision': average_precision_score(y_test, y_test_proba)
+            'roc_auc': roc_auc_score(y_test, y_proba_test),
+            'optimal_threshold': f1_optimal_threshold,
+            
+            # 최적 임계값 기준 성능
+            'f1_optimal': f1_score(y_test, y_pred_test_optimal, zero_division=0),
+            'precision_optimal': precision_score(y_test, y_pred_test_optimal, zero_division=0),
+            'recall_optimal': recall_score(y_test, y_pred_test_optimal, zero_division=0),
+            'balanced_accuracy_optimal': balanced_accuracy_score(y_test, y_pred_test_optimal),
+            
+            # 기본 임계값 기준 성능
+            'f1_default': f1_score(y_test, y_pred_test_default, zero_division=0),
+            'precision_default': precision_score(y_test, y_pred_test_default, zero_division=0),
+            'recall_default': recall_score(y_test, y_pred_test_default, zero_division=0),
         }
+        self.model_results[model_key]['test_metrics'] = test_metrics
+        self.logger.info(f"[{model_key}] Test (Optimal Threshold={f1_optimal_threshold:.4f}): F1={test_metrics['f1_optimal']:.4f}, Recall={test_metrics['recall_optimal']:.4f}")
+        self.logger.info(f"[{model_key}] Test (Default Threshold=0.5): F1={test_metrics['f1_default']:.4f}, Recall={test_metrics['recall_default']:.4f}")
+
+        # 혼동 행렬 시각화 (최적 Threshold 기준)
+        cm = confusion_matrix(y_test, y_pred_test_optimal)
+        self.model_results[model_key]['confusion_matrix_test'] = cm.tolist()
         
-        # 결과 업데이트
-        self.model_results[model_key].update({
-            'optimal_threshold': optimal_threshold,
-            'threshold_analysis': threshold_analysis,
-            'train_metrics': train_metrics,
-            'val_metrics': val_metrics,
-            'test_metrics': test_metrics,
-            'predictions': {
-                'y_train_proba': y_train_proba.tolist(),
-                'y_val_proba': y_val_proba.tolist(),
-                'y_test_proba': y_test_proba.tolist()
-            }
-        })
-        
-        self.logger.info(f"{model_key} 최종 평가 (Threshold: {optimal_threshold:.3f}):")
-        self.logger.info(f"검증 - AUC: {val_metrics['auc']:.4f}, F1: {val_metrics['f1']:.4f}")
-        self.logger.info(f"테스트 - AUC: {test_metrics['auc']:.4f}, F1: {test_metrics['f1']:.4f}")
+        # 예측 결과 저장 (proba)
+        self.model_results[model_key]['predictions'] = {
+            'y_proba_val': y_proba_val.tolist(),
+            'y_proba_test': y_proba_test.tolist()
+        }
+
+        self.logger.info(f"모델 평가 완료: {model_key}")
     
     def run_all_models(self):
         """모든 모델 실행"""
@@ -1907,7 +2090,7 @@ class ModelingPipeline:
                 }
             
             for model_name in enabled_models:
-                model_key = f"{model_name}_{data_type}"
+                model_key = f"{data_type}__{model_name}"
                 
                 # 모델 최적화 (CV 내부에서 스케일링과 샘플링 처리)
                 model, best_params, cv_score = self.optimize_model(model_name, data_type)
@@ -1995,26 +2178,30 @@ class ModelingPipeline:
         summary_data = []
         
         for model_key, result in self.model_results.items():
-            model_name = result['model_name']
-            data_type = result['data_type']
+            # 안전한 키 접근
+            model_name = result.get('model_name', 'unknown')
+            data_type = result.get('data_type', 'unknown')
             
             cv_metrics = result.get('cv_metrics', {})
+            val_metrics = result.get('val_metrics', {})
+            test_metrics = result.get('test_metrics', {})
+            
             summary_data.append({
                 'Model': model_name,
-                'Data_Type': data_type.upper(),
+                'Data_Type': data_type.upper() if data_type != 'unknown' else 'UNKNOWN',
                 'Optimal_Threshold': result.get('optimal_threshold', 0.5),
-                'CV_AUC': result['cv_score'],
-                'CV_AUC_Mean': cv_metrics.get('cv_auc_mean', result['cv_score']),
+                'CV_AUC': result.get('cv_score', 0),
+                'CV_AUC_Mean': cv_metrics.get('cv_auc_mean', result.get('cv_score', 0)),
                 'CV_AP_Mean': cv_metrics.get('cv_average_precision_mean', 0),
                 'CV_F1_Mean': cv_metrics.get('cv_f1_mean', 0),
-                'Val_AUC': result['val_metrics']['auc'],
-                'Val_F1': result['val_metrics']['f1'],
-                'Test_AUC': result['test_metrics']['auc'],
-                'Test_Precision': result['test_metrics']['precision'],
-                'Test_Recall': result['test_metrics']['recall'],
-                'Test_F1': result['test_metrics']['f1'],
-                'Test_Balanced_Acc': result['test_metrics'].get('balanced_accuracy', 0),
-                'Test_Average_Precision': result['test_metrics'].get('average_precision', 0)
+                'Val_AUC': val_metrics.get('auc', 0),
+                'Val_F1': val_metrics.get('f1', 0),
+                'Test_AUC': test_metrics.get('auc', 0),
+                'Test_Precision': test_metrics.get('precision', 0),
+                'Test_Recall': test_metrics.get('recall', 0),
+                'Test_F1': test_metrics.get('f1', 0),
+                'Test_Balanced_Acc': test_metrics.get('balanced_accuracy', 0),
+                'Test_Average_Precision': test_metrics.get('average_precision', 0)
             })
         
         summary_df = pd.DataFrame(summary_data)
@@ -2034,27 +2221,52 @@ class ModelingPipeline:
         self.logger.info("시각화 생성 시작")
         
         viz_dir = self.output_dir / 'visualizations'
+        viz_dir.mkdir(parents=True, exist_ok=True)  # 디렉토리 생성 확인
         
         try:
             # 1. ROC 곡선 비교
-            self._plot_roc_curves(viz_dir)
+            try:
+                self._plot_roc_curves(viz_dir)
+            except Exception as e:
+                self.logger.error(f"ROC 곡선 시각화 실패: {e}")
             
             # 2. Precision-Recall 곡선 비교
-            self._plot_pr_curves(viz_dir)
+            try:
+                self._plot_pr_curves(viz_dir)
+            except Exception as e:
+                self.logger.error(f"PR 곡선 시각화 실패: {e}")
             
             # 3. 성능 비교 차트
-            self._plot_performance_comparison(viz_dir)
+            try:
+                self._plot_performance_comparison(viz_dir)
+            except Exception as e:
+                self.logger.error(f"성능 비교 차트 시각화 실패: {e}")
             
             # 4. 특성 중요도 (tree 기반 모델)
-            self._plot_feature_importance(viz_dir)
+            try:
+                self._plot_feature_importance(viz_dir)
+            except Exception as e:
+                self.logger.error(f"특성 중요도 시각화 실패: {e}")
             
             # 5. 임계값 분석
-            self._plot_threshold_analysis(viz_dir)
+            try:
+                self._plot_threshold_analysis(viz_dir)
+            except Exception as e:
+                self.logger.error(f"임계값 분석 시각화 실패: {e}")
             
             # 6. Train vs Test 성능 비교 (Overfitting 분석)
-            self._plot_train_vs_test_comparison(viz_dir)
+            try:
+                self._plot_train_vs_test_comparison(viz_dir)
+            except Exception as e:
+                self.logger.error(f"Train vs Test 비교 시각화 실패: {e}")
             
-            # 7. 앙상블 가중치 시각화
+            # 7. 앙상블 가중치 시각화 (모델 성능 기반)
+            try:
+                self._plot_ensemble_weights(viz_dir)
+            except Exception as e:
+                self.logger.error(f"앙상블 가중치 시각화 실패: {e}")
+            
+            # 8. 앙상블 모델이 있다면 추가 리포트 생성
             if 'ensemble_model' in self.models:
                 try:
                     ensemble_pipeline = self.models['ensemble_model']
@@ -2065,7 +2277,7 @@ class ModelingPipeline:
             self.logger.info("시각화 생성 완료")
             
         except Exception as e:
-            self.logger.error(f"시각화 생성 중 오류: {e}")
+            self.logger.error(f"시각화 생성 중 전반적 오류: {e}")
     
     def _plot_roc_curves(self, viz_dir: Path):
         """ROC 곡선 비교"""
@@ -2092,7 +2304,7 @@ class ModelingPipeline:
             
             # ROC 곡선 계산
             fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
-            auc_score = auc(fpr, tpr)
+            auc_score = roc_auc_score(y_test, y_pred_proba)
             
             # 플롯
             color = colors[i % len(colors)]
@@ -2111,8 +2323,16 @@ class ModelingPipeline:
         plt.legend(loc="lower right")
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
-        plt.savefig(viz_dir / 'roc_curves_comparison.png', dpi=300, bbox_inches='tight')
-        plt.close()
+        
+        # 저장 경로 확인 및 저장
+        save_path = viz_dir / 'roc_curves_comparison.png'
+        try:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            self.logger.info(f"ROC 곡선 저장 완료: {save_path}")
+        except Exception as e:
+            self.logger.error(f"ROC 곡선 저장 실패: {e}")
+        finally:
+            plt.close()
     
     def _plot_pr_curves(self, viz_dir: Path):
         """Precision-Recall 곡선 비교"""
@@ -2154,8 +2374,16 @@ class ModelingPipeline:
         plt.legend(loc="lower left")
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
-        plt.savefig(viz_dir / 'pr_curves_comparison.png', dpi=300, bbox_inches='tight')
-        plt.close()
+        
+        # 저장 경로 확인 및 저장
+        save_path = viz_dir / 'pr_curves_comparison.png'
+        try:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            self.logger.info(f"PR 곡선 저장 완료: {save_path}")
+        except Exception as e:
+            self.logger.error(f"PR 곡선 저장 실패: {e}")
+        finally:
+            plt.close()
     
     def _plot_performance_comparison(self, viz_dir: Path):
         """성능 지표 비교"""
@@ -2169,10 +2397,12 @@ class ModelingPipeline:
             model_name = f"{result['model_name']}_{result['data_type']}"
             model_names.append(model_name)
             
-            metric_values['test_auc'].append(result['test_metrics']['auc'])
-            metric_values['test_f1'].append(result['test_metrics']['f1'])
-            metric_values['test_precision'].append(result['test_metrics']['precision'])
-            metric_values['test_recall'].append(result['test_metrics']['recall'])
+            # test_metrics 구조 확인 후 안전하게 접근
+            test_metrics = result.get('test_metrics', {})
+            metric_values['test_auc'].append(test_metrics.get('auc', test_metrics.get('roc_auc', 0)))
+            metric_values['test_f1'].append(test_metrics.get('f1', 0))
+            metric_values['test_precision'].append(test_metrics.get('precision', 0))
+            metric_values['test_recall'].append(test_metrics.get('recall', 0))
         
         # 서브플롯 생성
         fig, axes = plt.subplots(2, 2, figsize=(15, 12))
@@ -2200,8 +2430,16 @@ class ModelingPipeline:
             ax.tick_params(axis='x', rotation=45)
         
         plt.tight_layout()
-        plt.savefig(viz_dir / 'performance_comparison.png', dpi=300, bbox_inches='tight')
-        plt.close()
+        
+        # 저장 경로 확인 및 저장
+        save_path = viz_dir / 'performance_comparison.png'
+        try:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            self.logger.info(f"성능 비교 차트 저장 완료: {save_path}")
+        except Exception as e:
+            self.logger.error(f"성능 비교 차트 저장 실패: {e}")
+        finally:
+            plt.close()
     
     def _plot_feature_importance(self, viz_dir: Path):
         """특성 중요도 시각화"""
@@ -2244,8 +2482,16 @@ class ModelingPipeline:
                        f'{value:.3f}', ha='left', va='center', fontsize=9)
         
         plt.tight_layout()
-        plt.savefig(viz_dir / 'feature_importance.png', dpi=300, bbox_inches='tight')
-        plt.close()
+        
+        # 저장 경로 확인 및 저장
+        save_path = viz_dir / 'feature_importance.png'
+        try:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            self.logger.info(f"특성 중요도 차트 저장 완료: {save_path}")
+        except Exception as e:
+            self.logger.error(f"특성 중요도 차트 저장 실패: {e}")
+        finally:
+            plt.close()
     
     def _plot_threshold_analysis(self, viz_dir: Path):
         """임계값 분석 시각화"""
@@ -2301,8 +2547,16 @@ class ModelingPipeline:
             ax.set_ylim(0, 1)
         
         plt.tight_layout()
-        plt.savefig(viz_dir / 'threshold_analysis.png', dpi=300, bbox_inches='tight')
-        plt.close()
+        
+        # 저장 경로 확인 및 저장
+        save_path = viz_dir / 'threshold_analysis.png'
+        try:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            self.logger.info(f"임계값 분석 차트 저장 완료: {save_path}")
+        except Exception as e:
+            self.logger.error(f"임계값 분석 차트 저장 실패: {e}")
+        finally:
+            plt.close()
 
     def _plot_train_vs_test_comparison(self, viz_dir: Path):
         """Train vs Test 성능 비교 (Overfitting 분석)"""
@@ -2327,9 +2581,17 @@ class ModelingPipeline:
             model_name = f"{result['model_name']}_{result['data_type']}"
             model_names.append(model_name)
             
+            train_metrics = result.get('train_metrics', {})
+            test_metrics = result.get('test_metrics', {})
+            
             for metric in metrics:
-                train_val = result['train_metrics'][metric]
-                test_val = result['test_metrics'][metric]
+                # 다양한 키 이름 시도 (auc vs roc_auc 등)
+                if metric == 'auc':
+                    train_val = train_metrics.get('auc', train_metrics.get('roc_auc', 0))
+                    test_val = test_metrics.get('auc', test_metrics.get('roc_auc', 0))
+                else:
+                    train_val = train_metrics.get(metric, 0)
+                    test_val = test_metrics.get(metric, 0)
                 
                 train_values[metric].append(train_val)
                 test_values[metric].append(test_val)
@@ -2375,8 +2637,16 @@ class ModelingPipeline:
                        f'{value:.3f}', ha='center', va='bottom', fontsize=9)
         
         plt.tight_layout()
-        plt.savefig(viz_dir / 'train_vs_test_comparison.png', dpi=300, bbox_inches='tight')
-        plt.close()
+        
+        # 저장 경로 확인 및 저장
+        save_path = viz_dir / 'train_vs_test_comparison.png'
+        try:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            self.logger.info(f"Train vs Test 비교 차트 저장 완료: {save_path}")
+        except Exception as e:
+            self.logger.error(f"Train vs Test 비교 차트 저장 실패: {e}")
+        finally:
+            plt.close()
         
         # 2. Overfitting 점수 히트맵
         fig, ax = plt.subplots(figsize=(12, 8))
@@ -2409,8 +2679,16 @@ class ModelingPipeline:
         cbar.set_label('Overfitting Score', rotation=270, labelpad=20)
         
         plt.tight_layout()
-        plt.savefig(viz_dir / 'overfitting_heatmap.png', dpi=300, bbox_inches='tight')
-        plt.close()
+        
+        # 저장 경로 확인 및 저장
+        save_path = viz_dir / 'overfitting_heatmap.png'
+        try:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            self.logger.info(f"Overfitting 히트맵 저장 완료: {save_path}")
+        except Exception as e:
+            self.logger.error(f"Overfitting 히트맵 저장 실패: {e}")
+        finally:
+            plt.close()
         
         # 3. 모델별 전체 성능 요약 (Train/Val/Test)
         fig, axes = plt.subplots(2, 2, figsize=(16, 12))
@@ -2419,8 +2697,14 @@ class ModelingPipeline:
         # 검증 데이터 값도 추가
         val_values = {metric: [] for metric in metrics}
         for model_key, result in model_results.items():
+            val_metrics = result.get('val_metrics', {})
             for metric in metrics:
-                val_values[metric].append(result['val_metrics'][metric])
+                # 다양한 키 이름 시도 (auc vs roc_auc 등)
+                if metric == 'auc':
+                    val_val = val_metrics.get('auc', val_metrics.get('roc_auc', 0))
+                else:
+                    val_val = val_metrics.get(metric, 0)
+                val_values[metric].append(val_val)
         
         for i, (metric, name) in enumerate(zip(metrics, metric_names)):
             ax = axes[i]
@@ -2452,10 +2736,134 @@ class ModelingPipeline:
                        f'{value:.2f}', ha='center', va='bottom', fontsize=8)
         
         plt.tight_layout()
-        plt.savefig(viz_dir / 'train_val_test_summary.png', dpi=300, bbox_inches='tight')
-        plt.close()
+        
+        # 저장 경로 확인 및 저장
+        save_path = viz_dir / 'train_val_test_summary.png'
+        try:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            self.logger.info(f"Train/Val/Test 요약 차트 저장 완료: {save_path}")
+        except Exception as e:
+            self.logger.error(f"Train/Val/Test 요약 차트 저장 실패: {e}")
+        finally:
+            plt.close()
         
         self.logger.info("Train vs Test 비교 시각화 완료")
+    
+    def _plot_ensemble_weights(self, viz_dir: Path):
+        """앙상블 가중치 시각화 (모델 성능 기반)"""
+        try:
+            # 앙상블 모델 제외
+            model_results = {k: v for k, v in self.model_results.items() 
+                           if v['model_name'] != 'ensemble'}
+            
+            if not model_results:
+                self.logger.info("앙상블 가중치 시각화를 위한 모델이 없습니다.")
+                return
+            
+            # 메트릭별 성능 기반 가중치 계산
+            metrics = ['test_auc', 'test_f1', 'test_precision', 'test_recall']
+            metric_names = ['AUC', 'F1-Score', 'Precision', 'Recall']
+            
+            fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+            axes = axes.flatten()
+            
+            for i, (metric, metric_name) in enumerate(zip(metrics, metric_names)):
+                ax = axes[i]
+                
+                # 모델별 성능 수집
+                model_names = []
+                performance_scores = []
+                
+                for model_key, result in model_results.items():
+                    model_name = f"{result['model_name']}_{result['data_type']}"
+                    model_names.append(model_name)
+                    
+                    # test_metrics에서 안전하게 값 가져오기
+                    test_metrics = result.get('test_metrics', {})
+                    if metric == 'test_auc':
+                        score = test_metrics.get('auc', test_metrics.get('roc_auc', 0))
+                    elif metric == 'test_f1':
+                        score = test_metrics.get('f1', 0)
+                    elif metric == 'test_precision':
+                        score = test_metrics.get('precision', 0)
+                    elif metric == 'test_recall':
+                        score = test_metrics.get('recall', 0)
+                    else:
+                        score = result.get(metric, 0)
+                    
+                    performance_scores.append(score)
+                
+                # 성능 기반 가중치 계산 (소프트맥스)
+                if sum(performance_scores) > 0:
+                    exp_scores = np.exp(np.array(performance_scores))
+                    weights = exp_scores / np.sum(exp_scores)
+                else:
+                    weights = np.ones(len(performance_scores)) / len(performance_scores)
+                
+                # 파이차트
+                colors = plt.cm.Set3(np.linspace(0, 1, len(model_names)))
+                wedges, texts, autotexts = ax.pie(weights, labels=model_names, autopct='%1.1f%%',
+                                                 colors=colors, startangle=90)
+                
+                # 텍스트 크기 조정
+                for autotext in autotexts:
+                    autotext.set_color('white')
+                    autotext.set_fontsize(10)
+                    autotext.set_weight('bold')
+                
+                ax.set_title(f'{metric_name} 기반 앙상블 가중치', fontsize=14, fontweight='bold')
+            
+            plt.tight_layout()
+            
+            # 저장 경로 확인 및 저장
+            save_path = viz_dir / 'ensemble_weights.png'
+            try:
+                plt.savefig(save_path, dpi=300, bbox_inches='tight')
+                self.logger.info(f"앙상블 가중치 차트 저장 완료: {save_path}")
+            except Exception as e:
+                self.logger.error(f"앙상블 가중치 차트 저장 실패: {e}")
+            finally:
+                plt.close()
+                
+        except Exception as e:
+            self.logger.error(f"앙상블 가중치 시각화 중 오류: {e}")
+    
+    def find_optimal_threshold(self, model, X_val, y_val):
+        """
+        Find optimal threshold using F1 score maximization (from jongho.ipynb baseline)
+        
+        Args:
+            model: Trained model
+            X_val: Validation features
+            y_val: Validation labels
+            
+        Returns:
+            tuple: (optimal_threshold, optimal_f1_score)
+        """
+        from sklearn.metrics import precision_recall_curve
+        import numpy as np
+        
+        # Get validation predictions
+        if hasattr(model, 'predict_proba'):
+            y_val_proba = model.predict_proba(X_val)[:, 1]
+        else:
+            self.logger.warning("Model does not support predict_proba, using decision_function")
+            y_val_proba = model.decision_function(X_val)
+        
+        # Calculate precision-recall curve
+        precision, recall, thresholds = precision_recall_curve(y_val, y_val_proba)
+        
+        # Calculate F1 scores for each threshold
+        f1_scores = 2 * (precision * recall) / (precision + recall + 1e-8)
+        
+        # Find optimal threshold
+        optimal_idx = np.argmax(f1_scores)
+        optimal_threshold = thresholds[optimal_idx] if optimal_idx < len(thresholds) else 0.5
+        optimal_f1 = f1_scores[optimal_idx]
+        
+        self.logger.info(f"Optimal threshold found: {optimal_threshold:.4f} (F1: {optimal_f1:.4f})")
+        
+        return optimal_threshold, optimal_f1
 
     def run_ensemble(self):
         """앙상블 모델 실행"""
@@ -2465,7 +2873,12 @@ class ModelingPipeline:
         
         self.logger.info("앙상블 모델 실행 시작")
         
-        from .ensemble_pipeline import EnsemblePipeline
+        try:
+            from .ensemble_pipeline import EnsemblePipeline
+        except ImportError:
+            # 앙상블 파이프라인이 없는 경우 간단한 대체 구현
+            self.logger.warning("EnsemblePipeline을 찾을 수 없습니다. 앙상블 건너뜀")
+            return
         
         # 앙상블에 사용할 모델들 선택
         ensemble_models = {}
@@ -2477,7 +2890,7 @@ class ModelingPipeline:
         
         for model_name in target_models:
             for data_type in target_data_types:
-                model_key = f"{model_name}_{data_type}"
+                model_key = f"{data_type}__{model_name}"
                 if model_key in self.models:
                     ensemble_models[model_key] = self.models[model_key]
                     self.logger.info(f"앙상블에 추가: {model_key}")
@@ -2505,12 +2918,12 @@ class ModelingPipeline:
         test_metrics = ensemble_pipeline.evaluate_ensemble(X_test, y_test, optimal_threshold)
         
         # 앙상블 결과 저장
-        ensemble_key = "ensemble_model"
+        ensemble_key = "combined_models__ensemble"
         self.models[ensemble_key] = ensemble_pipeline
         self.model_results[ensemble_key] = {
             'model_name': 'ensemble',
             'data_type': 'combined_models',
-            'cv_score': max([self.model_results[k]['cv_score'] for k in ensemble_models.keys()]),  # 최고 CV 점수 사용
+            'cv_score': max([self.model_results[k].get('cv_score', 0) for k in ensemble_models.keys()]) if ensemble_models else 0,  # 최고 CV 점수 사용
             'optimal_threshold': optimal_threshold,
             'threshold_analysis': threshold_analysis,
             'val_metrics': {

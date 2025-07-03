@@ -43,7 +43,7 @@ print("=== 결측치 비율별 행 제거 시 Default 분포 분석 ===")
 # 1. 프로젝트 경로 설정
 current_dir = Path(__file__).parent
 project_root = current_dir.parent.parent
-data_path = project_root / 'data' / 'processed' / 'FS2_features.csv'
+data_path = project_root / 'data' / 'processed' / 'FS2_filtered.csv'
 output_base = project_root / 'outputs' / 'analysis' / 'missing_data_default_analysis'
 
 # 출력 디렉토리 생성

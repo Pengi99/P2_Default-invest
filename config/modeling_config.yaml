@@ -1,8 +1,19 @@
 # 모델링 파이프라인 설정 파일
 # ===================================
 
-# 공통 교차검증 fold 수
+# 공통 교차검증 fold 수 (성능 최적화)
 cv_folds: 3
+
+# 검증 방법 설정
+validation:
+  method: "logistic_holdout"  # 옵션: "k_fold", "nested_cv", "logistic_holdout"
+  nested_cv:
+    outer_folds: 5
+    inner_folds: 3
+    n_trials: 50
+  logistic_holdout:
+    n_iterations: 30
+    test_size: 0.3
 
 # 실험 정보
 experiment:
@@ -36,7 +47,7 @@ sampling:
     smote:
       enabled: true
       description: "BorderlineSMOTE 오버샘플링"
-      sampling_strategy: 1  # 부실 클래스 비율 목표 (양성 2%, 원래 0.7%에서 증가)
+      sampling_strategy: 0.1  # 부실 클래스 비율 목표 (양성 2%, 원래 0.7%에서 증가)
       k_neighbors: 5
       m_neighbors: 10
       kind: "borderline-1"  # borderline-1, borderline-2, svm
@@ -54,7 +65,7 @@ sampling:
       description: "CTGAN 기반 synthetic 데이터 생성"
       sampling_strategy: 0.1  # 부실 클래스 비율 목표
       ctgan:
-        epochs: 300  # 학습 epoch 수
+        epochs: 50  # 학습 epoch 수 (성능 최적화)
         batch_size: 500  # 배치 크기
         generator_dim: [256, 256]  # Generator 네트워크 차원
         discriminator_dim: [256, 256]  # Discriminator 네트워크 차원
@@ -64,7 +75,7 @@ sampling:
       description: "SMOTE + 언더샘플링 조합"
       # SMOTE 설정
       smote:
-        sampling_strategy: 0.5  # 부실 클래스 비율 목표 (원래 0.7% → 20%로 증가)
+        sampling_strategy: 0.3  # 부실 클래스 비율 목표 (원래 0.7% → 20%로 증가)
         k_neighbors: 5
         m_neighbors: 10 
         kind: "borderline-1"  # borderline-1, borderline-2, svm
@@ -76,7 +87,7 @@ sampling:
 
 # 특성 선택 설정
 feature_selection:
-  enabled: true
+  enabled: false  # 성능 최적화를 위해 비활성화
   method: "logistic_regression_cv"  # logistic_regression_cv, lasso_cv, permutation_importance, shap
   
   logistic_regression_cv:
@@ -95,7 +106,7 @@ feature_selection:
   # Permutation Importance 방법
   permutation_importance:
     base_estimator: "random_forest"  # random_forest, logistic_regression, xgboost
-    n_repeats: 10  # 순열 반복 횟수 (높을수록 정확하지만 느림)
+    n_repeats: 5  # 순열 반복 횟수 (성능 최적화)
     random_state: 42
     threshold: "median"  # median, mean, 또는 숫자값 (중요도 임계값)
     max_features: null  # 최대 특성 수 제한 (null이면 제한 없음)
@@ -127,11 +138,11 @@ feature_selection:
     explainer_type: "tree"  # auto, tree, linear, kernel, permutation
     threshold: "median"  # median, mean, 또는 숫자값 (SHAP 값 임계값)
     max_features: 10  # 최대 특성 수 제한 (null이면 제한 없음)
-    sample_size: 20000  # SHAP 계산용 샘플 크기 (속도 개선용)
+    sample_size: 5000  # SHAP 계산용 샘플 크기 (속도 개선용)
     # 기본 추정기별 파라미터
     estimator_params:
       random_forest:
-        n_estimators: 300
+        n_estimators: 100
         max_depth: 8
         min_samples_split: 5
         min_samples_leaf: 3
@@ -160,34 +171,34 @@ models:
     enabled: true
     class_weight: 'balanced'  # class_weight 제거로 Precision 개선 (극심한 불균형 데이터에서 오히려 성능 저하)
     penalty: ["l2"]
-    l2_solvers: ["newton-cg", "lbfgs", "sage", "liblinear"]  # 가장 안정적인 solver들만 사용
+    l2_solvers: ["newton-cg", "lbfgs", "saga", "liblinear"]  # 가장 안정적인 solver들만 사용
     C_range: [0.01, 100]  # 수렴 안정성을 위해 범위 축소
     max_iter_range: [100, 10000]  # 충분한 반복 횟수 보장
     l1_ratio_range: [0.1, 0.9]  # elasticnet용
-    n_trials: 20  # trial 수 감소로 빠른 수렴
+    n_trials: 100  # trial 수 감소로 빠른 수렴
   
   random_forest:
     enabled: true
     class_weight: 'balanced'  # class_weight 제거로 Precision 개선 (극심한 불균형 데이터에서 오히려 성능 저하)
-    n_estimators_range: [200, 1000]
+    n_estimators_range: [100, 300]
     max_depth_range: [3, 20]
     min_samples_split_range: [2, 20]
     min_samples_leaf_range: [1, 10]
     max_features_range: [0.1, 1.0]
-    n_trials: 20
+    n_trials: 100
   
   xgboost:
     enabled: true
     class_weight_mode: "scale_pos_weight"  # "scale_pos_weight" 또는 "sample_weight"
     scale_pos_weight: auto  # 적당한 가중치 사용 (auto는 102.11로 너무 극단적)
-    n_estimators_range: [200, 800]
+    n_estimators_range: [100, 300]
     max_depth_range: [3, 10]
     learning_rate_range: [0.005, 0.3]
     subsample_range: [0.6, 1.0]
     colsample_bytree_range: [0.6, 1.0]
     reg_alpha_range: [0.0, 10.0]
     reg_lambda_range: [1.0, 10.0]
-    n_trials: 20
+    n_trials: 100
 
 # Threshold 최적화 설정
 threshold_optimization:
@@ -196,14 +207,14 @@ threshold_optimization:
   search_range:
     low: 0.0005  # 최소 임계값
     high: 0.50   # 최대 임계값  
-    n_grid: 3000  # 그리드 점 수
+    n_grid: 500  # 그리드 점 수 (성능 최적화)
 
 # 앙상블 설정
 ensemble:
-  enabled: true
+  enabled: true  # 성능 최적화를 위해 비활성화
   method: "weighted_average"  # simple_average, weighted_average, stacking
   auto_weight: true  # 검증 성능 기반 자동 가중치
-  weight_metric: "average_precision"  # 앙상블 가중치 계산에 사용할 메트릭 (roc_auc, f1, average_precision)
+  weight_metric: "f1"  # 앙상블 가중치 계산에 사용할 메트릭 (roc_auc, f1, average_precision)
   models: ["logistic_regression", "random_forest", "xgboost"]
   data_types: ["normal", "smote", "undersampling", "combined"]  # combined 비활성화 시
   threshold_optimization:
@@ -236,7 +247,7 @@ random_state: 42
 # - 다중공선성 고려: VIF > 5인 변수는 별도 모니터링
 # ==================================================================================
 scaling:
-  enabled: true
+  enabled: false  # 성능 최적화를 위해 비활성화
   
   # ==============================================================================
   # 1단계: 로그 변환 (스케일링 전에 먼저 적용)

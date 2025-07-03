@@ -303,34 +303,82 @@ def load_and_merge_data():
         else:
             print("⚠️ 거래소코드 컬럼이 없어 주가 데이터 병합을 건너뜁니다.")
     
-    # 시가총액 데이터 로드
+    # 시가총액 데이터 처리 (우선주 포함한 정확한 시가총액 사용)
+    print("시가총액 데이터 처리 중...")
+    
+    # 기존 시가총액 컬럼이 있다면 제거 (시가총액.csv의 정확한 값 사용을 위해)
+    if '시가총액' in df.columns:
+        original_na_count = df['시가총액'].isna().sum()
+        df = df.drop(columns=['시가총액'])
+        print(f"⚠️ 기존 시가총액 컬럼 제거 (결측치 {original_na_count:,}개 포함)")
+    
+    # 시가총액.csv 파일 로드 (우선주 포함한 정확한 시가총액)
     market_cap_path = project_root / "data" / "processed" / "시가총액.csv"
     if not market_cap_path.exists():
         market_cap_path = project_root / "시가총액.csv"
     
+    market_cap_loaded = False
     if market_cap_path.exists():
-        market_cap_df = pd.read_csv(market_cap_path, encoding='utf-8-sig')
-        if '회계년도' in market_cap_df.columns:
-            market_cap_df = market_cap_df.rename(columns={'회계년도': '연도'})
-        
-        # 거래소코드 타입 통일
-        market_cap_df['거래소코드'] = market_cap_df['거래소코드'].astype(str)
-        
-        # 데이터 타입 통일
-        if '연도' in market_cap_df.columns:
-            market_cap_df['연도'] = pd.to_numeric(market_cap_df['연도'], errors='coerce').astype('Int64')
-        
-        if '거래소코드' in market_cap_df.columns and '거래소코드' in df.columns:
-            df = df.merge(market_cap_df[['거래소코드', '연도', '시가총액']], 
-                         on=['거래소코드', '연도'], how='left')
-            print(f"시가총액 데이터 병합 후: {len(df)} 행")
+        try:
+            market_cap_df = pd.read_csv(market_cap_path, encoding='utf-8-sig')
+            if '회계년도' in market_cap_df.columns:
+                market_cap_df = market_cap_df.rename(columns={'회계년도': '연도'})
+            
+            # 거래소코드 타입 통일
+            market_cap_df['거래소코드'] = market_cap_df['거래소코드'].astype(str)
+            
+            # 데이터 타입 통일
+            if '연도' in market_cap_df.columns:
+                market_cap_df['연도'] = pd.to_numeric(market_cap_df['연도'], errors='coerce').astype('Int64')
+            
+            if '거래소코드' in market_cap_df.columns and '거래소코드' in df.columns:
+                df = df.merge(market_cap_df[['거래소코드', '연도', '시가총액']], 
+                             on=['거래소코드', '연도'], how='left')
+                market_cap_loaded = True
+                print(f"✅ 시가총액.csv 데이터 병합 완료: {len(df)} 행")
+                
+                # 병합 후 시가총액 통계
+                total_count = len(df)
+                valid_count = df['시가총액'].notna().sum()
+                print(f"   시가총액 데이터: {valid_count:,}/{total_count:,} ({valid_count/total_count*100:.1f}%)")
+                
+        except Exception as e:
+            print(f"⚠️ 시가총액.csv 로딩 실패: {e}")
     
-    # 누락된 시가총액 값 채우기
-    if '종가' in df.columns and '상장주식수' in df.columns:
-        missing_cap = df['시가총액'].isna()
-        df.loc[missing_cap, '시가총액'] = df.loc[missing_cap, '종가'] * df.loc[missing_cap, '상장주식수']
-        filled_count = (df.loc[missing_cap, '종가'].notna() & df.loc[missing_cap, '상장주식수'].notna()).sum()
-        print(f"누락된 시가총액 {filled_count}개 값 보간 완료")
+    if not market_cap_loaded:
+        print("⚠️ 시가총액.csv를 찾을 수 없거나 로딩에 실패했습니다.")
+        # 빈 시가총액 컬럼 생성
+        df['시가총액'] = np.nan
+    
+    # 시가총액 결측치 보완 (종가 × 상장주식수 또는 발행주식총수)
+    missing_cap = df['시가총액'].isna()
+    missing_count = missing_cap.sum()
+    
+    if missing_count > 0:
+        print(f"⚠️ 시가총액 결측치 {missing_count:,}개 발견 - 보간 시도")
+        
+        # 상장주식수를 우선 사용, 없으면 발행주식총수 사용
+        share_col = None
+        if '상장주식수' in df.columns:
+            share_col = '상장주식수'
+        elif '발행주식총수' in df.columns:
+            share_col = '발행주식총수'
+        
+        if '종가' in df.columns and share_col:
+            # 종가와 주식수가 모두 있는 경우만 계산
+            calc_mask = missing_cap & df['종가'].notna() & df[share_col].notna()
+            df.loc[calc_mask, '시가총액'] = df.loc[calc_mask, '종가'] * df.loc[calc_mask, share_col]
+            filled_count = calc_mask.sum()
+            print(f"✅ 종가 × {share_col}로 {filled_count:,}개 값 보간 완료")
+            
+            # 최종 결측치 확인
+            final_missing = df['시가총액'].isna().sum()
+            if final_missing > 0:
+                print(f"⚠️ 최종 시가총액 결측치: {final_missing:,}개")
+        else:
+            print(f"❌ 시가총액 보간 불가: 종가 또는 주식수 데이터 부족")
+    else:
+        print("✅ 시가총액 결측치 없음")
     
     # 거래소코드, 연도 순으로 정렬
     df = df.sort_values(['거래소코드', '연도']).reset_index(drop=True)
