@@ -1973,11 +1973,11 @@ class ModelingPipeline:
             self.logger.info(f"앙상블 모델은 이미 평가됨: {model_key}")
             return
         
-        # 모델 및 데이터 로드
+        # 모델 및 데이터 로드 (매번 원본에서 새로 복사하여 상태 오염 방지)
+        X_train_orig, y_train_orig = self.data[data_type]['X_train'].copy(), self.data[data_type]['y_train'].copy()
+        X_val_orig, y_val_orig = self.data[data_type]['X_val'].copy(), self.data[data_type]['y_val'].copy()
+        X_test_orig, y_test_orig = self.data[data_type]['X_test'].copy(), self.data[data_type]['y_test'].copy()
         model = self.models[model_key]
-        X_train, y_train = self.data[data_type]['X_train'], self.data[data_type]['y_train']
-        X_val, y_val = self.data[data_type]['X_val'], self.data[data_type]['y_val']
-        X_test, y_test = self.data[data_type]['X_test'], self.data[data_type]['y_test']
 
         self.model_results[model_key] = {
             'model_name': model_name,
@@ -1985,17 +1985,37 @@ class ModelingPipeline:
         }
 
         # --- CV 평가 (Train set) ---
-        cv_scores = self._calculate_cv_metrics(model, X_train, y_train, data_type)
+        cv_scores = self._calculate_cv_metrics(model, X_train_orig.copy(), y_train_orig.copy(), data_type)
         self.model_results[model_key]['cv_scores'] = cv_scores
         # 주요 메트릭을 cv_score로 저장 (앙상블에서 사용)
-        self.model_results[model_key]['cv_score'] = cv_scores.get('f1', {}).get('mean', 0)
-        self.logger.info(f"[{model_key}] Cross-Validation (Train): {cv_scores}")
+        self.model_results[model_key]['cv_score'] = cv_scores.get('cv_f1_mean', 0)
+        self.logger.info(f"[{model_key}] Cross-Validation (Train): AUC={cv_scores.get('cv_auc_mean', 0):.4f}, F1={cv_scores.get('cv_f1_mean', 0):.4f}")
         
-        # --- Validation 세트 평가 ---
-        y_proba_val = model.predict_proba(X_val)[:, 1]
+        # === 평가를 위한 전처리 적용 ===
+        # 훈련 시와 동일한 전처리 순서: 로그 변환 → 스케일링
+        try:
+            # 1단계: 로그 변환 적용
+            X_train_log, X_val_log, X_test_log, log_info = self.apply_log_transform(
+                X_train_orig, X_val_orig, X_test_orig, data_type
+            )
+            
+            # 2단계: 스케일링 적용 (로그 변환된 데이터에)
+            X_train_scaled, X_val_scaled, X_test_scaled, scalers = self.apply_scaling(
+                X_train_log, X_val_log, X_test_log, data_type
+            )
+            
+            self.logger.info(f"[{model_key}] 평가용 전처리 완료")
+            
+        except Exception as e:
+            self.logger.error(f"[{model_key}] 평가용 전처리 실패: {e}")
+            # 전처리 실패 시 원본 데이터 사용 (백업)
+            X_val_scaled, X_test_scaled = X_val_orig, X_test_orig
+
+        # --- Validation 세트 평가 (전처리된 데이터 사용) ---
+        y_proba_val = model.predict_proba(X_val_scaled)[:, 1]
 
         # Validation 세트에서 최적 Threshold 찾기 (F1 score 기준)
-        f1_optimal_threshold, optimal_f1_score = self.find_optimal_threshold(model, X_val, y_val)
+        f1_optimal_threshold, optimal_f1_score = self.find_optimal_threshold(model, X_val_scaled, y_val_orig)
         optimal_thresholds = {
             'f1': {
                 'threshold': f1_optimal_threshold,
@@ -2008,18 +2028,18 @@ class ModelingPipeline:
         y_pred_val_optimal = (y_proba_val >= f1_optimal_threshold).astype(int)
         
         val_metrics_optimal = {
-            'roc_auc': roc_auc_score(y_val, y_proba_val),
-            'f1': f1_score(y_val, y_pred_val_optimal, zero_division=0),
-            'precision': precision_score(y_val, y_pred_val_optimal, zero_division=0),
-            'recall': recall_score(y_val, y_pred_val_optimal, zero_division=0),
-            'balanced_accuracy': balanced_accuracy_score(y_val, y_pred_val_optimal),
+            'roc_auc': roc_auc_score(y_val_orig, y_proba_val),
+            'f1': f1_score(y_val_orig, y_pred_val_optimal, zero_division=0),
+            'precision': precision_score(y_val_orig, y_pred_val_optimal, zero_division=0),
+            'recall': recall_score(y_val_orig, y_pred_val_optimal, zero_division=0),
+            'balanced_accuracy': balanced_accuracy_score(y_val_orig, y_pred_val_optimal),
             'threshold': f1_optimal_threshold
         }
         self.model_results[model_key]['val_metrics_optimal'] = val_metrics_optimal
         self.logger.info(f"[{model_key}] Validation (Optimal Threshold): F1={val_metrics_optimal['f1']:.4f}, Recall={val_metrics_optimal['recall']:.4f}")
 
-        # --- 테스트 세트 평가 ---
-        y_proba_test = model.predict_proba(X_test)[:, 1]
+        # --- 테스트 세트 평가 (전처리된 데이터 사용) ---
+        y_proba_test = model.predict_proba(X_test_scaled)[:, 1]
         
         # 최적 임계값 적용
         y_pred_test_optimal = (y_proba_test >= f1_optimal_threshold).astype(int)
@@ -2028,26 +2048,27 @@ class ModelingPipeline:
         y_pred_test_default = (y_proba_test >= 0.5).astype(int)
 
         test_metrics = {
-            'roc_auc': roc_auc_score(y_test, y_proba_test),
+            'roc_auc': roc_auc_score(y_test_orig, y_proba_test),
             'optimal_threshold': f1_optimal_threshold,
+            'average_precision': average_precision_score(y_test_orig, y_proba_test),
             
             # 최적 임계값 기준 성능
-            'f1_optimal': f1_score(y_test, y_pred_test_optimal, zero_division=0),
-            'precision_optimal': precision_score(y_test, y_pred_test_optimal, zero_division=0),
-            'recall_optimal': recall_score(y_test, y_pred_test_optimal, zero_division=0),
-            'balanced_accuracy_optimal': balanced_accuracy_score(y_test, y_pred_test_optimal),
+            'f1_optimal': f1_score(y_test_orig, y_pred_test_optimal, zero_division=0),
+            'precision_optimal': precision_score(y_test_orig, y_pred_test_optimal, zero_division=0),
+            'recall_optimal': recall_score(y_test_orig, y_pred_test_optimal, zero_division=0),
+            'balanced_accuracy_optimal': balanced_accuracy_score(y_test_orig, y_pred_test_optimal),
             
             # 기본 임계값 기준 성능
-            'f1_default': f1_score(y_test, y_pred_test_default, zero_division=0),
-            'precision_default': precision_score(y_test, y_pred_test_default, zero_division=0),
-            'recall_default': recall_score(y_test, y_pred_test_default, zero_division=0),
+            'f1_default': f1_score(y_test_orig, y_pred_test_default, zero_division=0),
+            'precision_default': precision_score(y_test_orig, y_pred_test_default, zero_division=0),
+            'recall_default': recall_score(y_test_orig, y_pred_test_default, zero_division=0),
         }
         self.model_results[model_key]['test_metrics'] = test_metrics
         self.logger.info(f"[{model_key}] Test (Optimal Threshold={f1_optimal_threshold:.4f}): F1={test_metrics['f1_optimal']:.4f}, Recall={test_metrics['recall_optimal']:.4f}")
         self.logger.info(f"[{model_key}] Test (Default Threshold=0.5): F1={test_metrics['f1_default']:.4f}, Recall={test_metrics['recall_default']:.4f}")
 
         # 혼동 행렬 시각화 (최적 Threshold 기준)
-        cm = confusion_matrix(y_test, y_pred_test_optimal)
+        cm = confusion_matrix(y_test_orig, y_pred_test_optimal)
         self.model_results[model_key]['confusion_matrix_test'] = cm.tolist()
         
         # 예측 결과 저장 (proba)
@@ -2183,18 +2204,24 @@ class ModelingPipeline:
             data_type = result.get('data_type', 'unknown')
             
             cv_metrics = result.get('cv_metrics', {})
-            val_metrics = result.get('val_metrics', {})
+            val_metrics = result.get('val_metrics_optimal', {})
             test_metrics = result.get('test_metrics', {})
             
+            # 앙상블과 개별 모델의 저장 구조가 다르므로 분기 처리
+            if model_name == 'ensemble':
+                optimal_threshold = result.get('optimal_threshold', 0.5)
+            else:
+                optimal_threshold = test_metrics.get('optimal_threshold', 0.5)
+
             summary_data.append({
                 'Model': model_name,
                 'Data_Type': data_type.upper() if data_type != 'unknown' else 'UNKNOWN',
-                'Optimal_Threshold': result.get('optimal_threshold', 0.5),
+                'Optimal_Threshold': optimal_threshold,
                 'CV_AUC': result.get('cv_score', 0),
                 'CV_AUC_Mean': cv_metrics.get('cv_auc_mean', result.get('cv_score', 0)),
                 'CV_AP_Mean': cv_metrics.get('cv_average_precision_mean', 0),
                 'CV_F1_Mean': cv_metrics.get('cv_f1_mean', 0),
-                'Val_AUC': val_metrics.get('auc', 0),
+                'Val_AUC': val_metrics.get('roc_auc', 0),
                 'Val_F1': val_metrics.get('f1', 0),
                 'Test_AUC': test_metrics.get('roc_auc', 0),
                 'Test_Precision': test_metrics.get('precision_optimal', test_metrics.get('precision_default', 0)),
@@ -2294,13 +2321,38 @@ class ModelingPipeline:
                 X_test = self.data['normal']['X_test']
                 y_test = self.data['normal']['y_test']
                 model = self.models[model_key]
+                # 앙상블은 전처리 내장하므로 원본 데이터 사용
                 y_pred_proba = model.predict_proba(X_test)  # 앙상블은 이미 확률값 반환
             else:
-                # 일반 모델 처리
-                X_test = self.data[data_type]['X_test']
+                # 일반 모델의 경우 evaluate_model에서 저장된 예측 결과 사용
                 y_test = self.data[data_type]['y_test']
-                model = self.models[model_key]
-                y_pred_proba = model.predict_proba(X_test)[:, 1]
+                predictions = result.get('predictions', {})
+                y_pred_proba = predictions.get('y_proba_test', [])
+                
+                # 저장된 예측이 없는 경우에만 직접 예측 (백업)
+                if not y_pred_proba:
+                    self.logger.warning(f"{model_key}: 저장된 예측 결과 없음, 직접 예측 수행")
+                    # 전처리 적용해서 예측
+                    try:
+                        X_test = self.data[data_type]['X_test']
+                        X_train = self.data[data_type]['X_train']
+                        X_val = self.data[data_type]['X_val']
+                        
+                        # 전처리 적용
+                        X_train_log, X_val_log, X_test_log, _ = self.apply_log_transform(
+                            X_train.copy(), X_val.copy(), X_test.copy(), data_type
+                        )
+                        X_train_scaled, X_val_scaled, X_test_scaled, _ = self.apply_scaling(
+                            X_train_log, X_val_log, X_test_log, data_type
+                        )
+                        
+                        model = self.models[model_key]
+                        y_pred_proba = model.predict_proba(X_test_scaled)[:, 1]
+                    except Exception as e:
+                        self.logger.error(f"{model_key} ROC 곡선 예측 실패: {e}")
+                        continue
+                else:
+                    y_pred_proba = np.array(y_pred_proba)
             
             # ROC 곡선 계산
             fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
@@ -2349,13 +2401,38 @@ class ModelingPipeline:
                 X_test = self.data['normal']['X_test']
                 y_test = self.data['normal']['y_test']
                 model = self.models[model_key]
+                # 앙상블은 전처리 내장하므로 원본 데이터 사용
                 y_pred_proba = model.predict_proba(X_test)  # 앙상블은 이미 확률값 반환
             else:
-                # 일반 모델 처리
-                X_test = self.data[data_type]['X_test']
+                # 일반 모델의 경우 evaluate_model에서 저장된 예측 결과 사용
                 y_test = self.data[data_type]['y_test']
-                model = self.models[model_key]
-                y_pred_proba = model.predict_proba(X_test)[:, 1]
+                predictions = result.get('predictions', {})
+                y_pred_proba = predictions.get('y_proba_test', [])
+                
+                # 저장된 예측이 없는 경우에만 직접 예측 (백업)
+                if not y_pred_proba:
+                    self.logger.warning(f"{model_key}: 저장된 예측 결과 없음, 직접 예측 수행")
+                    # 전처리 적용해서 예측
+                    try:
+                        X_test = self.data[data_type]['X_test']
+                        X_train = self.data[data_type]['X_train']
+                        X_val = self.data[data_type]['X_val']
+                        
+                        # 전처리 적용
+                        X_train_log, X_val_log, X_test_log, _ = self.apply_log_transform(
+                            X_train.copy(), X_val.copy(), X_test.copy(), data_type
+                        )
+                        X_train_scaled, X_val_scaled, X_test_scaled, _ = self.apply_scaling(
+                            X_train_log, X_val_log, X_test_log, data_type
+                        )
+                        
+                        model = self.models[model_key]
+                        y_pred_proba = model.predict_proba(X_test_scaled)[:, 1]
+                    except Exception as e:
+                        self.logger.error(f"{model_key} PR 곡선 예측 실패: {e}")
+                        continue
+                else:
+                    y_pred_proba = np.array(y_pred_proba)
             
             # PR 곡선 계산
             precision, recall, _ = precision_recall_curve(y_test, y_pred_proba)
@@ -2830,7 +2907,7 @@ class ModelingPipeline:
     
     def find_optimal_threshold(self, model, X_val, y_val):
         """
-        Find optimal threshold using F1 score maximization (from jongho.ipynb baseline)
+        Find optimal threshold using F1 score maximization with improved debugging and fallback strategies
         
         Args:
             model: Trained model
@@ -2850,18 +2927,103 @@ class ModelingPipeline:
             self.logger.warning("Model does not support predict_proba, using decision_function")
             y_val_proba = model.decision_function(X_val)
         
+        # 디버깅 정보 출력
+        self.logger.info(f"Threshold 최적화 디버깅:")
+        self.logger.info(f"  - 검증 데이터 크기: {len(y_val)}")
+        self.logger.info(f"  - 양성 클래스 비율: {y_val.mean():.4f} ({y_val.sum()}/{len(y_val)})")
+        self.logger.info(f"  - 예측 확률 범위: [{y_val_proba.min():.4f}, {y_val_proba.max():.4f}]")
+        self.logger.info(f"  - 예측 확률 평균: {y_val_proba.mean():.4f}")
+        
+        # 예측 확률이 모두 동일한 경우 체크
+        if np.std(y_val_proba) < 1e-6:
+            self.logger.warning("모든 예측 확률이 거의 동일합니다. 모델이 제대로 학습되지 않았을 수 있습니다.")
+            return 0.5, 0.0
+        
         # Calculate precision-recall curve
         precision, recall, thresholds = precision_recall_curve(y_val, y_val_proba)
         
         # Calculate F1 scores for each threshold
         f1_scores = 2 * (precision * recall) / (precision + recall + 1e-8)
         
-        # Find optimal threshold
-        optimal_idx = np.argmax(f1_scores)
-        optimal_threshold = thresholds[optimal_idx] if optimal_idx < len(thresholds) else 0.5
-        optimal_f1 = f1_scores[optimal_idx]
+        # thresholds에 해당하는 f1_scores만 사용 (마지막 값 제외)
+        valid_f1_scores = f1_scores[:-1]
         
-        self.logger.info(f"Optimal threshold found: {optimal_threshold:.4f} (F1: {optimal_f1:.4f})")
+        # 디버깅: F1 점수 분포 확인
+        if len(valid_f1_scores) > 0:
+            self.logger.info(f"  - F1 점수 범위: [{valid_f1_scores.min():.4f}, {valid_f1_scores.max():.4f}]")
+            self.logger.info(f"  - 0이 아닌 F1 점수 개수: {np.sum(valid_f1_scores > 0)}/{len(valid_f1_scores)}")
+
+        # Find optimal threshold
+        if len(valid_f1_scores) == 0:
+            self.logger.warning("F1 점수를 계산할 수 있는 임계값이 없습니다. 기본 임계값 0.5를 사용합니다.")
+            return 0.5, 0.0
+            
+        if np.all(valid_f1_scores == 0):
+            self.logger.warning("모든 임계값에서 F1 점수가 0입니다.")
+            
+            # 대안 1: Balanced Accuracy로 임계값 선택
+            self.logger.info("대안 1: Balanced Accuracy 기준으로 임계값 선택 시도")
+            try:
+                from sklearn.metrics import balanced_accuracy_score
+                best_balanced_acc = 0
+                best_threshold_ba = 0.5
+                
+                # 다양한 임계값에서 Balanced Accuracy 계산
+                test_thresholds = np.arange(0.1, 0.9, 0.1)
+                for thresh in test_thresholds:
+                    y_pred_thresh = (y_val_proba >= thresh).astype(int)
+                    if len(np.unique(y_pred_thresh)) > 1:  # 두 클래스가 모두 예측되는 경우만
+                        ba_score = balanced_accuracy_score(y_val, y_pred_thresh)
+                        if ba_score > best_balanced_acc:
+                            best_balanced_acc = ba_score
+                            best_threshold_ba = thresh
+                
+                if best_balanced_acc > 0.5:
+                    self.logger.info(f"Balanced Accuracy 기준 최적 임계값: {best_threshold_ba:.3f} (BA: {best_balanced_acc:.4f})")
+                    return best_threshold_ba, 0.0
+            except Exception as e:
+                self.logger.warning(f"Balanced Accuracy 기준 임계값 선택 실패: {e}")
+            
+            # 대안 2: Youden's J statistic (Sensitivity + Specificity - 1) 기준
+            self.logger.info("대안 2: Youden's J statistic 기준으로 임계값 선택 시도")
+            try:
+                from sklearn.metrics import roc_curve
+                fpr, tpr, roc_thresholds = roc_curve(y_val, y_val_proba)
+                
+                # Youden's J statistic 계산
+                j_scores = tpr - fpr
+                best_j_idx = np.argmax(j_scores)
+                best_threshold_j = roc_thresholds[best_j_idx]
+                best_j_score = j_scores[best_j_idx]
+                
+                if best_j_score > 0:
+                    self.logger.info(f"Youden's J 기준 최적 임계값: {best_threshold_j:.3f} (J: {best_j_score:.4f})")
+                    return best_threshold_j, 0.0
+            except Exception as e:
+                self.logger.warning(f"Youden's J 기준 임계값 선택 실패: {e}")
+            
+            # 대안 3: 예측 확률의 중앙값 사용
+            self.logger.info("대안 3: 예측 확률 중앙값을 임계값으로 사용")
+            median_threshold = np.median(y_val_proba)
+            self.logger.info(f"예측 확률 중앙값 임계값: {median_threshold:.3f}")
+            return median_threshold, 0.0
+            
+        # 정상적인 경우: F1 점수 기준으로 최적 임계값 찾기
+        optimal_idx = np.argmax(valid_f1_scores)
+        optimal_threshold = thresholds[optimal_idx]
+        optimal_f1 = valid_f1_scores[optimal_idx]
+        
+        # 최종 결과로 실제 성능 재확인
+        y_pred_final = (y_val_proba >= optimal_threshold).astype(int)
+        from sklearn.metrics import precision_score, recall_score, f1_score
+        
+        final_precision = precision_score(y_val, y_pred_final, zero_division=0)
+        final_recall = recall_score(y_val, y_pred_final, zero_division=0)
+        final_f1 = f1_score(y_val, y_pred_final, zero_division=0)
+        
+        self.logger.info(f"최적 임계값 검증: {optimal_threshold:.4f}")
+        self.logger.info(f"  - F1: {final_f1:.4f}, Precision: {final_precision:.4f}, Recall: {final_recall:.4f}")
+        self.logger.info(f"  - 양성 예측 개수: {y_pred_final.sum()}/{len(y_pred_final)}")
         
         return optimal_threshold, optimal_f1
 

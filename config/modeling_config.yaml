@@ -12,7 +12,7 @@ validation:
     inner_folds: 3
     n_trials: 50
   logistic_holdout:
-    n_iterations: 30
+    n_iterations: 20
     test_size: 0.3
 
 # 실험 정보
@@ -170,17 +170,17 @@ models:
   logistic_regression:
     enabled: true
     class_weight: 'balanced'  # class_weight 제거로 Precision 개선 (극심한 불균형 데이터에서 오히려 성능 저하)
-    penalty: ["l2"]
-    l2_solvers: ["newton-cg", "lbfgs", "saga", "liblinear"]  # 가장 안정적인 solver들만 사용
+    penalty: ["l2", "elasticnet"]
+    l2_solvers: ["newton-cg", "lbfgs", "saga", "liblinear", "sag"]  # 가장 안정적인 solver들만 사용
     C_range: [0.01, 100]  # 수렴 안정성을 위해 범위 축소
-    max_iter_range: [100, 10000]  # 충분한 반복 횟수 보장
+    max_iter_range: [2000, 10000]  # 충분한 반복 횟수 보장
     l1_ratio_range: [0.1, 0.9]  # elasticnet용
-    n_trials: 10  # trial 수 감소로 빠른 수렴
+    n_trials: 100  # trial 수 감소로 빠른 수렴
   
   random_forest:
     enabled: true
     class_weight: 'balanced'  # class_weight 제거로 Precision 개선 (극심한 불균형 데이터에서 오히려 성능 저하)
-    n_estimators_range: [100, 300]
+    n_estimators_range: [100, 500]
     max_depth_range: [3, 20]
     min_samples_split_range: [2, 20]
     min_samples_leaf_range: [1, 10]

@@ -325,14 +325,20 @@ class EnsemblePipeline:
         y_pred_proba = self.ensemble_predict_proba(X_test)
         y_pred = (y_pred_proba >= threshold).astype(int)
         
-        # 성능 메트릭 계산
+        # 성능 메트릭 계산 - modeling_pipeline 호환 키 이름 사용
         metrics = {
+            'roc_auc': roc_auc_score(y_test, y_pred_proba),
+            'precision_optimal': precision_score(y_test, y_pred, zero_division=0),
+            'recall_optimal': recall_score(y_test, y_pred, zero_division=0),
+            'f1_optimal': f1_score(y_test, y_pred, zero_division=0),
+            'balanced_accuracy_optimal': balanced_accuracy_score(y_test, y_pred),
+            'average_precision': average_precision_score(y_test, y_pred_proba),
+            # 기존 키들도 유지 (하위 호환성)
             'auc': roc_auc_score(y_test, y_pred_proba),
             'precision': precision_score(y_test, y_pred, zero_division=0),
             'recall': recall_score(y_test, y_pred, zero_division=0),
             'f1': f1_score(y_test, y_pred, zero_division=0),
-            'balanced_accuracy': balanced_accuracy_score(y_test, y_pred),
-            'average_precision': average_precision_score(y_test, y_pred_proba)
+            'balanced_accuracy': balanced_accuracy_score(y_test, y_pred)
         }
         
         print("📈 앙상블 성능:")
