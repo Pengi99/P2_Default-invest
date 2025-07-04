@@ -1,0 +1,35 @@
+# Factor Backtesting v2.2 Configuration File
+
+# 1. Basic Settings
+data_paths:
+  price_data_dir: 'data/raw'
+  fundamental: 'data/processed/FS2_default.csv'
+  market_cap: 'data/processed/시가총액.csv'
+
+output_dir: 'outputs/backtesting_v2'
+start_date: '2013-04-01'
+end_date: '2023-12-31'
+benchmark_ticker: '^KS11'  # yfinance KOSPI ticker
+risk_free_rate_fallback: 0.025  # 2% annual risk-free rate fallback
+
+# 2. Portfolio Settings
+portfolio_params:
+  portfolio_size: 20
+  weighting_scheme: 'Equal'
+
+# 3. Strategy-specific Settings
+strategy_params:
+  f_score:
+    min_score: 8
+  ff3_alpha:
+    regression_window: 24
+    alpha_pvalue_threshold: 0.1
+  momentum:
+    lookback_period: 12
+    skip_period: 1
+
+# 4. Transaction Cost Settings
+transaction_costs:
+  commission_rate: 0.00015
+  tax_rate: 0.0018
+  slippage_rate: 0.0005
