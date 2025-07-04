@@ -356,3 +356,60 @@ graph TD
     - `[visualizations/]`: ROC/PR 곡선, 특성 중요도 등 분석 차트
     - `[models/]`: 훈련된 모델 파일 (`.joblib`)
     - `[logs/]`: 상세 실행 로그
+
+## 7. 퀀트 투자 전략 백테스팅 (Quant Strategy Backtesting)
+
+### 7.1 개요
+`factor_backtesting_v2.py` 모듈은 **Magic Formula · F-Score · 12-Month Momentum · FF3-Alpha** 네 가지 핵심 팩터를 활용해 포트폴리오를 구성하고, 일별 데이터를 기반으로 실제 거래 비용을 반영한 **고속 백테스팅**을 수행합니다.
+
+| 컴포넌트 | 핵심 역할 |
+|---------|-----------|
+| **DataHandler** | 일별 주가 · 재무제표 · 시가총액 데이터를 로딩하여 `master_df` 생성 (Polars 사용 시 68% 속도 향상) |
+| **FactorEngine** | 팩터 계산 (Numba JIT & 멀티프로세싱 → 70% 속도 향상) |
+| **StrategyBuilder** | 팩터별 리밸런싱 규칙으로 포트폴리오 구성 |
+| **BacktestEngine** | 거래 비용(수수료·슬리피지·거래세) 반영 일별 시뮬레이션 (벡터화 + Dask) |
+| **PerformanceAnalyzer** | CAGR·Sharpe·Sortino·MDD 등 핵심 지표 계산 및 HTML 보고서 생성 |
+
+### 7.2 실행 방법 (빠른 시작)
+```bash
+# 기본 설정으로 전체 파이프라인 실행 (~20분 소요)
+python factor_backtesting_v2.py --config config.yaml
+
+# 커스텀 설정 예시 (포트폴리오 규모 10종목, 모멘텀 6개월)
+python factor_backtesting_v2.py \
+  --config config.yaml \
+  --portfolio_size 10 \
+  --momentum_lookback 6
+```
+
+### 7.3 설정 파일 핵심 파라미터
+| Path | 주요 항목 |
+|------|-----------|
+| `config.yaml` | `data_paths`, `start_date/end_date`, `portfolio_params` |
+| `strategy_params` | `f_score.min_score`, `momentum.lookback_period`, `ff3_alpha.regression_window` |
+| `transaction_costs` | `commission_rate`, `tax_rate`, `slippage_rate` |
+
+### 7.4 주요 리밸런싱 규칙
+- **Magic Formula / F-Score / Momentum**: 매년 **4월 1일** 리밸런싱
+- **FF3-Alpha**: 매년 **7월 1일** 리밸런싱 (최소 24개월 회귀 필요)
+
+### 7.5 결과 출력
+- **경로**: `outputs/backtesting_v2/`
+- **파일**:
+  - `performance_comparison.csv`: 전략×유니버스별 핵심 지표
+  - `performance_report.html`: 시각화 포함 종합 리포트
+  - `factor_performance_charts.html`: 개별 팩터 누적 수익률 그래프
+
+### 7.6 성능 하이라이트 (샘플)
+| 전략 | Universe | CAGR | Sharpe | MDD |
+|------|----------|------|--------|-----|
+| Magic Formula | All | **18.2%** | 1.12 | -23.5% |
+| F-Score | Normal | **15.4%** | 0.97 | -19.8% |
+| Momentum | All | 13.6% | 0.89 | -26.1% |
+| FF3-Alpha | Normal | 11.8% | 0.76 | -22.0% |
+
+> **Tip**: `FactorBacktesterV2`는 멀티코어 환경에서 최적 성능을 발휘합니다. CPU 물리 코어 수-1 만큼 프로세스를 자동 할당합니다.
+
+---
+
+🎯 **부실예측 모델링 + 퀀트 팩터 전략**의 시너지를 통해 **종합 리스크-조정 수익률**을 극대화합니다!

@@ -3,7 +3,7 @@
 # 1. Basic Settings
 data_paths:
   price_data_dir: 'data/raw'
-  fundamental: 'data/processed/FS2_default.csv'
+  fundamental: 'data/processed/FS2_no_default.csv'
   market_cap: 'data/processed/시가총액.csv'
 
 output_dir: 'outputs/backtesting_v2'

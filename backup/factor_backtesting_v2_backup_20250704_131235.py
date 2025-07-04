@@ -17,25 +17,6 @@ from scipy import stats
 import yfinance as yf
 from pathlib import Path
 from multiprocessing import Pool, cpu_count
-
-# Performance optimization libraries
-try:
-    import polars as pl
-    POLARS_AVAILABLE = True
-except ImportError:
-    POLARS_AVAILABLE = False
-
-try:
-    from numba import jit, prange
-    NUMBA_AVAILABLE = True
-except ImportError:
-    NUMBA_AVAILABLE = False
-
-try:
-    import dask.dataframe as dd
-    DASK_AVAILABLE = True
-except ImportError:
-    DASK_AVAILABLE = False
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="pykrx")
 
@@ -165,72 +146,44 @@ class DataHandler:
         print(f"    ✅ 시가총액 데이터 로딩 완료: {len(self.market_cap_df):,}행")
         
     def _create_master_dataframe(self):
-        """Create master dataframe with future information bias prevention - OPTIMIZED"""
-        print("  🔄 마스터 데이터프레임 생성 중 (벡터화 최적화)...")
+        """Create master dataframe with future information bias prevention"""
+        print("  🔄 마스터 데이터프레임 생성 중...")
         
-        if POLARS_AVAILABLE:
-            # OPTIMIZATION 1: Use Polars for 3-4x faster vectorized operations
-            try:
-                # Convert to Polars for blazing fast operations
-                daily_pl = pl.from_pandas(self.daily_price_df)
-                fundamental_pl = pl.from_pandas(
-                    self.fs_df.merge(self.market_cap_df, on=['거래소코드', '회계년도'], how='left')
-                )
-                
-                # Vectorized fiscal year calculation (replaces nested loop)
-                daily_with_fiscal = daily_pl.with_columns([
-                    pl.when(pl.col('date').dt.month() >= 4)
-                    .then(pl.col('date').dt.year() - 1) 
-                    .otherwise(pl.col('date').dt.year() - 2)
-                    .alias('fiscal_year')
-                ])
-                
-                # Single vectorized join instead of 1,500+ individual merges
-                master_pl = daily_with_fiscal.join(
-                    fundamental_pl,
-                    left_on=['거래소코드', 'fiscal_year'],
-                    right_on=['거래소코드', '회계년도'],
-                    how='left'
-                ).with_columns([
-                    pl.col('date').alias('rebalance_date')
-                ])
-                
-                # Convert back to pandas for compatibility
-                self.master_df = master_pl.to_pandas()
-                self.master_df = self.master_df.dropna(subset=['거래소코드', 'date'])
-                
-                print(f"    ✅ Polars 벡터화 완료: {len(self.master_df):,}행 (68% 속도 향상)")
-                return
-                
-            except Exception as e:
-                print(f"    ⚠️ Polars 최적화 실패, 기본 방식 사용: {e}")
-        
-        # FALLBACK: Optimized pandas approach
-        print("    🔄 Pandas 최적화 방식 사용...")
-        
-        # Pre-merge fundamental data
+        # Merge financial data with market cap data
         fundamental_df = self.fs_df.merge(self.market_cap_df, on=['거래소코드', '회계년도'], how='left')
         
-        # Vectorized fiscal year calculation
-        self.daily_price_df = self.daily_price_df.copy()
-        self.daily_price_df['fiscal_year'] = np.where(
-            self.daily_price_df['date'].dt.month >= 4,
-            self.daily_price_df['date'].dt.year - 1,
-            self.daily_price_df['date'].dt.year - 2
-        )
+        # Create master dataframe by merging daily data with fundamental data
+        # Key rule: Link fundamental data that was available at each trading date
+        master_records = []
         
-        # Single vectorized merge instead of date-by-date loop
-        self.master_df = self.daily_price_df.merge(
-            fundamental_df,
-            left_on=['거래소코드', 'fiscal_year'],
-            right_on=['거래소코드', '회계년도'],
-            how='left'
-        )
+        for date in self.daily_price_df['date'].unique():
+            # Get daily data for this date
+            daily_data = self.daily_price_df[self.daily_price_df['date'] == date].copy()
+            
+            # Determine which fiscal year data should be used for this date
+            # Rule: Use the most recent fiscal year data available before this date
+            current_year = date.year
+            
+            # For dates from April 1 to March 31, use previous year's fundamental data
+            if date.month >= 4:
+                fiscal_year = current_year - 1
+            else:
+                fiscal_year = current_year - 2
+                
+            # Get fundamental data for the determined fiscal year
+            fund_data = fundamental_df[fundamental_df['회계년도'] == fiscal_year]
+            # Merge daily data with fundamental data
+            merged_data = daily_data.merge(fund_data, on=['거래소코드', '회계년도'], how='left')
+            merged_data['rebalance_date'] = date
+            
+            master_records.append(merged_data)
         
-        self.master_df['rebalance_date'] = self.master_df['date']
-        self.master_df = self.master_df.dropna(subset=['거래소코드', 'date'])
-        
-        print(f"    ✅ Pandas 벡터화 완료: {len(self.master_df):,}행 (40% 속도 향상)")
+        if master_records:
+            self.master_df = pd.concat(master_records, ignore_index=True)
+            self.master_df = self.master_df.dropna(subset=['거래소코드', 'date'])
+            print(f"    ✅ 마스터 데이터프레임 생성 완료: {len(self.master_df):,}행")
+        else:
+            raise ValueError("마스터 데이터프레임을 생성할 수 없습니다.")
 
 
 class FactorEngine:
@@ -270,13 +223,7 @@ class FactorEngine:
             df['earnings_yield'] = np.nan
             
         # ROIC calculation
-        if '투하자본수익률(ROIC)' in df.columns:
-            # Use actual ROIC column if available
-            df['roic'] = pd.to_numeric(df['투하자본수익률(ROIC)'], errors='coerce')
-            # Check if ROIC is in percentage format and convert if needed
-            if df['roic'].abs().max() > 1:
-                df['roic'] = df['roic'] / 100
-        elif '경영자본영업이익률' in df.columns:
+        if '경영자본영업이익률' in df.columns:
             df['roic'] = pd.to_numeric(df['경영자본영업이익률'], errors='coerce') / 100
         elif '영업이익' in df.columns and '총자산' in df.columns:
             total_assets = pd.to_numeric(df['총자산'], errors='coerce').replace(0, np.nan)
@@ -447,143 +394,33 @@ class FactorEngine:
         
         return chunk_results
     
-    def _compute_momentum_numba(self, prices, dates_ordinal, lookback_days):
-        """Numba-optimized momentum calculation core function"""
-        if NUMBA_AVAILABLE:
-            return self._momentum_numba_jit(prices, dates_ordinal, lookback_days)
-        else:
-            # Fallback numpy implementation
-            return self._momentum_numpy_fallback(prices, dates_ordinal, lookback_days)
-    
-    @staticmethod
-    def _momentum_numpy_fallback(prices, dates_ordinal, lookback_days):
-        """Numpy fallback for momentum calculation"""
-        n = len(prices)
-        momentum = np.full(n, np.nan)
-        
-        for i in range(n):
-            current_date = dates_ordinal[i]
-            lookback_date = current_date - lookback_days
-            
-            # Find lookback price efficiently
-            for j in range(i-1, -1, -1):
-                if dates_ordinal[j] <= lookback_date:
-                    if prices[j] > 0:
-                        momentum[i] = (prices[i] / prices[j]) - 1
-                    break
-        
-        return momentum
-    
-    def _get_momentum_numba_jit(self):
-        """Get or create Numba JIT compiled momentum function"""
-        if not hasattr(self, '_momentum_jit_func'):
-            if NUMBA_AVAILABLE:
-                @jit(nopython=True, parallel=True, cache=True)
-                def momentum_jit(prices, dates_ordinal, lookback_days):
-                    n = len(prices)
-                    momentum = np.full(n, np.nan)
-                    
-                    for i in prange(n):  # Parallel loop
-                        current_date = dates_ordinal[i]
-                        lookback_date = current_date - lookback_days
-                        
-                        # Find lookback price efficiently
-                        for j in range(i-1, -1, -1):
-                            if dates_ordinal[j] <= lookback_date:
-                                if prices[j] > 0:
-                                    momentum[i] = (prices[i] / prices[j]) - 1
-                                break
-                    
-                    return momentum
-                
-                self._momentum_jit_func = momentum_jit
-            else:
-                self._momentum_jit_func = self._momentum_numpy_fallback
-        
-        return self._momentum_jit_func
-    
-    def _momentum_numba_jit(self, prices, dates_ordinal, lookback_days):
-        """Apply Numba JIT compiled momentum calculation"""
-        jit_func = self._get_momentum_numba_jit()
-        return jit_func(prices, dates_ordinal, lookback_days)
         
     def _compute_momentum(self, df):
-        """Momentum computation with Numba JIT optimization - OPTIMIZED"""
-        print("  📈 모멘텀 계산 중 (Numba JIT 최적화)...")
+        """Momentum computation using daily price data with multiprocessing"""
+        print("  📈 모멘텀 계산 중...")
         
         lookback_months = self.config['strategy_params']['momentum']['lookback_period']
-        lookback_days = lookback_months * 30  # Approximate conversion
-        
-        if NUMBA_AVAILABLE:
-            # OPTIMIZATION 2: Use Numba JIT for 3-5x speed improvement
-            try:
-                print("    🚀 Numba JIT 컴파일 시작...")
-                
-                # Calculate momentum returns with vectorized operations
-                df = df.sort_values(['거래소코드', 'date'])
-                momentum_results = []
-                
-                unique_codes = df['거래소코드'].unique()
-                total_stocks = len(unique_codes)
-                
-                # Process in optimized chunks for memory efficiency
-                chunk_size = 50  # Smaller chunks for JIT efficiency
-                for i in range(0, len(unique_codes), chunk_size):
-                    chunk_codes = unique_codes[i:i+chunk_size]
-                    
-                    progress = (i + len(chunk_codes)) / total_stocks * 100
-                    print(f"    📊 JIT 모멘텀 계산: {progress:.1f}% ({i + len(chunk_codes)}/{total_stocks})")
-                    
-                    chunk_results = []
-                    for code in chunk_codes:
-                        stock_data = df[df['거래소코드'] == code].sort_values('date')
-                        
-                        if len(stock_data) < 2:
-                            stock_data = stock_data.copy()
-                            stock_data['momentum'] = 0
-                            chunk_results.append(stock_data)
-                            continue
-                        
-                        # Convert to numpy arrays for Numba processing
-                        dates_ordinal = stock_data['date'].map(pd.Timestamp.toordinal).values
-                        prices = stock_data['종가' if '종가' in stock_data.columns else '일간_시가총액'].values
-                        
-                        # Apply Numba-optimized calculation
-                        momentum_values = self._compute_momentum_numba(prices, dates_ordinal, lookback_days)
-                        
-                        stock_data = stock_data.copy()
-                        stock_data['momentum'] = momentum_values
-                        chunk_results.append(stock_data)
-                    
-                    momentum_results.extend(chunk_results)
-                
-                if momentum_results:
-                    df = pd.concat(momentum_results)
-                    df['mom'] = df['momentum'].fillna(0)
-                else:
-                    df['mom'] = 0
-                
-                print("    ✅ Numba JIT 최적화 완료 (70% 속도 향상)")
-                return df
-                
-            except Exception as e:
-                print(f"    ⚠️ Numba JIT 최적화 실패, 멀티프로세싱 사용: {e}")
-        
-        # FALLBACK: Enhanced multiprocessing approach
-        print("    🔄 향상된 멀티프로세싱 사용...")
-        
+        skip_months = self.config['strategy_params']['momentum']['skip_period']
+
+        # Calculate momentum returns
         df = df.sort_values(['거래소코드', 'date'])
+        
         unique_codes = df['거래소코드'].unique()
         total_stocks = len(unique_codes)
         
-        # Optimized multiprocessing
-        num_processes = min(cpu_count() - 1, 6)  # Conservative for stability
-        chunk_size = max(1, total_stocks // (num_processes * 2))
+        print(f"    📊 총 {total_stocks}개 종목의 모멘텀 계산 시작...")
+        
+        # Use multiprocessing to calculate momentum for each stock
+        num_processes = min(cpu_count() - 1, 8)  # Use all cores except 1, max 8 processes
+        print(f"    🔄 {num_processes}개 프로세스 사용")
+        
+        # Split stock codes into chunks for progress tracking
+        chunk_size = max(1, total_stocks // (num_processes * 4))
         code_chunks = [unique_codes[i:i+chunk_size] for i in range(0, len(unique_codes), chunk_size)]
         
         with Pool(processes=num_processes) as pool:
             chunk_results = pool.map(self._process_momentum_chunk, 
-                                   [(chunk, df, lookback_months, 0, i+1, len(code_chunks)) 
+                                   [(chunk, df, lookback_months, skip_months, i+1, len(code_chunks)) 
                                     for i, chunk in enumerate(code_chunks)])
         
         # Combine results
@@ -597,7 +434,6 @@ class FactorEngine:
         else:
             df['mom'] = 0
             
-        print("    ✅ 멀티프로세싱 최적화 완료 (40% 속도 향상)")
         return df
         
     def _build_ff3_factors(self, df):
@@ -996,7 +832,7 @@ class StrategyBuilder:
             total_stocks = len(unique_codes)
             
             # Use multiprocessing for FF3 alpha calculation
-            num_processes = min(cpu_count() - 1, 6)  # Use fewer processes for alpha calculation
+            num_processes = min(cpu_count() - 1, 8)  # Use fewer processes for alpha calculation
             print(f"    🔄 {num_processes}개 프로세스로 {total_stocks}개 종목 FF3-Alpha 계산 중...")
             
             # Split stock codes into chunks
@@ -1194,11 +1030,9 @@ class BacktestEngine:
         return temp_engine._backtest_universe(portfolio_list, price_data, strategy_name)
         
     def _backtest_universe(self, portfolio_list, price_data, strategy_name):
-        """Run backtest for a specific universe - OPTIMIZED"""
+        """Run backtest for a specific universe"""
         if len(portfolio_list) == 0:
             return None
-        
-        print(f"  🔄 {strategy_name} 백테스팅 (벡터화 최적화)...")
             
         # Initialize portfolio
         portfolio_value = 1000000  # Initial capital
@@ -1207,41 +1041,8 @@ class BacktestEngine:
         daily_returns = []
         portfolio_values = []
         
-        # OPTIMIZATION 3: Create vectorized price lookup for 3-4x speed improvement
-        price_col = '종가' if '종가' in price_data.columns else '일간_시가총액'
-        
-        # Pre-compute price lookup dictionary for O(1) access
-        print("    🔧 가격 조회 최적화 구조 생성 중...")
-        price_lookup = {}
-        
-        if DASK_AVAILABLE and len(price_data) > 100000:
-            # Use Dask for large datasets
-            try:
-                price_dd = dd.from_pandas(price_data, npartitions=4)
-                price_pivot = price_dd.pivot_table(
-                    index='date', 
-                    columns='거래소코드', 
-                    values=price_col, 
-                    aggfunc='first'
-                ).compute()
-                
-                # Convert to efficient lookup structure
-                for date in price_pivot.index:
-                    for code in price_pivot.columns:
-                        if not pd.isna(price_pivot.loc[date, code]):
-                            price_lookup[(code, date)] = price_pivot.loc[date, code]
-                
-                print("    ✅ Dask 기반 가격 조회 최적화 완료")
-                
-            except Exception as e:
-                print(f"    ⚠️ Dask 최적화 실패, 기본 방식 사용: {e}")
-                # Fallback to dictionary approach
-                price_lookup = price_data.set_index(['거래소코드', 'date'])[price_col].to_dict()
-        else:
-            # Standard optimized approach for smaller datasets
-            price_lookup = price_data.set_index(['거래소코드', 'date'])[price_col].to_dict()
-        
-        print(f"    📊 가격 조회 인덱스 생성 완료: {len(price_lookup):,}개 가격 포인트")
+        # Sort price data for efficient lookup
+        price_data = price_data.sort_values(['date', '거래소코드'])
         
         for i, portfolio in enumerate(portfolio_list):
             rebalance_date = portfolio['date']
@@ -1251,60 +1052,58 @@ class BacktestEngine:
             if len(target_stocks) > 0:
                 position_size = portfolio_value / len(target_stocks)
                 
-                # Vectorized position closing - O(1) price lookups
-                positions_to_close = [code for code in holdings.keys() if code not in target_stocks]
-                for stock_code in positions_to_close:
-                    # O(1) price lookup instead of DataFrame filtering
-                    closing_price = None
-                    for days_back in range(5):  # Look back up to 5 days for price
-                        check_date = rebalance_date - pd.Timedelta(days=days_back)
-                        price_key = (stock_code, check_date)
-                        if price_key in price_lookup:
-                            closing_price = price_lookup[price_key]
-                            break
-                    
-                    if closing_price and closing_price > 0:
-                        # Sell position
-                        shares = holdings[stock_code]
-                        sale_value = shares * closing_price
+                # Close existing positions
+                for stock_code in list(holdings.keys()):
+                    if stock_code not in target_stocks:
+                        # Find closing price
+                        closing_price_data = price_data[
+                            (price_data['거래소코드'] == stock_code) & 
+                            (price_data['date'] <= rebalance_date)
+                        ]
                         
-                        # Apply transaction costs
-                        transaction_cost = sale_value * (
-                            self.transaction_costs['commission_rate'] + 
-                            self.transaction_costs['tax_rate'] + 
-                            self.transaction_costs['slippage_rate']
-                        )
-                        
-                        cash += sale_value - transaction_cost
-                        del holdings[stock_code]
-                
-                # Vectorized position opening - O(1) price lookups
-                for stock_code in target_stocks:
-                    if stock_code not in holdings:
-                        # O(1) price lookup instead of DataFrame filtering
-                        opening_price = None
-                        for days_forward in range(5):  # Look forward up to 5 days for price
-                            check_date = rebalance_date + pd.Timedelta(days=days_forward)
-                            price_key = (stock_code, check_date)
-                            if price_key in price_lookup:
-                                opening_price = price_lookup[price_key]
-                                break
-                        
-                        if opening_price and opening_price > 0:
-                            # Buy position
-                            shares = position_size / opening_price
-                            purchase_value = shares * opening_price
+                        if len(closing_price_data) > 0:
+                            closing_price = closing_price_data.iloc[-1]['종가'] if '종가' in closing_price_data.columns else closing_price_data.iloc[-1]['일간_시가총액']
+                            
+                            # Sell position
+                            shares = holdings[stock_code]
+                            sale_value = shares * closing_price
                             
                             # Apply transaction costs
-                            transaction_cost = purchase_value * (
+                            transaction_cost = sale_value * (
                                 self.transaction_costs['commission_rate'] + 
+                                self.transaction_costs['tax_rate'] + 
                                 self.transaction_costs['slippage_rate']
                             )
                             
-                            total_cost = purchase_value + transaction_cost
-                            if cash >= total_cost:
-                                cash -= total_cost
-                                holdings[stock_code] = shares
+                            cash += sale_value - transaction_cost
+                            del holdings[stock_code]
+                
+                # Open new positions
+                for stock_code in target_stocks:
+                    if stock_code not in holdings:
+                        # Find opening price
+                        opening_price_data = price_data[
+                            (price_data['거래소코드'] == stock_code) & 
+                            (price_data['date'] >= rebalance_date)
+                        ]
+                        
+                        if len(opening_price_data) > 0:
+                            opening_price = opening_price_data.iloc[0]['종가'] if '종가' in opening_price_data.columns else opening_price_data.iloc[0]['일간_시가총액']
+                            
+                            if opening_price > 0:
+                                # Buy position
+                                shares = position_size / opening_price
+                                purchase_value = shares * opening_price
+                                
+                                # Apply transaction costs
+                                transaction_cost = purchase_value * (
+                                    self.transaction_costs['commission_rate'] + 
+                                    self.transaction_costs['slippage_rate']
+                                )
+                                
+                                if cash >= purchase_value + transaction_cost:
+                                    cash -= purchase_value + transaction_cost
+                                    holdings[stock_code] = shares
             
             # Calculate portfolio value until next rebalance
             next_rebalance_date = portfolio_list[i + 1]['date'] if i + 1 < len(portfolio_list) else pd.to_datetime(self.config['end_date'])
@@ -1315,26 +1114,59 @@ class BacktestEngine:
                 (price_data['date'] <= next_rebalance_date)
             ]
             
-            # Vectorized daily valuation using pre-computed price lookup
-            holding_dates = pd.date_range(
-                rebalance_date + pd.Timedelta(days=1), 
-                next_rebalance_date, 
-                freq='D'
-            )
+            unique_dates = holding_period_data['date'].unique()
             
-            # Vectorized portfolio valuation - major performance boost
-            for date in holding_dates:
-                daily_portfolio_value = cash
+            if len(unique_dates) > 50 and len(holdings) > 5:  # Use multiprocessing for significant workloads
+                # Use multiprocessing for large date ranges
+                print(f"    🔄 {len(unique_dates)}일간 포트폴리오 가치 계산 (멀티프로세싱)")
                 
-                # O(1) price lookups instead of DataFrame filtering
-                for stock_code, shares in holdings.items():
-                    price_key = (stock_code, date)
-                    if price_key in price_lookup:
-                        daily_portfolio_value += shares * price_lookup[price_key]
+                num_processes = min(cpu_count() - 1, 4)  # Conservative process count for I/O intensive task
+                chunk_size = max(10, len(unique_dates) // (num_processes * 2))  # Larger chunks for I/O
+                date_chunks = [unique_dates[i:i+chunk_size] for i in range(0, len(unique_dates), chunk_size)]
                 
-                portfolio_values.append(daily_portfolio_value)
-                daily_returns.append(daily_portfolio_value / portfolio_value - 1 if portfolio_value > 0 else 0)
-                portfolio_value = daily_portfolio_value
+                # Determine price column
+                price_col = '종가' if '종가' in holding_period_data.columns else '일간_시가총액'
+                
+                # Prepare data for multiprocessing
+                chunk_data = [(chunk, holdings, holding_period_data, price_col, i+1, len(date_chunks)) 
+                             for i, chunk in enumerate(date_chunks)]
+                
+                with Pool(processes=num_processes) as pool:
+                    chunk_results = pool.map(self._process_daily_valuation_chunk, chunk_data)
+                
+                # Combine results and maintain chronological order
+                daily_valuations = []
+                for chunk_result in chunk_results:
+                    daily_valuations.extend(chunk_result)
+                
+                # Sort by date to ensure correct order
+                daily_valuations.sort(key=lambda x: x['date'])
+                
+                # Process the sorted results
+                for valuation in daily_valuations:
+                    daily_portfolio_value = cash + valuation['portfolio_value']
+                    portfolio_values.append(daily_portfolio_value)
+                    daily_returns.append(daily_portfolio_value / portfolio_value - 1 if portfolio_value > 0 else 0)
+                    portfolio_value = daily_portfolio_value
+            
+            else:
+                # Use single-threaded approach for smaller workloads
+                for date in unique_dates:
+                    daily_portfolio_value = cash
+                    
+                    for stock_code, shares in holdings.items():
+                        stock_price_data = holding_period_data[
+                            (holding_period_data['거래소코드'] == stock_code) & 
+                            (holding_period_data['date'] == date)
+                        ]
+                        
+                        if len(stock_price_data) > 0:
+                            current_price = stock_price_data.iloc[0]['종가'] if '종가' in stock_price_data.columns else stock_price_data.iloc[0]['일간_시가총액']
+                            daily_portfolio_value += shares * current_price
+                    
+                    portfolio_values.append(daily_portfolio_value)
+                    daily_returns.append(daily_portfolio_value / portfolio_value - 1 if portfolio_value > 0 else 0)
+                    portfolio_value = daily_portfolio_value
         
         return {
             'portfolio_values': portfolio_values,
@@ -1523,24 +1355,9 @@ class FactorBacktesterV2:
             }
     
     def run_backtest(self):
-        """Run complete backtesting process with performance optimizations"""
-        print("🚀 Factor Backtesting v2.2 최적화 버전 시작")
-        print("🎯 목표: 45분 → 20분 미만 (50% 속도 향상)")
-        print("=" * 60)
-        
-        # Performance optimization status
-        optimizations = []
-        if POLARS_AVAILABLE:
-            optimizations.append("Polars 벡터화")
-        if NUMBA_AVAILABLE:
-            optimizations.append("Numba JIT 컴파일")
-        if DASK_AVAILABLE:
-            optimizations.append("Dask 지연 평가")
-        
-        print(f"🔧 활성화된 최적화: {', '.join(optimizations) if optimizations else '기본 멀티프로세싱'}")
-        print("=" * 60)
-        
-        start_time = datetime.now()
+        """Run complete backtesting process"""
+        print("🚀 Factor Backtesting v2.2 시작")
+        print("=" * 50)
         
         try:
             # 1. Data loading and processing
@@ -1561,28 +1378,9 @@ class FactorBacktesterV2:
             # 6. Report generation
             self.performance_analyzer.generate_report(performance_metrics, self.output_dir)
             
-            # Performance summary
-            end_time = datetime.now()
-            total_time = end_time - start_time
-            total_minutes = total_time.total_seconds() / 60
-            
-            print("=" * 60)
-            print("✅ 최적화된 백테스팅 완료!")
-            print(f"⏱️ 총 실행 시간: {total_minutes:.1f}분")
-            
-            if total_minutes < 25:
-                print("🎉 목표 달성! (25분 미만)")
-            elif total_minutes < 35:
-                print("✅ 개선 완료! (35분 미만)")
-            else:
-                print("⚠️ 추가 최적화 필요")
-            
+            print("=" * 50)
+            print("✅ 백테스팅 완료!")
             print(f"📁 결과 저장 위치: {self.output_dir}")
-            print("🚀 최적화 성과:")
-            print(f"   - 마스터 DF 생성: 68% 속도 향상 (Polars)")
-            print(f"   - 모멘텀 계산: 70% 속도 향상 (Numba JIT)")
-            print(f"   - 백테스팅: 70% 속도 향상 (벡터화)")
-            print("=" * 60)
             
         except Exception as e:
             print(f"❌ 백테스팅 실패: {e}")
