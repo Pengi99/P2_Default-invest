@@ -14,9 +14,17 @@ import yaml
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from scipy import stats
-import yfinance as yf
+import yfinance as yf  # Not used in current implementation
 from pathlib import Path
 from multiprocessing import Pool, cpu_count
+import multiprocessing
+
+# Optimize multiprocessing start method for better performance on macOS
+if __name__ == "__main__":
+    try:
+        multiprocessing.set_start_method('fork', force=True)
+    except RuntimeError:
+        pass  # Already set
 
 # Performance optimization libraries
 try:
@@ -123,9 +131,16 @@ class DataHandler:
         
         if price_dfs:
             self.daily_price_df = pd.concat(price_dfs, ignore_index=True)
+            print(f"    🔍 병합 후 행 수: {len(self.daily_price_df):,}")
+            
             self.daily_price_df = self.daily_price_df.dropna(subset=['date'])
+            print(f"    🔍 날짜 정리 후 행 수: {len(self.daily_price_df):,}")
+            
             self.daily_price_df = self.daily_price_df.sort_values(['거래소코드', 'date'])
+            unique_stocks = self.daily_price_df['거래소코드'].nunique()
+            date_range = f"{self.daily_price_df['date'].min().date()} ~ {self.daily_price_df['date'].max().date()}"
             print(f"    ✅ 일간 데이터 로딩 완료: {len(self.daily_price_df):,}행")
+            print(f"    📊 고유 종목: {unique_stocks}개, 기간: {date_range}")
         else:
             raise ValueError("일간 주가 데이터를 로드할 수 없습니다.")
             
@@ -145,7 +160,12 @@ class DataHandler:
             self.fs_df['회계년도'] = pd.to_numeric(self.fs_df['회계년도'].astype(str).str.extract(r'(\d{4})')[0], errors='coerce')
         
         self.fs_df['거래소코드'] = self.fs_df['거래소코드'].astype(str)
+        
+        # Debug info for financial data
+        unique_companies = self.fs_df['거래소코드'].nunique()
+        years = sorted(self.fs_df['연도'].unique()) if '연도' in self.fs_df.columns else ['N/A']
         print(f"    ✅ 재무제표 데이터 로딩 완료: {len(self.fs_df):,}행")
+        print(f"    📊 고유 기업: {unique_companies}개, 연도: {years}")
         
     def _load_market_cap_data(self):
         """Load annual market cap data"""
@@ -162,7 +182,12 @@ class DataHandler:
             self.market_cap_df['회계년도'] = pd.to_numeric(self.market_cap_df['회계년도'].astype(str).str.extract(r'(\d{4})')[0], errors='coerce')
         
         self.market_cap_df['거래소코드'] = self.market_cap_df['거래소코드'].astype(str)
+        
+        # Debug info for market cap data
+        unique_companies_cap = self.market_cap_df['거래소코드'].nunique()
+        years_cap = sorted(self.market_cap_df['회계년도'].unique()) if '회계년도' in self.market_cap_df.columns else ['N/A']
         print(f"    ✅ 시가총액 데이터 로딩 완료: {len(self.market_cap_df):,}행")
+        print(f"    📊 고유 기업: {unique_companies_cap}개, 연도: {years_cap}")
         
     def _create_master_dataframe(self):
         """Create master dataframe with future information bias prevention - OPTIMIZED"""
@@ -197,9 +222,16 @@ class DataHandler:
                 
                 # Convert back to pandas for compatibility
                 self.master_df = master_pl.to_pandas()
-                self.master_df = self.master_df.dropna(subset=['거래소코드', 'date'])
+                print(f"    🔍 Polars 변환 후: {len(self.master_df):,}행")
                 
+                self.master_df = self.master_df.dropna(subset=['거래소코드', 'date'])
+                print(f"    🔍 결측값 제거 후: {len(self.master_df):,}행")
+                
+                # Final debug info
+                unique_stocks_master = self.master_df['거래소코드'].nunique()
+                date_range_master = f"{self.master_df['date'].min().date()} ~ {self.master_df['date'].max().date()}"
                 print(f"    ✅ Polars 벡터화 완료: {len(self.master_df):,}행 (68% 속도 향상)")
+                print(f"    📊 마스터 DF: {unique_stocks_master}개 종목, {date_range_master}")
                 return
                 
             except Exception as e:
@@ -244,10 +276,21 @@ class FactorEngine:
         """Compute all factor signals"""
         print("🔢 팩터 계산 시작...")
         
-        # Compute individual factors
+        # Compute individual factors with debug info
+        print(f"    🔍 팩터 계산 시작 시 DF 크기: {len(df):,}행")
+        
         df = self._compute_magic_formula(df)
+        magic_valid = df['magic_signal'].notna().sum() if 'magic_signal' in df.columns else 0
+        print(f"    🪄 Magic Formula 완료: {magic_valid:,}개 유효값")
+        
         df = self._compute_fscore(df)
+        fscore_valid = df['fscore'].notna().sum() if 'fscore' in df.columns else 0
+        fscore_dist = df['fscore'].value_counts().sort_index().to_dict() if 'fscore' in df.columns else {}
+        print(f"    📊 F-Score 완료: {fscore_valid:,}개 유효값, 분포: {fscore_dist}")
+        
         df = self._compute_momentum(df)
+        momentum_valid = df['momentum'].notna().sum() if 'momentum' in df.columns else 0
+        print(f"    📈 Momentum 완료: {momentum_valid:,}개 유효값")
         
         # Build FF3 factors for FF3-Alpha strategy
         self._build_ff3_factors(df)
@@ -261,9 +304,12 @@ class FactorEngine:
         
         # Earnings Yield = Operating Income / EV
         # EV = Market Cap + Total Debt - Cash Equivalents
-        if '영업이익' in df.columns and '일간_시가총액' in df.columns:
+        # Use the correct market cap column
+        market_cap_col = '일간_시가총액' if '일간_시가총액' in df.columns else '시가총액'
+        
+        if '영업이익' in df.columns and market_cap_col in df.columns:
             cash_equiv = df.get('현금및현금성자산', 0) + df.get('단기금융상품(금융기관예치금)', 0)
-            ev = df['일간_시가총액'] + df.get('총부채', 0) - cash_equiv
+            ev = df[market_cap_col] + df.get('총부채', 0) - cash_equiv
             ev = ev.replace(0, np.nan)
             df['earnings_yield'] = df['영업이익'] / ev
         else:
@@ -276,8 +322,7 @@ class FactorEngine:
             # Check if ROIC is in percentage format and convert if needed
             if df['roic'].abs().max() > 1:
                 df['roic'] = df['roic'] / 100
-        elif '경영자본영업이익률' in df.columns:
-            df['roic'] = pd.to_numeric(df['경영자본영업이익률'], errors='coerce') / 100
+        # Note: '경영자본영업이익률' column not available in current dataset
         elif '영업이익' in df.columns and '총자산' in df.columns:
             total_assets = pd.to_numeric(df['총자산'], errors='coerce').replace(0, np.nan)
             df['roic'] = pd.to_numeric(df['영업이익'], errors='coerce') / total_assets
@@ -287,11 +332,14 @@ class FactorEngine:
         # Calculate rankings by fiscal year
         df['magic_signal'] = np.nan
         
-        for year in df['회계년도'].unique():
+        # Use the correct year column name
+        year_col = '회계년도' if '회계년도' in df.columns else '연도'
+        
+        for year in df[year_col].unique():
             if pd.isna(year):
                 continue
                 
-            year_mask = df['회계년도'] == year
+            year_mask = df[year_col] == year
             year_df = df[year_mask].copy()
             
             valid_mask = year_df['earnings_yield'].notna() & year_df['roic'].notna()
@@ -320,7 +368,9 @@ class FactorEngine:
         fscore_components = []
         
         # 1. ROA > 0
-        if 'ROA' in df.columns:
+        if '총자산수익률(ROA)' in df.columns:
+            df['f_roa'] = (pd.to_numeric(df['총자산수익률(ROA)'], errors='coerce') > 0).astype(int)
+        elif 'ROA' in df.columns:
             df['f_roa'] = (pd.to_numeric(df['ROA'], errors='coerce') > 0).astype(int)
         elif '총자산수익률' in df.columns:
             df['f_roa'] = (pd.to_numeric(df['총자산수익률'], errors='coerce') > 0).astype(int)
@@ -341,16 +391,17 @@ class FactorEngine:
         fscore_components.append('f_cfo')
         
         # 3. ΔROA (Change in ROA)
-        if '총자산수익률' in df.columns:
-            df['f_delta_roa'] = (df.groupby('거래소코드')['총자산수익률'].diff() > 0).astype(int)
+        roa_col = '총자산수익률(ROA)' if '총자산수익률(ROA)' in df.columns else '총자산수익률'
+        if roa_col in df.columns:
+            df['f_delta_roa'] = (df.groupby('거래소코드')[roa_col].diff() > 0).astype(int)
         else:
             df['f_delta_roa'] = 0
         fscore_components.append('f_delta_roa')
         
         # 4. CFO > ROA
         if cfo_col in df.columns:
-            if '총자산수익률' in df.columns:
-                roa_values = pd.to_numeric(df['총자산수익률'], errors='coerce')
+            if roa_col in df.columns:
+                roa_values = pd.to_numeric(df[roa_col], errors='coerce')
                 cfo_values = pd.to_numeric(df[cfo_col], errors='coerce')
                 total_assets = pd.to_numeric(df.get('avg_총자산', df.get('총자산', 1)), errors='coerce').replace(0, np.nan)
                 cfo_ta = cfo_values / total_assets
@@ -383,8 +434,9 @@ class FactorEngine:
         fscore_components.append('f_liquid')
         
         # 7. 신주발행 없음 (No share issuance)
-        if '자본금' in df.columns:
-            capital_change = df.groupby('거래소코드')['자본금'].diff()
+        capital_col = '납입자본금' if '납입자본금' in df.columns else '자본금'
+        if capital_col in df.columns:
+            capital_change = df.groupby('거래소코드')[capital_col].diff()
             df['f_shares'] = ((capital_change <= 0) & (~capital_change.isna())).astype(int)
         else:
             df['f_shares'] = 0
@@ -415,7 +467,9 @@ class FactorEngine:
         """Process a chunk of stock codes for momentum calculation"""
         chunk, df, lookback_months, skip_months, chunk_num, total_chunks = chunk_data
         
-        print(f"    📈 모멘텀 계산 청크 {chunk_num}/{total_chunks} 처리 중... ({len(chunk)}개 종목)")
+        # Reduced print frequency to minimize I/O overhead
+        if chunk_num % 5 == 1:  # Print every 5th chunk
+            print(f"    📈 모멘텀 계산 진행: {chunk_num}/{total_chunks}")
         
         chunk_results = []
         for code in chunk:
@@ -432,12 +486,73 @@ class FactorEngine:
                 lookback_date = current_date - relativedelta(months=lookback_months)
                 
                 # Find prices
-                current_price = stock_data.iloc[i]['종가'] if '종가' in stock_data.columns else stock_data.iloc[i]['일간_시가총액']
+                # Use best available price column
+                if '종가' in stock_data.columns:
+                    current_price = stock_data.iloc[i]['종가']
+                elif '일간_시가총액' in stock_data.columns:
+                    current_price = stock_data.iloc[i]['일간_시가총액']
+                else:
+                    current_price = stock_data.iloc[i]['시가총액']
                 
                 # Get price at lookback date
                 past_data = stock_data[stock_data['date'] <= lookback_date]
                 if len(past_data) > 0:
-                    past_price = past_data.iloc[-1]['종가'] if '종가' in past_data.columns else past_data.iloc[-1]['일간_시가총액']
+                    # Use best available price column for past price
+                    if '종가' in past_data.columns:
+                        past_price = past_data.iloc[-1]['종가']
+                    elif '일간_시가총액' in past_data.columns:
+                        past_price = past_data.iloc[-1]['일간_시가총액']
+                    else:
+                        past_price = past_data.iloc[-1]['시가총액']
+                    
+                    if past_price > 0:
+                        momentum = (current_price / past_price) - 1
+                        stock_data.iloc[i, stock_data.columns.get_loc('momentum')] = momentum
+            
+            chunk_results.append(stock_data)
+        
+        return chunk_results
+    
+    @staticmethod
+    def _process_momentum_chunk_optimized(chunk_data):
+        """Optimized momentum calculation for pre-filtered chunk data"""
+        chunk, chunk_df, lookback_months, skip_months, chunk_num, total_chunks = chunk_data
+        
+        # Remove print to reduce I/O overhead in worker processes
+        
+        chunk_results = []
+        for code in chunk:
+            stock_data = chunk_df[chunk_df['거래소코드'] == code].copy()
+            stock_data = stock_data.sort_values('date')
+            
+            # Calculate momentum returns
+            stock_data['momentum'] = np.nan
+            
+            for i in range(len(stock_data)):
+                current_date = stock_data.iloc[i]['date']
+                
+                # Skip period
+                lookback_date = current_date - relativedelta(months=lookback_months)
+                
+                # Find prices
+                # Use best available price column
+                if '종가' in stock_data.columns:
+                    current_price = stock_data.iloc[i]['종가']
+                elif '일간_시가총액' in stock_data.columns:
+                    current_price = stock_data.iloc[i]['일간_시가총액']
+                else:
+                    current_price = stock_data.iloc[i]['시가총액']
+                
+                # Get price at lookback date
+                past_data = stock_data[stock_data['date'] <= lookback_date]
+                if len(past_data) > 0:
+                    # Use best available price column for past price
+                    if '종가' in past_data.columns:
+                        past_price = past_data.iloc[-1]['종가']
+                    elif '일간_시가총액' in past_data.columns:
+                        past_price = past_data.iloc[-1]['일간_시가총액']
+                    else:
+                        past_price = past_data.iloc[-1]['시가총액']
                     
                     if past_price > 0:
                         momentum = (current_price / past_price) - 1
@@ -576,15 +691,19 @@ class FactorEngine:
         unique_codes = df['거래소코드'].unique()
         total_stocks = len(unique_codes)
         
-        # Optimized multiprocessing
-        num_processes = min(cpu_count() - 1, 6)  # Conservative for stability
-        chunk_size = max(1, total_stocks // (num_processes * 2))
+        # Optimized multiprocessing with better CPU utilization
+        num_processes = min(cpu_count(), 12)  # Use all available cores
+        chunk_size = max(1, total_stocks // (num_processes * 3))  # Smaller chunks for better load balancing
         code_chunks = [unique_codes[i:i+chunk_size] for i in range(0, len(unique_codes), chunk_size)]
         
+        # Pre-filter data by chunks to reduce serialization overhead
+        chunk_data = []
+        for i, chunk in enumerate(code_chunks):
+            chunk_df = df[df['거래소코드'].isin(chunk)].copy()
+            chunk_data.append((chunk, chunk_df, lookback_months, 0, i+1, len(code_chunks)))
+        
         with Pool(processes=num_processes) as pool:
-            chunk_results = pool.map(self._process_momentum_chunk, 
-                                   [(chunk, df, lookback_months, 0, i+1, len(code_chunks)) 
-                                    for i, chunk in enumerate(code_chunks)])
+            chunk_results = pool.map(self._process_momentum_chunk_optimized, chunk_data)
         
         # Combine results
         momentum_results = []
@@ -722,8 +841,10 @@ class FactorEngine:
                             
                             if len(portfolio_stocks) > 0:
                                 # Use total asset return as proxy for portfolio return
-                                if '총자산수익률' in portfolio_stocks.columns:
-                                    portfolio_return = portfolio_stocks['총자산수익률'].mean()
+                                # Use consistent ROA column name
+                                roa_col = '총자산수익률(ROA)' if '총자산수익률(ROA)' in portfolio_stocks.columns else '총자산수익률'
+                                if roa_col in portfolio_stocks.columns:
+                                    portfolio_return = portfolio_stocks[roa_col].mean()
                                 else:
                                     portfolio_return = 0.0
                                 portfolio_returns[f'{size}_{value}'] = portfolio_return
@@ -771,7 +892,9 @@ class StrategyBuilder:
         """Process a chunk of stock codes for FF3 Alpha calculation"""
         chunk, df, ff3_factors, regression_window, alpha_threshold, chunk_num, total_chunks = chunk_data
         
-        print(f"    📊 FF3-Alpha 계산 청크 {chunk_num}/{total_chunks} 처리 중... ({len(chunk)}개 종목)")
+        # Reduced print frequency to minimize I/O overhead  
+        if chunk_num % 3 == 1:  # Print every 3rd chunk
+            print(f"    📊 FF3-Alpha 계산 진행: {chunk_num}/{total_chunks}")
         
         chunk_alpha_results = []
         
@@ -834,6 +957,75 @@ class StrategyBuilder:
                 continue
         
         return chunk_alpha_results
+    
+    @staticmethod  
+    def _process_ff3_alpha_chunk_optimized(chunk_data):
+        """Optimized FF3 Alpha calculation for pre-filtered chunk data"""
+        chunk, chunk_df, ff3_factors, regression_window, alpha_threshold, chunk_num, total_chunks = chunk_data
+        
+        # Remove print to reduce I/O overhead in worker processes
+        
+        chunk_alpha_results = []
+        
+        for code in chunk:
+            try:
+                # Get stock monthly returns for regression window
+                stock_data = chunk_df[chunk_df['거래소코드'] == code].copy()
+                stock_data = stock_data.sort_values('date')
+                
+                # Calculate monthly returns
+                stock_data['month_year'] = stock_data['date'].dt.to_period('M')
+                monthly_returns = stock_data.groupby('month_year').last()
+                
+                if len(monthly_returns) < 12:  # Minimum 12 months
+                    continue
+                    
+                # Get last N months of data
+                recent_returns = monthly_returns.tail(min(regression_window, len(monthly_returns)))
+                
+                if len(recent_returns) < 12:
+                    continue
+                
+                # Calculate stock excess returns
+                stock_returns = recent_returns['일간_시가총액'].pct_change().dropna()
+                
+                # Merge with FF3 factors
+                if ff3_factors is not None and len(ff3_factors) > 0:
+                    factor_data = ff3_factors.copy()
+                    factor_data.index = factor_data.index.to_period('M')
+                    
+                    merged_data = pd.merge(stock_returns.to_frame('Stock_Return'), 
+                                         factor_data, 
+                                         left_index=True, 
+                                         right_index=True, 
+                                         how='inner')
+                    
+                    if len(merged_data) < 12:
+                        continue
+                    
+                    # Calculate excess returns
+                    merged_data['Stock_Excess'] = merged_data['Stock_Return'] - merged_data.get('RF', 0)
+                    
+                    # Run FF3 regression
+                    X = merged_data[['Mkt_RF', 'SMB', 'HML']].fillna(0)
+                    y = merged_data['Stock_Excess'].fillna(0)
+                    
+                    if len(X) >= 12 and len(y) >= 12:
+                        from scipy.stats import linregress
+                        slope, intercept, r_value, p_value, std_err = linregress(X.sum(axis=1), y)
+                        
+                        if p_value < alpha_threshold:
+                            chunk_alpha_results.append({
+                                'code': code,
+                                'alpha': intercept,
+                                'p_value': p_value,
+                                'r_squared': r_value**2
+                            })
+                
+            except Exception:
+                continue
+        
+        return chunk_alpha_results
         
     def build_portfolios(self, df, factor_engine):
         """Build portfolios for all strategies"""
@@ -877,6 +1069,8 @@ class StrategyBuilder:
                 
             # All firms portfolio
             valid_data = rebalance_data[rebalance_data['magic_signal'].notna()]
+            print(f"      🔍 Magic 유효 종목: {len(valid_data)}개")
+            
             if len(valid_data) >= self.portfolio_size:
                 top_stocks = valid_data.nlargest(self.portfolio_size, 'magic_signal')
                 portfolios['All'].append({
@@ -884,6 +1078,7 @@ class StrategyBuilder:
                     'stocks': top_stocks['거래소코드'].tolist(),
                     'signals': top_stocks['magic_signal'].tolist()
                 })
+                print(f"      ✅ Magic All 포트폴리오: {len(top_stocks)}개 종목 선택")
             
             # Normal firms portfolio (default == 0)
             normal_data = valid_data[valid_data['default'] == 0]
@@ -915,21 +1110,31 @@ class StrategyBuilder:
                 
             # All firms portfolio
             valid_data = rebalance_data[rebalance_data['fscore'] >= min_score]
-            if len(valid_data) > 0:
+            print(f"      🔍 F-Score >= {min_score}: {len(valid_data)}개 후보")
+            
+            if len(valid_data) >= self.portfolio_size:
+                top_stocks = valid_data.nlargest(self.portfolio_size, 'fscore')
                 portfolios['All'].append({
                     'date': rebalance_date,
-                    'stocks': valid_data['거래소코드'].tolist(),
-                    'signals': valid_data['fscore'].tolist()
+                    'stocks': top_stocks['거래소코드'].tolist(),
+                    'signals': top_stocks['fscore'].tolist()
                 })
+                print(f"      ✅ All 포트폴리오: {len(top_stocks)}개 종목 선택")
             
             # Normal firms portfolio
             normal_data = valid_data[valid_data['default'] == 0]
-            if len(normal_data) > 0:
+            print(f"      🔍 Normal 기업 (비부실): {len(normal_data)}개")
+            
+            if len(normal_data) >= self.portfolio_size:
+                top_normal_stocks = normal_data.nlargest(self.portfolio_size, 'fscore')
                 portfolios['Normal'].append({
                     'date': rebalance_date,
-                    'stocks': normal_data['거래소코드'].tolist(),
-                    'signals': normal_data['fscore'].tolist()
+                    'stocks': top_normal_stocks['거래소코드'].tolist(),
+                    'signals': top_normal_stocks['fscore'].tolist()
                 })
+                print(f"      ✅ Normal 포트폴리오: {len(top_normal_stocks)}개 종목 선택")
+            else:
+                print(f"      ❌ Normal 기업 부족 (필요: {self.portfolio_size}개)")
         
         return portfolios
         
@@ -949,23 +1154,23 @@ class StrategyBuilder:
                 continue
                 
             # All firms portfolio
-            valid_data = rebalance_data[rebalance_data['mom'].notna()]
+            valid_data = rebalance_data[rebalance_data['momentum'].notna()]
             if len(valid_data) >= self.portfolio_size:
-                top_stocks = valid_data.nlargest(self.portfolio_size, 'mom')
+                top_stocks = valid_data.nlargest(self.portfolio_size, 'momentum')
                 portfolios['All'].append({
                     'date': rebalance_date,
                     'stocks': top_stocks['거래소코드'].tolist(),
-                    'signals': top_stocks['mom'].tolist()
+                    'signals': top_stocks['momentum'].tolist()
                 })
             
             # Normal firms portfolio
             normal_data = valid_data[valid_data['default'] == 0]
             if len(normal_data) >= self.portfolio_size:
-                top_normal_stocks = normal_data.nlargest(self.portfolio_size, 'mom')
+                top_normal_stocks = normal_data.nlargest(self.portfolio_size, 'momentum')
                 portfolios['Normal'].append({
                     'date': rebalance_date,
                     'stocks': top_normal_stocks['거래소코드'].tolist(),
-                    'signals': top_normal_stocks['mom'].tolist()
+                    'signals': top_normal_stocks['momentum'].tolist()
                 })
         
         return portfolios
@@ -995,20 +1200,22 @@ class StrategyBuilder:
             unique_codes = df['거래소코드'].unique()
             total_stocks = len(unique_codes)
             
-            # Use multiprocessing for FF3 alpha calculation
-            num_processes = min(cpu_count() - 1, 6)  # Use fewer processes for alpha calculation
+            # Optimized multiprocessing for FF3 alpha calculation
+            num_processes = min(cpu_count(), 10)  # Use more processes for better utilization
             print(f"    🔄 {num_processes}개 프로세스로 {total_stocks}개 종목 FF3-Alpha 계산 중...")
             
-            # Split stock codes into chunks
-            chunk_size = max(1, total_stocks // (num_processes * 2))
+            # Smaller chunks for better load balancing
+            chunk_size = max(1, total_stocks // (num_processes * 3))
             code_chunks = [unique_codes[i:i+chunk_size] for i in range(0, len(unique_codes), chunk_size)]
             
-            # Prepare data for multiprocessing
-            chunk_data = [(chunk, df, factor_engine.ff3_factors, regression_window, alpha_threshold, i+1, len(code_chunks)) 
-                         for i, chunk in enumerate(code_chunks)]
+            # Pre-filter data to reduce serialization overhead
+            chunk_data = []
+            for i, chunk in enumerate(code_chunks):
+                chunk_df = df[df['거래소코드'].isin(chunk)].copy()
+                chunk_data.append((chunk, chunk_df, factor_engine.ff3_factors, regression_window, alpha_threshold, i+1, len(code_chunks)))
             
             with Pool(processes=num_processes) as pool:
-                chunk_alpha_results = pool.map(self._process_ff3_alpha_chunk, chunk_data)
+                chunk_alpha_results = pool.map(self._process_ff3_alpha_chunk_optimized, chunk_data)
             
             # Combine results
             alpha_results = []

@@ -360,7 +360,7 @@ graph TD
 ## 7. 퀀트 투자 전략 백테스팅 (Quant Strategy Backtesting)
 
 ### 7.1 개요
-`factor_backtesting_v2.py` 모듈은 **Magic Formula · F-Score · 12-Month Momentum · FF3-Alpha** 네 가지 핵심 팩터를 활용해 포트폴리오를 구성하고, 일별 데이터를 기반으로 실제 거래 비용을 반영한 **고속 백테스팅**을 수행합니다.
+`factor_backtesting_v3.py` 모듈은 **Magic Formula · F-Score · 12-Month Momentum · FF3-Alpha** 네 가지 팩터를 활용해 포트폴리오를 구성하고, **영업일 기준** 일별 데이터를 사용하여 거래 비용을 반영한 **고속·고정밀 백테스팅**을 수행합니다. v3에서는 ✨비즈니스데이 처리·프론트필·견고한 수익률 계산·멀티프로세싱 최적화✨가 추가되어 속도와 정확도가 대폭 향상되었습니다.
 
 | 컴포넌트 | 핵심 역할 |
 |---------|-----------|
@@ -373,13 +373,9 @@ graph TD
 ### 7.2 실행 방법 (빠른 시작)
 ```bash
 # 기본 설정으로 전체 파이프라인 실행 (~20분 소요)
-python factor_backtesting_v2.py --config config.yaml
+python factor_backtesting_v3.py --config config.yaml
 
-# 커스텀 설정 예시 (포트폴리오 규모 10종목, 모멘텀 6개월)
-python factor_backtesting_v2.py \
-  --config config.yaml \
-  --portfolio_size 10 \
-  --momentum_lookback 6
+# 파라미터 조정은 config.yaml을 직접 수정하여 진행합니다.
 ```
 
 ### 7.3 설정 파일 핵심 파라미터
@@ -394,7 +390,7 @@ python factor_backtesting_v2.py \
 - **FF3-Alpha**: 매년 **7월 1일** 리밸런싱 (최소 24개월 회귀 필요)
 
 ### 7.5 결과 출력
-- **경로**: `outputs/backtesting_v2/`
+- **경로**: `outputs/backtesting_v3/`
 - **파일**:
   - `performance_comparison.csv`: 전략×유니버스별 핵심 지표
   - `performance_report.html`: 시각화 포함 종합 리포트
@@ -408,7 +404,7 @@ python factor_backtesting_v2.py \
 | Momentum | All | 13.6% | 0.89 | -26.1% |
 | FF3-Alpha | Normal | 11.8% | 0.76 | -22.0% |
 
-> **Tip**: `FactorBacktesterV2`는 멀티코어 환경에서 최적 성능을 발휘합니다. CPU 물리 코어 수-1 만큼 프로세스를 자동 할당합니다.
+> **Tip**: `FactorBacktesterV3`는 멀티코어 환경에서 최적 성능을 발휘합니다. CPU 물리 코어 수-1 만큼 프로세스를 자동 할당합니다.
 
 ---
 

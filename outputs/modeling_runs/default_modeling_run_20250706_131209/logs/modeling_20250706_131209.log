@@ -1,0 +1,465 @@
+2025-07-06 13:12:09,675 - ModelingPipeline - INFO - 모델링 파이프라인이 초기화되었습니다.
+2025-07-06 13:12:09,675 - ModelingPipeline - INFO - 실행 이름: default_modeling_run_20250706_131209
+2025-07-06 13:12:09,675 - ModelingPipeline - INFO - 출력 경로: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209
+2025-07-06 13:12:09,675 - ModelingPipeline - INFO - === 모델링 파이프라인 시작 ===
+2025-07-06 13:12:09,675 - ModelingPipeline - INFO - 데이터 로드 시작
+2025-07-06 13:12:09,675 - ModelingPipeline - INFO - 오버라이드된 데이터 경로 사용: data/final
+2025-07-06 13:12:09,710 - ModelingPipeline - INFO - Train: (10899, 17), 부실비율: 0.72%
+2025-07-06 13:12:09,710 - ModelingPipeline - INFO - Validation: (5462, 17), 부실비율: 0.77%
+2025-07-06 13:12:09,710 - ModelingPipeline - INFO - Test: (5329, 17), 부실비율: 0.62%
+2025-07-06 13:12:09,711 - ModelingPipeline - INFO - 모든 모델 실행 시작
+2025-07-06 13:12:09,711 - ModelingPipeline - INFO - 특성 선택 방법: LOGISTIC_REGRESSION_CV (NORMAL)
+2025-07-06 13:12:10,222 - ModelingPipeline - INFO - 최적 C: 0.100000
+2025-07-06 13:12:10,222 - ModelingPipeline - INFO - CV 점수: 0.0746 (±0.0966)
+2025-07-06 13:12:10,225 - ModelingPipeline - INFO - 선택된 특성: 5/17
+2025-07-06 13:12:10,225 - ModelingPipeline - INFO - 활성화된 데이터 타입: ['normal', 'smote', 'undersampling', 'combined']
+2025-07-06 13:12:10,225 - ModelingPipeline - INFO - 활성화된 모델: ['logistic_regression', 'random_forest', 'xgboost']
+2025-07-06 13:12:10,225 - ModelingPipeline - INFO - NORMAL 데이터 처리
+2025-07-06 13:12:10,226 - ModelingPipeline - INFO - logistic_regression 최적화 시작 (NORMAL)
+2025-07-06 13:12:10,226 - ModelingPipeline - INFO - Logistic Regression 클래스 불균형 가중치: class_weight=balanced
+2025-07-06 13:12:10,226 - ModelingPipeline - INFO - 최적화 메트릭: F1
+2025-07-06 13:12:10,229 - ModelingPipeline - INFO - 스케일링이 비활성화되어 있어 로그 변환도 건너뜁니다
+2025-07-06 13:12:10,230 - ModelingPipeline - INFO - 스케일링이 비활성화되어 있습니다
+2025-07-06 13:12:10,486 - ModelingPipeline - INFO -   Trial 1/200 - Current: 0.0828, Best: 0.0828
+2025-07-06 13:22:41,991 - ModelingPipeline - INFO -   Trial 101/200 - Current: 0.0995, Best: 0.1051
+2025-07-06 13:27:18,417 - ModelingPipeline - INFO -   Trial 200/200 - Current: 0.1047, Best: 0.1051
+2025-07-06 13:27:18,425 - ModelingPipeline - INFO - 최적 AUC: 0.1051
+2025-07-06 13:27:18,425 - ModelingPipeline - INFO - 최적 파라미터: {'C': 0.01008991142027784, 'max_iter': 7069, 'penalty': 'l2', 'solver': 'liblinear', 'tol': 0.0001, 'class_weight': 'balanced'}
+2025-07-06 13:27:18,425 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (NORMAL)
+2025-07-06 13:27:18,470 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.8840(±0.0547), AP=0.2479(±0.0251), F1=0.1061(±0.0096)
+2025-07-06 13:27:18,470 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.8840, AP: 0.2479, F1: 0.1061
+2025-07-06 13:27:18,470 - ModelingPipeline - INFO - random_forest 최적화 시작 (NORMAL)
+2025-07-06 13:27:18,470 - ModelingPipeline - INFO - Random Forest 클래스 불균형 가중치: class_weight=balanced
+2025-07-06 13:27:18,470 - ModelingPipeline - INFO - 최적화 메트릭: F1
+2025-07-06 13:27:23,757 - ModelingPipeline - INFO -   Trial 1/100 - Current: 0.3284, Best: 0.3284
+2025-07-06 13:31:53,946 - ModelingPipeline - INFO -   Trial 51/100 - Current: 0.3260, Best: 0.3381
+2025-07-06 13:36:57,957 - ModelingPipeline - INFO -   Trial 100/100 - Current: 0.3458, Best: 0.3458
+2025-07-06 13:36:58,955 - ModelingPipeline - INFO - 최적 AUC: 0.3458
+2025-07-06 13:36:58,955 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 237, 'max_depth': 14, 'min_samples_split': 3, 'min_samples_leaf': 6, 'max_features': 0.20202515772958424, 'class_weight': 'balanced'}
+2025-07-06 13:36:58,955 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (NORMAL)
+2025-07-06 13:37:03,042 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9441(±0.0148), AP=0.2408(±0.0685), F1=0.2815(±0.1223)
+2025-07-06 13:37:03,042 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9441, AP: 0.2408, F1: 0.2815
+2025-07-06 13:37:03,053 - ModelingPipeline - INFO - xgboost 최적화 시작 (NORMAL)
+2025-07-06 13:37:03,053 - ModelingPipeline - INFO - XGBoost 클래스 불균형 처리: scale_pos_weight
+2025-07-06 13:37:03,053 - ModelingPipeline - INFO - scale_pos_weight = 138.73 (설정: auto)
+2025-07-06 13:37:03,053 - ModelingPipeline - INFO - 최적화 메트릭: F1
+2025-07-06 13:37:10,582 - ModelingPipeline - INFO -   Trial 1/100 - Current: 0.2398, Best: 0.2398
+2025-07-06 13:43:34,708 - ModelingPipeline - INFO -   Trial 51/100 - Current: 0.2678, Best: 0.2708
+2025-07-06 13:51:22,226 - ModelingPipeline - INFO -   Trial 100/100 - Current: 0.2677, Best: 0.2713
+2025-07-06 13:51:22,228 - ModelingPipeline - INFO - Using XGBoost ≥ 2.0 callbacks
+2025-07-06 13:51:22,230 - ModelingPipeline - WARNING - Early stopping failed, using fallback: XGBClassifier.fit() got an unexpected keyword argument 'callbacks'
+2025-07-06 13:51:22,993 - ModelingPipeline - INFO - 최적 AUC: 0.2713
+2025-07-06 13:51:22,993 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 290, 'max_depth': 10, 'learning_rate': 0.052804514540658, 'subsample': 0.8262257117428848, 'colsample_bytree': 0.7091092285253512, 'reg_alpha': 4.930842711493474, 'reg_lambda': 6.694058491734527, 'scale_pos_weight': np.float64(138.73076923076923)}
+2025-07-06 13:51:22,993 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (NORMAL)
+2025-07-06 13:51:26,641 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9420(±0.0089), AP=0.2159(±0.0587), F1=0.2713(±0.0679)
+2025-07-06 13:51:26,641 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9420, AP: 0.2159, F1: 0.2713
+2025-07-06 13:51:26,643 - ModelingPipeline - INFO - SMOTE 데이터 처리
+2025-07-06 13:51:26,643 - ModelingPipeline - INFO - logistic_regression 최적화 시작 (SMOTE)
+2025-07-06 13:51:26,643 - ModelingPipeline - INFO - Logistic Regression 클래스 불균형 가중치: class_weight=balanced
+2025-07-06 13:51:26,643 - ModelingPipeline - INFO - 최적화 메트릭: F1
+2025-07-06 13:51:27,018 - ModelingPipeline - INFO -   Trial 1/200 - Current: 0.1496, Best: 0.1496
+2025-07-06 13:55:39,189 - ModelingPipeline - INFO -   Trial 101/200 - Current: 0.1480, Best: 0.1556
+2025-07-06 13:56:53,809 - ModelingPipeline - INFO -   Trial 200/200 - Current: 0.1542, Best: 0.1556
+2025-07-06 13:56:53,821 - ModelingPipeline - INFO - 최적 AUC: 0.1556
+2025-07-06 13:56:53,821 - ModelingPipeline - INFO - 최적 파라미터: {'C': 0.010044255706616972, 'max_iter': 8291, 'penalty': 'l2', 'solver': 'liblinear', 'tol': 0.0001, 'class_weight': 'balanced'}
+2025-07-06 13:56:53,822 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (SMOTE)
+2025-07-06 13:56:53,883 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.8697(±0.0469), AP=0.2556(±0.0235), F1=0.1470(±0.0145)
+2025-07-06 13:56:53,883 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.8697, AP: 0.2556, F1: 0.1470
+2025-07-06 13:56:53,883 - ModelingPipeline - INFO - random_forest 최적화 시작 (SMOTE)
+2025-07-06 13:56:53,883 - ModelingPipeline - INFO - Random Forest 클래스 불균형 가중치: class_weight=balanced
+2025-07-06 13:56:53,883 - ModelingPipeline - INFO - 최적화 메트릭: F1
+2025-07-06 13:56:59,740 - ModelingPipeline - INFO -   Trial 1/100 - Current: 0.2706, Best: 0.2706
+2025-07-06 14:03:31,218 - ModelingPipeline - INFO -   Trial 51/100 - Current: 0.2618, Best: 0.2721
+2025-07-06 14:08:38,282 - ModelingPipeline - INFO -   Trial 100/100 - Current: 0.2714, Best: 0.2745
+2025-07-06 14:08:39,725 - ModelingPipeline - INFO - 최적 AUC: 0.2745
+2025-07-06 14:08:39,725 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 244, 'max_depth': 14, 'min_samples_split': 13, 'min_samples_leaf': 5, 'max_features': 0.22240970585499253, 'class_weight': 'balanced'}
+2025-07-06 14:08:39,725 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (SMOTE)
+2025-07-06 14:08:45,340 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9408(±0.0229), AP=0.2204(±0.0614), F1=0.2634(±0.0460)
+2025-07-06 14:08:45,340 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9408, AP: 0.2204, F1: 0.2634
+2025-07-06 14:08:45,352 - ModelingPipeline - INFO - xgboost 최적화 시작 (SMOTE)
+2025-07-06 14:08:45,352 - ModelingPipeline - INFO - XGBoost 클래스 불균형 처리: scale_pos_weight
+2025-07-06 14:08:45,352 - ModelingPipeline - INFO - scale_pos_weight = 138.73 (설정: auto)
+2025-07-06 14:08:45,352 - ModelingPipeline - INFO - 최적화 메트릭: F1
+2025-07-06 14:08:53,713 - ModelingPipeline - INFO -   Trial 1/100 - Current: 0.2425, Best: 0.2425
+2025-07-06 14:16:36,039 - ModelingPipeline - INFO -   Trial 51/100 - Current: 0.2219, Best: 0.2623
+2025-07-06 14:24:54,651 - ModelingPipeline - INFO -   Trial 100/100 - Current: 0.2519, Best: 0.2646
+2025-07-06 14:24:54,657 - ModelingPipeline - INFO - Using XGBoost ≥ 2.0 callbacks
+2025-07-06 14:24:54,657 - ModelingPipeline - WARNING - Early stopping failed, using fallback: XGBClassifier.fit() got an unexpected keyword argument 'callbacks'
+2025-07-06 14:24:55,233 - ModelingPipeline - INFO - 최적 AUC: 0.2646
+2025-07-06 14:24:55,233 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 219, 'max_depth': 10, 'learning_rate': 0.2268125237419248, 'subsample': 0.8994670798848623, 'colsample_bytree': 0.6391687616220285, 'reg_alpha': 1.2118852443740022, 'reg_lambda': 2.232561586008715, 'scale_pos_weight': np.float64(138.73076923076923)}
+2025-07-06 14:24:55,234 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (SMOTE)
+2025-07-06 14:24:58,068 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9094(±0.0248), AP=0.1957(±0.0594), F1=0.2537(±0.0519)
+2025-07-06 14:24:58,068 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9094, AP: 0.1957, F1: 0.2537
+2025-07-06 14:24:58,069 - ModelingPipeline - INFO - UNDERSAMPLING 데이터 처리
+2025-07-06 14:24:58,070 - ModelingPipeline - INFO - logistic_regression 최적화 시작 (UNDERSAMPLING)
+2025-07-06 14:24:58,070 - ModelingPipeline - INFO - Logistic Regression 클래스 불균형 가중치: class_weight=balanced
+2025-07-06 14:24:58,070 - ModelingPipeline - INFO - 최적화 메트릭: F1
+2025-07-06 14:24:58,769 - ModelingPipeline - INFO -   Trial 1/200 - Current: 0.0823, Best: 0.0823
+2025-07-06 14:36:56,893 - ModelingPipeline - INFO -   Trial 101/200 - Current: 0.0989, Best: 0.1047
+2025-07-06 14:45:44,990 - ModelingPipeline - INFO -   Trial 200/200 - Current: 0.1044, Best: 0.1048
+2025-07-06 14:45:45,028 - ModelingPipeline - INFO - 최적 AUC: 0.1048
+2025-07-06 14:45:45,028 - ModelingPipeline - INFO - 최적 파라미터: {'C': 0.01088538629980684, 'max_iter': 8194, 'penalty': 'l2', 'solver': 'liblinear', 'tol': 0.0001, 'class_weight': 'balanced'}
+2025-07-06 14:45:45,028 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (UNDERSAMPLING)
+2025-07-06 14:45:45,188 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.8850(±0.0546), AP=0.2486(±0.0248), F1=0.1055(±0.0093)
+2025-07-06 14:45:45,188 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.8850, AP: 0.2486, F1: 0.1055
+2025-07-06 14:45:45,188 - ModelingPipeline - INFO - random_forest 최적화 시작 (UNDERSAMPLING)
+2025-07-06 14:45:45,188 - ModelingPipeline - INFO - Random Forest 클래스 불균형 가중치: class_weight=balanced
+2025-07-06 14:45:45,188 - ModelingPipeline - INFO - 최적화 메트릭: F1
+2025-07-06 14:45:51,005 - ModelingPipeline - INFO -   Trial 1/100 - Current: 0.3324, Best: 0.3324
+2025-07-06 14:51:16,978 - ModelingPipeline - INFO -   Trial 51/100 - Current: 0.3057, Best: 0.3373
+2025-07-06 14:56:32,200 - ModelingPipeline - INFO -   Trial 100/100 - Current: 0.3182, Best: 0.3405
+2025-07-06 14:56:33,384 - ModelingPipeline - INFO - 최적 AUC: 0.3405
+2025-07-06 14:56:33,384 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 261, 'max_depth': 17, 'min_samples_split': 10, 'min_samples_leaf': 6, 'max_features': 0.1780434477645372, 'class_weight': 'balanced'}
+2025-07-06 14:56:33,385 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (UNDERSAMPLING)
+2025-07-06 14:56:38,005 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9369(±0.0261), AP=0.2524(±0.0699), F1=0.2893(±0.0707)
+2025-07-06 14:56:38,005 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9369, AP: 0.2524, F1: 0.2893
+2025-07-06 14:56:38,018 - ModelingPipeline - INFO - xgboost 최적화 시작 (UNDERSAMPLING)
+2025-07-06 14:56:38,018 - ModelingPipeline - INFO - XGBoost 클래스 불균형 처리: scale_pos_weight
+2025-07-06 14:56:38,018 - ModelingPipeline - INFO - scale_pos_weight = 138.73 (설정: auto)
+2025-07-06 14:56:38,018 - ModelingPipeline - INFO - 최적화 메트릭: F1
+2025-07-06 14:56:45,775 - ModelingPipeline - INFO -   Trial 1/100 - Current: 0.2376, Best: 0.2376
+2025-07-06 15:02:13,286 - ModelingPipeline - INFO -   Trial 51/100 - Current: 0.2587, Best: 0.2707
+2025-07-06 21:08:45,236 - ModelingPipeline - INFO -   Trial 100/100 - Current: 0.2630, Best: 0.2739
+2025-07-06 21:08:45,267 - ModelingPipeline - INFO - Using XGBoost ≥ 2.0 callbacks
+2025-07-06 21:08:45,267 - ModelingPipeline - WARNING - Early stopping failed, using fallback: XGBClassifier.fit() got an unexpected keyword argument 'callbacks'
+2025-07-06 21:08:45,616 - ModelingPipeline - INFO - 최적 AUC: 0.2739
+2025-07-06 21:08:45,616 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 155, 'max_depth': 9, 'learning_rate': 0.14096295200238876, 'subsample': 0.8087459360550788, 'colsample_bytree': 0.6277413892001139, 'reg_alpha': 6.613454960629734, 'reg_lambda': 1.6339967186253794, 'scale_pos_weight': np.float64(138.73076923076923)}
+2025-07-06 21:08:45,617 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (UNDERSAMPLING)
+2025-07-06 21:08:47,715 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9381(±0.0052), AP=0.2124(±0.0602), F1=0.2427(±0.0347)
+2025-07-06 21:08:47,716 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9381, AP: 0.2124, F1: 0.2427
+2025-07-06 21:08:47,717 - ModelingPipeline - INFO - COMBINED 데이터 처리
+2025-07-06 21:08:47,717 - ModelingPipeline - INFO - logistic_regression 최적화 시작 (COMBINED)
+2025-07-06 21:08:47,718 - ModelingPipeline - INFO - Logistic Regression 클래스 불균형 가중치: class_weight=balanced
+2025-07-06 21:08:47,718 - ModelingPipeline - INFO - 최적화 메트릭: F1
+2025-07-06 21:08:48,569 - ModelingPipeline - INFO -   Trial 1/200 - Current: 0.1571, Best: 0.1571
+2025-07-06 21:45:36,491 - ModelingPipeline - INFO -   Trial 101/200 - Current: 0.1645, Best: 0.1656
+2025-07-06 21:48:12,919 - ModelingPipeline - INFO -   Trial 200/200 - Current: 0.1653, Best: 0.1656
+2025-07-06 21:48:12,975 - ModelingPipeline - INFO - 최적 AUC: 0.1656
+2025-07-06 21:48:12,975 - ModelingPipeline - INFO - 최적 파라미터: {'C': 10.796310426671203, 'max_iter': 9687, 'penalty': 'l2', 'solver': 'liblinear', 'tol': 0.0001, 'class_weight': 'balanced'}
+2025-07-06 21:48:12,976 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (COMBINED)
+2025-07-06 21:48:13,197 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.8973(±0.0436), AP=0.2214(±0.0245), F1=0.1556(±0.0128)
+2025-07-06 21:48:13,198 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.8973, AP: 0.2214, F1: 0.1556
+2025-07-06 21:48:13,198 - ModelingPipeline - INFO - random_forest 최적화 시작 (COMBINED)
+2025-07-06 21:48:13,198 - ModelingPipeline - INFO - Random Forest 클래스 불균형 가중치: class_weight=balanced
+2025-07-06 21:48:13,198 - ModelingPipeline - INFO - 최적화 메트릭: F1
+2025-07-06 21:48:19,841 - ModelingPipeline - INFO -   Trial 1/100 - Current: 0.2630, Best: 0.2630
+2025-07-06 21:54:29,318 - ModelingPipeline - INFO -   Trial 51/100 - Current: 0.2613, Best: 0.2682
+2025-07-06 22:00:52,166 - ModelingPipeline - INFO -   Trial 100/100 - Current: 0.2664, Best: 0.2696
+2025-07-06 22:00:54,067 - ModelingPipeline - INFO - 최적 AUC: 0.2696
+2025-07-06 22:00:54,067 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 251, 'max_depth': 18, 'min_samples_split': 11, 'min_samples_leaf': 5, 'max_features': 0.2759299192353992, 'class_weight': 'balanced'}
+2025-07-06 22:00:54,067 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (COMBINED)
+2025-07-06 22:01:01,476 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9389(±0.0245), AP=0.2093(±0.0633), F1=0.2557(±0.0667)
+2025-07-06 22:01:01,477 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9389, AP: 0.2093, F1: 0.2557
+2025-07-06 22:01:01,489 - ModelingPipeline - INFO - xgboost 최적화 시작 (COMBINED)
+2025-07-06 22:01:01,490 - ModelingPipeline - INFO - XGBoost 클래스 불균형 처리: scale_pos_weight
+2025-07-06 22:01:01,490 - ModelingPipeline - INFO - scale_pos_weight = 138.73 (설정: auto)
+2025-07-06 22:01:01,490 - ModelingPipeline - INFO - 최적화 메트릭: F1
+2025-07-06 22:01:10,695 - ModelingPipeline - INFO -   Trial 1/100 - Current: 0.2476, Best: 0.2476
+2025-07-06 22:09:04,390 - ModelingPipeline - INFO -   Trial 51/100 - Current: 0.2577, Best: 0.2584
+2025-07-06 22:18:16,591 - ModelingPipeline - INFO -   Trial 100/100 - Current: 0.2514, Best: 0.2584
+2025-07-06 22:18:16,633 - ModelingPipeline - INFO - Using XGBoost ≥ 2.0 callbacks
+2025-07-06 22:18:16,635 - ModelingPipeline - WARNING - Early stopping failed, using fallback: XGBClassifier.fit() got an unexpected keyword argument 'callbacks'
+2025-07-06 22:18:17,202 - ModelingPipeline - INFO - 최적 AUC: 0.2584
+2025-07-06 22:18:17,202 - ModelingPipeline - INFO - 최적 파라미터: {'n_estimators': 243, 'max_depth': 10, 'learning_rate': 0.2567935541399566, 'subsample': 0.9555615200894363, 'colsample_bytree': 0.7825692780712882, 'reg_alpha': 1.8489879755531091, 'reg_lambda': 2.129517853053673, 'scale_pos_weight': np.float64(138.73076923076923)}
+2025-07-06 22:18:17,202 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (COMBINED)
+2025-07-06 22:18:19,977 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9061(±0.0289), AP=0.1811(±0.0636), F1=0.2415(±0.0375)
+2025-07-06 22:18:19,977 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9061, AP: 0.1811, F1: 0.2415
+2025-07-06 22:18:19,978 - ModelingPipeline - INFO - 모든 모델 평가 및 Threshold 최적화
+2025-07-06 22:18:19,978 - ModelingPipeline - INFO - 모델 평가 시작: normal__logistic_regression
+2025-07-06 22:18:19,978 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (NORMAL)
+2025-07-06 22:18:20,028 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.8840(±0.0547), AP=0.2479(±0.0251), F1=0.1061(±0.0096)
+2025-07-06 22:18:20,028 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.8840, AP: 0.2479, F1: 0.1061
+2025-07-06 22:18:20,028 - ModelingPipeline - INFO - [normal__logistic_regression] Cross-Validation (Train): AUC=0.8840, F1=0.1061
+2025-07-06 22:18:20,028 - ModelingPipeline - INFO - [normal__logistic_regression] 평가용 전처리 완료
+2025-07-06 22:18:20,030 - ModelingPipeline - INFO - Threshold 최적화 디버깅:
+2025-07-06 22:18:20,030 - ModelingPipeline - INFO -   - 검증 데이터 크기: 5462
+2025-07-06 22:18:20,030 - ModelingPipeline - INFO -   - 양성 클래스 비율: 0.0077 (42/5462)
+2025-07-06 22:18:20,030 - ModelingPipeline - INFO -   - 예측 확률 범위: [0.0183, 0.9487]
+2025-07-06 22:18:20,030 - ModelingPipeline - INFO -   - 예측 확률 평균: 0.3320
+2025-07-06 22:18:20,031 - ModelingPipeline - INFO -   - F1 점수 범위: [0.0149, 0.2921]
+2025-07-06 22:18:20,031 - ModelingPipeline - INFO -   - 0이 아닌 F1 점수 개수: 5462/5462
+2025-07-06 22:18:20,034 - ModelingPipeline - INFO - 최적 임계값 검증: 0.7658
+2025-07-06 22:18:20,034 - ModelingPipeline - INFO -   - F1: 0.2921, Precision: 0.2766, Recall: 0.3095
+2025-07-06 22:18:20,034 - ModelingPipeline - INFO -   - 양성 예측 개수: 47/5462
+2025-07-06 22:18:20,039 - ModelingPipeline - INFO - [normal__logistic_regression] Validation (Optimal Threshold): F1=0.2921, Recall=0.3095
+2025-07-06 22:18:20,047 - ModelingPipeline - INFO - [normal__logistic_regression] Test (Optimal Threshold=0.7658): F1=0.2857, Recall=0.3636
+2025-07-06 22:18:20,047 - ModelingPipeline - INFO - [normal__logistic_regression] Test (Default Threshold=0.5): F1=0.0883, Recall=0.7576
+2025-07-06 22:18:20,047 - ModelingPipeline - INFO - 모델 평가 완료: normal__logistic_regression
+2025-07-06 22:18:20,047 - ModelingPipeline - INFO - 모델 평가 시작: normal__random_forest
+2025-07-06 22:18:20,048 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (NORMAL)
+2025-07-06 22:18:24,140 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9385(±0.0203), AP=0.2540(±0.0753), F1=0.2814(±0.0735)
+2025-07-06 22:18:24,141 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9385, AP: 0.2540, F1: 0.2814
+2025-07-06 22:18:24,141 - ModelingPipeline - INFO - [normal__random_forest] Cross-Validation (Train): AUC=0.9385, F1=0.2814
+2025-07-06 22:18:24,141 - ModelingPipeline - INFO - [normal__random_forest] 평가용 전처리 완료
+2025-07-06 22:18:24,214 - ModelingPipeline - INFO - Threshold 최적화 디버깅:
+2025-07-06 22:18:24,214 - ModelingPipeline - INFO -   - 검증 데이터 크기: 5462
+2025-07-06 22:18:24,214 - ModelingPipeline - INFO -   - 양성 클래스 비율: 0.0077 (42/5462)
+2025-07-06 22:18:24,214 - ModelingPipeline - INFO -   - 예측 확률 범위: [0.0000, 0.8997]
+2025-07-06 22:18:24,214 - ModelingPipeline - INFO -   - 예측 확률 평균: 0.0269
+2025-07-06 22:18:24,215 - ModelingPipeline - INFO -   - F1 점수 범위: [0.0153, 0.3265]
+2025-07-06 22:18:24,215 - ModelingPipeline - INFO -   - 0이 아닌 F1 점수 개수: 1757/1757
+2025-07-06 22:18:24,218 - ModelingPipeline - INFO - 최적 임계값 검증: 0.3837
+2025-07-06 22:18:24,218 - ModelingPipeline - INFO -   - F1: 0.3265, Precision: 0.2857, Recall: 0.3810
+2025-07-06 22:18:24,218 - ModelingPipeline - INFO -   - 양성 예측 개수: 56/5462
+2025-07-06 22:18:24,222 - ModelingPipeline - INFO - [normal__random_forest] Validation (Optimal Threshold): F1=0.3265, Recall=0.3810
+2025-07-06 22:18:24,260 - ModelingPipeline - INFO - [normal__random_forest] Test (Optimal Threshold=0.3837): F1=0.1702, Recall=0.2424
+2025-07-06 22:18:24,260 - ModelingPipeline - INFO - [normal__random_forest] Test (Default Threshold=0.5): F1=0.1159, Recall=0.1212
+2025-07-06 22:18:24,262 - ModelingPipeline - INFO - 모델 평가 완료: normal__random_forest
+2025-07-06 22:18:24,262 - ModelingPipeline - INFO - 모델 평가 시작: normal__xgboost
+2025-07-06 22:18:24,262 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (NORMAL)
+2025-07-06 22:18:27,952 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9420(±0.0089), AP=0.2159(±0.0587), F1=0.2713(±0.0679)
+2025-07-06 22:18:27,952 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9420, AP: 0.2159, F1: 0.2713
+2025-07-06 22:18:27,952 - ModelingPipeline - INFO - [normal__xgboost] Cross-Validation (Train): AUC=0.9420, F1=0.2713
+2025-07-06 22:18:27,952 - ModelingPipeline - INFO - [normal__xgboost] 평가용 전처리 완료
+2025-07-06 22:18:27,969 - ModelingPipeline - INFO - Threshold 최적화 디버깅:
+2025-07-06 22:18:27,969 - ModelingPipeline - INFO -   - 검증 데이터 크기: 5462
+2025-07-06 22:18:27,969 - ModelingPipeline - INFO -   - 양성 클래스 비율: 0.0077 (42/5462)
+2025-07-06 22:18:27,969 - ModelingPipeline - INFO -   - 예측 확률 범위: [0.0001, 0.9871]
+2025-07-06 22:18:27,969 - ModelingPipeline - INFO -   - 예측 확률 평균: 0.0191
+2025-07-06 22:18:27,970 - ModelingPipeline - INFO -   - F1 점수 범위: [0.0153, 0.2883]
+2025-07-06 22:18:27,970 - ModelingPipeline - INFO -   - 0이 아닌 F1 점수 개수: 5384/5384
+2025-07-06 22:18:27,973 - ModelingPipeline - INFO - 최적 임계값 검증: 0.4256
+2025-07-06 22:18:27,973 - ModelingPipeline - INFO -   - F1: 0.2883, Precision: 0.2319, Recall: 0.3810
+2025-07-06 22:18:27,973 - ModelingPipeline - INFO -   - 양성 예측 개수: 69/5462
+2025-07-06 22:18:27,977 - ModelingPipeline - INFO - [normal__xgboost] Validation (Optimal Threshold): F1=0.2883, Recall=0.3810
+2025-07-06 22:18:27,991 - ModelingPipeline - INFO - [normal__xgboost] Test (Optimal Threshold=0.4256): F1=0.1961, Recall=0.3030
+2025-07-06 22:18:27,991 - ModelingPipeline - INFO - [normal__xgboost] Test (Default Threshold=0.5): F1=0.1573, Recall=0.2121
+2025-07-06 22:18:27,993 - ModelingPipeline - INFO - 모델 평가 완료: normal__xgboost
+2025-07-06 22:18:27,993 - ModelingPipeline - INFO - 모델 평가 시작: smote__logistic_regression
+2025-07-06 22:18:27,995 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (SMOTE)
+2025-07-06 22:18:28,056 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.8697(±0.0469), AP=0.2556(±0.0235), F1=0.1470(±0.0145)
+2025-07-06 22:18:28,056 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.8697, AP: 0.2556, F1: 0.1470
+2025-07-06 22:18:28,056 - ModelingPipeline - INFO - [smote__logistic_regression] Cross-Validation (Train): AUC=0.8697, F1=0.1470
+2025-07-06 22:18:28,056 - ModelingPipeline - INFO - [smote__logistic_regression] 평가용 전처리 완료
+2025-07-06 22:18:28,057 - ModelingPipeline - INFO - Threshold 최적화 디버깅:
+2025-07-06 22:18:28,057 - ModelingPipeline - INFO -   - 검증 데이터 크기: 5462
+2025-07-06 22:18:28,057 - ModelingPipeline - INFO -   - 양성 클래스 비율: 0.0077 (42/5462)
+2025-07-06 22:18:28,057 - ModelingPipeline - INFO -   - 예측 확률 범위: [0.0000, 0.9843]
+2025-07-06 22:18:28,057 - ModelingPipeline - INFO -   - 예측 확률 평균: 0.2147
+2025-07-06 22:18:28,058 - ModelingPipeline - INFO -   - F1 점수 범위: [0.0150, 0.3146]
+2025-07-06 22:18:28,058 - ModelingPipeline - INFO -   - 0이 아닌 F1 점수 개수: 5462/5462
+2025-07-06 22:18:28,060 - ModelingPipeline - INFO - 최적 임계값 검증: 0.8097
+2025-07-06 22:18:28,060 - ModelingPipeline - INFO -   - F1: 0.3146, Precision: 0.2979, Recall: 0.3333
+2025-07-06 22:18:28,060 - ModelingPipeline - INFO -   - 양성 예측 개수: 47/5462
+2025-07-06 22:18:28,064 - ModelingPipeline - INFO - [smote__logistic_regression] Validation (Optimal Threshold): F1=0.3146, Recall=0.3333
+2025-07-06 22:18:28,071 - ModelingPipeline - INFO - [smote__logistic_regression] Test (Optimal Threshold=0.8097): F1=0.2195, Recall=0.2727
+2025-07-06 22:18:28,072 - ModelingPipeline - INFO - [smote__logistic_regression] Test (Default Threshold=0.5): F1=0.1170, Recall=0.6970
+2025-07-06 22:18:28,073 - ModelingPipeline - INFO - 모델 평가 완료: smote__logistic_regression
+2025-07-06 22:18:28,073 - ModelingPipeline - INFO - 모델 평가 시작: smote__random_forest
+2025-07-06 22:18:28,073 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (SMOTE)
+2025-07-06 22:18:33,700 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9403(±0.0156), AP=0.2118(±0.0596), F1=0.2605(±0.0419)
+2025-07-06 22:18:33,701 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9403, AP: 0.2118, F1: 0.2605
+2025-07-06 22:18:33,701 - ModelingPipeline - INFO - [smote__random_forest] Cross-Validation (Train): AUC=0.9403, F1=0.2605
+2025-07-06 22:18:33,701 - ModelingPipeline - INFO - [smote__random_forest] 평가용 전처리 완료
+2025-07-06 22:18:33,796 - ModelingPipeline - INFO - Threshold 최적화 디버깅:
+2025-07-06 22:18:33,797 - ModelingPipeline - INFO -   - 검증 데이터 크기: 5462
+2025-07-06 22:18:33,797 - ModelingPipeline - INFO -   - 양성 클래스 비율: 0.0077 (42/5462)
+2025-07-06 22:18:33,797 - ModelingPipeline - INFO -   - 예측 확률 범위: [0.0000, 0.9811]
+2025-07-06 22:18:33,797 - ModelingPipeline - INFO -   - 예측 확률 평균: 0.0359
+2025-07-06 22:18:33,798 - ModelingPipeline - INFO -   - F1 점수 범위: [0.0000, 0.2947]
+2025-07-06 22:18:33,798 - ModelingPipeline - INFO -   - 0이 아닌 F1 점수 개수: 2292/2293
+2025-07-06 22:18:33,800 - ModelingPipeline - INFO - 최적 임계값 검증: 0.6427
+2025-07-06 22:18:33,800 - ModelingPipeline - INFO -   - F1: 0.2947, Precision: 0.2642, Recall: 0.3333
+2025-07-06 22:18:33,800 - ModelingPipeline - INFO -   - 양성 예측 개수: 53/5462
+2025-07-06 22:18:33,804 - ModelingPipeline - INFO - [smote__random_forest] Validation (Optimal Threshold): F1=0.2947, Recall=0.3333
+2025-07-06 22:18:33,852 - ModelingPipeline - INFO - [smote__random_forest] Test (Optimal Threshold=0.6427): F1=0.2069, Recall=0.2727
+2025-07-06 22:18:33,852 - ModelingPipeline - INFO - [smote__random_forest] Test (Default Threshold=0.5): F1=0.2017, Recall=0.3636
+2025-07-06 22:18:33,853 - ModelingPipeline - INFO - 모델 평가 완료: smote__random_forest
+2025-07-06 22:18:33,853 - ModelingPipeline - INFO - 모델 평가 시작: smote__xgboost
+2025-07-06 22:18:33,853 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (SMOTE)
+2025-07-06 22:18:36,536 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9094(±0.0248), AP=0.1957(±0.0594), F1=0.2537(±0.0519)
+2025-07-06 22:18:36,536 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9094, AP: 0.1957, F1: 0.2537
+2025-07-06 22:18:36,537 - ModelingPipeline - INFO - [smote__xgboost] Cross-Validation (Train): AUC=0.9094, F1=0.2537
+2025-07-06 22:18:36,537 - ModelingPipeline - INFO - [smote__xgboost] 평가용 전처리 완료
+2025-07-06 22:18:36,550 - ModelingPipeline - INFO - Threshold 최적화 디버깅:
+2025-07-06 22:18:36,550 - ModelingPipeline - INFO -   - 검증 데이터 크기: 5462
+2025-07-06 22:18:36,550 - ModelingPipeline - INFO -   - 양성 클래스 비율: 0.0077 (42/5462)
+2025-07-06 22:18:36,550 - ModelingPipeline - INFO -   - 예측 확률 범위: [0.0000, 0.9999]
+2025-07-06 22:18:36,550 - ModelingPipeline - INFO -   - 예측 확률 평균: 0.0122
+2025-07-06 22:18:36,551 - ModelingPipeline - INFO -   - F1 점수 범위: [0.0000, 0.2391]
+2025-07-06 22:18:36,551 - ModelingPipeline - INFO -   - 0이 아닌 F1 점수 개수: 5426/5430
+2025-07-06 22:18:36,554 - ModelingPipeline - INFO - 최적 임계값 검증: 0.5637
+2025-07-06 22:18:36,554 - ModelingPipeline - INFO -   - F1: 0.2391, Precision: 0.2200, Recall: 0.2619
+2025-07-06 22:18:36,554 - ModelingPipeline - INFO -   - 양성 예측 개수: 50/5462
+2025-07-06 22:18:36,558 - ModelingPipeline - INFO - [smote__xgboost] Validation (Optimal Threshold): F1=0.2391, Recall=0.2619
+2025-07-06 22:18:36,571 - ModelingPipeline - INFO - [smote__xgboost] Test (Optimal Threshold=0.5637): F1=0.1395, Recall=0.1818
+2025-07-06 22:18:36,571 - ModelingPipeline - INFO - [smote__xgboost] Test (Default Threshold=0.5): F1=0.1573, Recall=0.2121
+2025-07-06 22:18:36,572 - ModelingPipeline - INFO - 모델 평가 완료: smote__xgboost
+2025-07-06 22:18:36,572 - ModelingPipeline - INFO - 모델 평가 시작: undersampling__logistic_regression
+2025-07-06 22:18:36,574 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (UNDERSAMPLING)
+2025-07-06 22:18:36,732 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.8850(±0.0546), AP=0.2486(±0.0248), F1=0.1055(±0.0093)
+2025-07-06 22:18:36,732 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.8850, AP: 0.2486, F1: 0.1055
+2025-07-06 22:18:36,732 - ModelingPipeline - INFO - [undersampling__logistic_regression] Cross-Validation (Train): AUC=0.8850, F1=0.1055
+2025-07-06 22:18:36,732 - ModelingPipeline - INFO - [undersampling__logistic_regression] 평가용 전처리 완료
+2025-07-06 22:18:36,733 - ModelingPipeline - INFO - Threshold 최적화 디버깅:
+2025-07-06 22:18:36,733 - ModelingPipeline - INFO -   - 검증 데이터 크기: 5462
+2025-07-06 22:18:36,733 - ModelingPipeline - INFO -   - 양성 클래스 비율: 0.0077 (42/5462)
+2025-07-06 22:18:36,733 - ModelingPipeline - INFO -   - 예측 확률 범위: [0.0175, 0.9529]
+2025-07-06 22:18:36,733 - ModelingPipeline - INFO -   - 예측 확률 평균: 0.3291
+2025-07-06 22:18:36,734 - ModelingPipeline - INFO -   - F1 점수 범위: [0.0149, 0.2889]
+2025-07-06 22:18:36,734 - ModelingPipeline - INFO -   - 0이 아닌 F1 점수 개수: 5462/5462
+2025-07-06 22:18:36,737 - ModelingPipeline - INFO - 최적 임계값 검증: 0.7719
+2025-07-06 22:18:36,737 - ModelingPipeline - INFO -   - F1: 0.2889, Precision: 0.2708, Recall: 0.3095
+2025-07-06 22:18:36,737 - ModelingPipeline - INFO -   - 양성 예측 개수: 48/5462
+2025-07-06 22:18:36,741 - ModelingPipeline - INFO - [undersampling__logistic_regression] Validation (Optimal Threshold): F1=0.2889, Recall=0.3095
+2025-07-06 22:18:36,748 - ModelingPipeline - INFO - [undersampling__logistic_regression] Test (Optimal Threshold=0.7719): F1=0.2857, Recall=0.3636
+2025-07-06 22:18:36,748 - ModelingPipeline - INFO - [undersampling__logistic_regression] Test (Default Threshold=0.5): F1=0.0877, Recall=0.7576
+2025-07-06 22:18:36,750 - ModelingPipeline - INFO - 모델 평가 완료: undersampling__logistic_regression
+2025-07-06 22:18:36,750 - ModelingPipeline - INFO - 모델 평가 시작: undersampling__random_forest
+2025-07-06 22:18:36,750 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (UNDERSAMPLING)
+2025-07-06 22:18:41,388 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9383(±0.0287), AP=0.2565(±0.0840), F1=0.2605(±0.0903)
+2025-07-06 22:18:41,388 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9383, AP: 0.2565, F1: 0.2605
+2025-07-06 22:18:41,388 - ModelingPipeline - INFO - [undersampling__random_forest] Cross-Validation (Train): AUC=0.9383, F1=0.2605
+2025-07-06 22:18:41,388 - ModelingPipeline - INFO - [undersampling__random_forest] 평가용 전처리 완료
+2025-07-06 22:18:41,459 - ModelingPipeline - INFO - Threshold 최적화 디버깅:
+2025-07-06 22:18:41,459 - ModelingPipeline - INFO -   - 검증 데이터 크기: 5462
+2025-07-06 22:18:41,459 - ModelingPipeline - INFO -   - 양성 클래스 비율: 0.0077 (42/5462)
+2025-07-06 22:18:41,459 - ModelingPipeline - INFO -   - 예측 확률 범위: [0.0000, 0.9421]
+2025-07-06 22:18:41,459 - ModelingPipeline - INFO -   - 예측 확률 평균: 0.0275
+2025-07-06 22:18:41,460 - ModelingPipeline - INFO -   - F1 점수 범위: [0.0153, 0.3226]
+2025-07-06 22:18:41,460 - ModelingPipeline - INFO -   - 0이 아닌 F1 점수 개수: 1908/1908
+2025-07-06 22:18:41,462 - ModelingPipeline - INFO - 최적 임계값 검증: 0.4360
+2025-07-06 22:18:41,462 - ModelingPipeline - INFO -   - F1: 0.3226, Precision: 0.2941, Recall: 0.3571
+2025-07-06 22:18:41,462 - ModelingPipeline - INFO -   - 양성 예측 개수: 51/5462
+2025-07-06 22:18:41,466 - ModelingPipeline - INFO - [undersampling__random_forest] Validation (Optimal Threshold): F1=0.3226, Recall=0.3571
+2025-07-06 22:18:41,508 - ModelingPipeline - INFO - [undersampling__random_forest] Test (Optimal Threshold=0.4360): F1=0.1412, Recall=0.1818
+2025-07-06 22:18:41,508 - ModelingPipeline - INFO - [undersampling__random_forest] Test (Default Threshold=0.5): F1=0.1429, Recall=0.1515
+2025-07-06 22:18:41,508 - ModelingPipeline - INFO - 모델 평가 완료: undersampling__random_forest
+2025-07-06 22:18:41,509 - ModelingPipeline - INFO - 모델 평가 시작: undersampling__xgboost
+2025-07-06 22:18:41,509 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (UNDERSAMPLING)
+2025-07-06 22:18:43,349 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9381(±0.0052), AP=0.2124(±0.0602), F1=0.2427(±0.0347)
+2025-07-06 22:18:43,349 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9381, AP: 0.2124, F1: 0.2427
+2025-07-06 22:18:43,349 - ModelingPipeline - INFO - [undersampling__xgboost] Cross-Validation (Train): AUC=0.9381, F1=0.2427
+2025-07-06 22:18:43,349 - ModelingPipeline - INFO - [undersampling__xgboost] 평가용 전처리 완료
+2025-07-06 22:18:43,357 - ModelingPipeline - INFO - Threshold 최적화 디버깅:
+2025-07-06 22:18:43,357 - ModelingPipeline - INFO -   - 검증 데이터 크기: 5462
+2025-07-06 22:18:43,357 - ModelingPipeline - INFO -   - 양성 클래스 비율: 0.0077 (42/5462)
+2025-07-06 22:18:43,357 - ModelingPipeline - INFO -   - 예측 확률 범위: [0.0000, 0.9951]
+2025-07-06 22:18:43,357 - ModelingPipeline - INFO -   - 예측 확률 평균: 0.0187
+2025-07-06 22:18:43,358 - ModelingPipeline - INFO -   - F1 점수 범위: [0.0153, 0.2628]
+2025-07-06 22:18:43,358 - ModelingPipeline - INFO -   - 0이 아닌 F1 점수 개수: 5301/5301
+2025-07-06 22:18:43,360 - ModelingPipeline - INFO - 최적 임계값 검증: 0.3435
+2025-07-06 22:18:43,361 - ModelingPipeline - INFO -   - F1: 0.2628, Precision: 0.1895, Recall: 0.4286
+2025-07-06 22:18:43,361 - ModelingPipeline - INFO -   - 양성 예측 개수: 95/5462
+2025-07-06 22:18:43,365 - ModelingPipeline - INFO - [undersampling__xgboost] Validation (Optimal Threshold): F1=0.2628, Recall=0.4286
+2025-07-06 22:18:43,375 - ModelingPipeline - INFO - [undersampling__xgboost] Test (Optimal Threshold=0.3435): F1=0.1667, Recall=0.3030
+2025-07-06 22:18:43,375 - ModelingPipeline - INFO - [undersampling__xgboost] Test (Default Threshold=0.5): F1=0.1188, Recall=0.1818
+2025-07-06 22:18:43,376 - ModelingPipeline - INFO - 모델 평가 완료: undersampling__xgboost
+2025-07-06 22:18:43,376 - ModelingPipeline - INFO - 모델 평가 시작: combined__logistic_regression
+2025-07-06 22:18:43,376 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (COMBINED)
+2025-07-06 22:18:43,599 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.8973(±0.0436), AP=0.2214(±0.0245), F1=0.1556(±0.0128)
+2025-07-06 22:18:43,599 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.8973, AP: 0.2214, F1: 0.1556
+2025-07-06 22:18:43,599 - ModelingPipeline - INFO - [combined__logistic_regression] Cross-Validation (Train): AUC=0.8973, F1=0.1556
+2025-07-06 22:18:43,599 - ModelingPipeline - INFO - [combined__logistic_regression] 평가용 전처리 완료
+2025-07-06 22:18:43,600 - ModelingPipeline - INFO - Threshold 최적화 디버깅:
+2025-07-06 22:18:43,600 - ModelingPipeline - INFO -   - 검증 데이터 크기: 5462
+2025-07-06 22:18:43,600 - ModelingPipeline - INFO -   - 양성 클래스 비율: 0.0077 (42/5462)
+2025-07-06 22:18:43,600 - ModelingPipeline - INFO -   - 예측 확률 범위: [0.0000, 1.0000]
+2025-07-06 22:18:43,600 - ModelingPipeline - INFO -   - 예측 확률 평균: 0.0980
+2025-07-06 22:18:43,601 - ModelingPipeline - INFO -   - F1 점수 범위: [0.0150, 0.3611]
+2025-07-06 22:18:43,601 - ModelingPipeline - INFO -   - 0이 아닌 F1 점수 개수: 5462/5462
+2025-07-06 22:18:43,604 - ModelingPipeline - INFO - 최적 임계값 검증: 0.9919
+2025-07-06 22:18:43,604 - ModelingPipeline - INFO -   - F1: 0.3611, Precision: 0.4333, Recall: 0.3095
+2025-07-06 22:18:43,604 - ModelingPipeline - INFO -   - 양성 예측 개수: 30/5462
+2025-07-06 22:18:43,608 - ModelingPipeline - INFO - [combined__logistic_regression] Validation (Optimal Threshold): F1=0.3611, Recall=0.3095
+2025-07-06 22:18:43,615 - ModelingPipeline - INFO - [combined__logistic_regression] Test (Optimal Threshold=0.9919): F1=0.2609, Recall=0.2727
+2025-07-06 22:18:43,615 - ModelingPipeline - INFO - [combined__logistic_regression] Test (Default Threshold=0.5): F1=0.1139, Recall=0.6970
+2025-07-06 22:18:43,616 - ModelingPipeline - INFO - 모델 평가 완료: combined__logistic_regression
+2025-07-06 22:18:43,617 - ModelingPipeline - INFO - 모델 평가 시작: combined__random_forest
+2025-07-06 22:18:43,617 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (COMBINED)
+2025-07-06 22:18:50,956 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9422(±0.0179), AP=0.2033(±0.0537), F1=0.2532(±0.0634)
+2025-07-06 22:18:50,957 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9422, AP: 0.2033, F1: 0.2532
+2025-07-06 22:18:50,957 - ModelingPipeline - INFO - [combined__random_forest] Cross-Validation (Train): AUC=0.9422, F1=0.2532
+2025-07-06 22:18:50,957 - ModelingPipeline - INFO - [combined__random_forest] 평가용 전처리 완료
+2025-07-06 22:18:51,042 - ModelingPipeline - INFO - Threshold 최적화 디버깅:
+2025-07-06 22:18:51,042 - ModelingPipeline - INFO -   - 검증 데이터 크기: 5462
+2025-07-06 22:18:51,042 - ModelingPipeline - INFO -   - 양성 클래스 비율: 0.0077 (42/5462)
+2025-07-06 22:18:51,042 - ModelingPipeline - INFO -   - 예측 확률 범위: [0.0000, 0.9736]
+2025-07-06 22:18:51,042 - ModelingPipeline - INFO -   - 예측 확률 평균: 0.0323
+2025-07-06 22:18:51,043 - ModelingPipeline - INFO -   - F1 점수 범위: [0.0000, 0.2857]
+2025-07-06 22:18:51,043 - ModelingPipeline - INFO -   - 0이 아닌 F1 점수 개수: 2339/2340
+2025-07-06 22:18:51,046 - ModelingPipeline - INFO - 최적 임계값 검증: 0.5553
+2025-07-06 22:18:51,046 - ModelingPipeline - INFO -   - F1: 0.2857, Precision: 0.2381, Recall: 0.3571
+2025-07-06 22:18:51,046 - ModelingPipeline - INFO -   - 양성 예측 개수: 63/5462
+2025-07-06 22:18:51,050 - ModelingPipeline - INFO - [combined__random_forest] Validation (Optimal Threshold): F1=0.2857, Recall=0.3571
+2025-07-06 22:18:51,099 - ModelingPipeline - INFO - [combined__random_forest] Test (Optimal Threshold=0.5553): F1=0.2136, Recall=0.3333
+2025-07-06 22:18:51,099 - ModelingPipeline - INFO - [combined__random_forest] Test (Default Threshold=0.5): F1=0.2185, Recall=0.3939
+2025-07-06 22:18:51,100 - ModelingPipeline - INFO - 모델 평가 완료: combined__random_forest
+2025-07-06 22:18:51,100 - ModelingPipeline - INFO - 모델 평가 시작: combined__xgboost
+2025-07-06 22:18:51,100 - ModelingPipeline - INFO - CV 메트릭 계산 시작 (COMBINED)
+2025-07-06 22:18:53,860 - ModelingPipeline - INFO - 최적화된 CV 완료: AUC=0.9061(±0.0289), AP=0.1811(±0.0636), F1=0.2415(±0.0375)
+2025-07-06 22:18:53,860 - ModelingPipeline - INFO - CV 메트릭 계산 완료 - AUC: 0.9061, AP: 0.1811, F1: 0.2415
+2025-07-06 22:18:53,860 - ModelingPipeline - INFO - [combined__xgboost] Cross-Validation (Train): AUC=0.9061, F1=0.2415
+2025-07-06 22:18:53,860 - ModelingPipeline - INFO - [combined__xgboost] 평가용 전처리 완료
+2025-07-06 22:18:53,870 - ModelingPipeline - INFO - Threshold 최적화 디버깅:
+2025-07-06 22:18:53,870 - ModelingPipeline - INFO -   - 검증 데이터 크기: 5462
+2025-07-06 22:18:53,870 - ModelingPipeline - INFO -   - 양성 클래스 비율: 0.0077 (42/5462)
+2025-07-06 22:18:53,870 - ModelingPipeline - INFO -   - 예측 확률 범위: [0.0000, 1.0000]
+2025-07-06 22:18:53,870 - ModelingPipeline - INFO -   - 예측 확률 평균: 0.0145
+2025-07-06 22:18:53,871 - ModelingPipeline - INFO -   - F1 점수 범위: [0.0000, 0.2653]
+2025-07-06 22:18:53,871 - ModelingPipeline - INFO -   - 0이 아닌 F1 점수 개수: 5421/5422
+2025-07-06 22:18:53,874 - ModelingPipeline - INFO - 최적 임계값 검증: 0.6190
+2025-07-06 22:18:53,874 - ModelingPipeline - INFO -   - F1: 0.2653, Precision: 0.2321, Recall: 0.3095
+2025-07-06 22:18:53,874 - ModelingPipeline - INFO -   - 양성 예측 개수: 56/5462
+2025-07-06 22:18:53,878 - ModelingPipeline - INFO - [combined__xgboost] Validation (Optimal Threshold): F1=0.2653, Recall=0.3095
+2025-07-06 22:18:53,890 - ModelingPipeline - INFO - [combined__xgboost] Test (Optimal Threshold=0.6190): F1=0.1739, Recall=0.2424
+2025-07-06 22:18:53,891 - ModelingPipeline - INFO - [combined__xgboost] Test (Default Threshold=0.5): F1=0.1856, Recall=0.2727
+2025-07-06 22:18:53,891 - ModelingPipeline - INFO - 모델 평가 완료: combined__xgboost
+2025-07-06 22:18:53,892 - ModelingPipeline - INFO - 앙상블 모델 실행 시작
+2025-07-06 22:18:53,898 - ModelingPipeline - INFO - 앙상블에 추가: normal__logistic_regression
+2025-07-06 22:18:53,898 - ModelingPipeline - INFO - 앙상블에 추가: smote__logistic_regression
+2025-07-06 22:18:53,898 - ModelingPipeline - INFO - 앙상블에 추가: undersampling__logistic_regression
+2025-07-06 22:18:53,898 - ModelingPipeline - INFO - 앙상블에 추가: combined__logistic_regression
+2025-07-06 22:18:53,898 - ModelingPipeline - INFO - 앙상블에 추가: normal__random_forest
+2025-07-06 22:18:53,898 - ModelingPipeline - INFO - 앙상블에 추가: smote__random_forest
+2025-07-06 22:18:53,898 - ModelingPipeline - INFO - 앙상블에 추가: undersampling__random_forest
+2025-07-06 22:18:53,898 - ModelingPipeline - INFO - 앙상블에 추가: combined__random_forest
+2025-07-06 22:18:53,898 - ModelingPipeline - INFO - 앙상블에 추가: normal__xgboost
+2025-07-06 22:18:53,898 - ModelingPipeline - INFO - 앙상블에 추가: smote__xgboost
+2025-07-06 22:18:53,898 - ModelingPipeline - INFO - 앙상블에 추가: undersampling__xgboost
+2025-07-06 22:18:53,900 - ModelingPipeline - INFO - 앙상블에 추가: combined__xgboost
+2025-07-06 22:18:54,459 - ModelingPipeline - INFO - 앙상블 모델 완료 - Test AUC: 0.8844, F1: 0.2362
+2025-07-06 22:18:54,614 - ModelingPipeline - INFO - 앙상블 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/models/combined_models__ensemble_model.joblib
+2025-07-06 22:18:54,614 - ModelingPipeline - INFO - 시각화 생성 시작
+2025-07-06 22:18:55,151 - ModelingPipeline - INFO - ROC 곡선 저장 완료: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/visualizations/roc_curves_comparison.png
+2025-07-06 22:18:55,562 - ModelingPipeline - INFO - PR 곡선 저장 완료: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/visualizations/pr_curves_comparison.png
+2025-07-06 22:18:56,193 - ModelingPipeline - INFO - 성능 비교 차트 저장 완료: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/visualizations/performance_comparison.png
+2025-07-06 22:18:56,193 - ModelingPipeline - INFO - 특성 중요도를 시각화할 tree 기반 모델이 없습니다.
+2025-07-06 22:18:56,193 - ModelingPipeline - INFO - Threshold 분석을 위한 유효한 모델이 없습니다.
+2025-07-06 22:18:56,193 - ModelingPipeline - INFO - Train vs Test 비교를 위한 모델이 없습니다.
+2025-07-06 22:18:56,735 - ModelingPipeline - INFO - 앙상블 가중치 차트 저장 완료: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/visualizations/ensemble_weights.png
+2025-07-06 22:18:56,735 - ModelingPipeline - INFO - 시각화 생성 완료
+2025-07-06 22:18:56,735 - ModelingPipeline - INFO - 결과 저장 시작
+2025-07-06 22:18:56,736 - ModelingPipeline - INFO - normal__logistic_regression 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/models/normal__logistic_regression_model.joblib
+2025-07-06 22:18:56,767 - ModelingPipeline - INFO - normal__random_forest 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/models/normal__random_forest_model.joblib
+2025-07-06 22:18:56,770 - ModelingPipeline - INFO - normal__xgboost 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/models/normal__xgboost_model.joblib
+2025-07-06 22:18:56,770 - ModelingPipeline - INFO - smote__logistic_regression 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/models/smote__logistic_regression_model.joblib
+2025-07-06 22:18:56,806 - ModelingPipeline - INFO - smote__random_forest 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/models/smote__random_forest_model.joblib
+2025-07-06 22:18:56,809 - ModelingPipeline - INFO - smote__xgboost 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/models/smote__xgboost_model.joblib
+2025-07-06 22:18:56,809 - ModelingPipeline - INFO - undersampling__logistic_regression 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/models/undersampling__logistic_regression_model.joblib
+2025-07-06 22:18:56,907 - ModelingPipeline - INFO - undersampling__random_forest 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/models/undersampling__random_forest_model.joblib
+2025-07-06 22:18:56,908 - ModelingPipeline - INFO - undersampling__xgboost 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/models/undersampling__xgboost_model.joblib
+2025-07-06 22:18:56,909 - ModelingPipeline - INFO - combined__logistic_regression 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/models/combined__logistic_regression_model.joblib
+2025-07-06 22:18:56,945 - ModelingPipeline - INFO - combined__random_forest 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/models/combined__random_forest_model.joblib
+2025-07-06 22:18:56,947 - ModelingPipeline - INFO - combined__xgboost 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/models/combined__xgboost_model.joblib
+2025-07-06 22:18:57,088 - ModelingPipeline - INFO - combined_models__ensemble 모델 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/models/combined_models__ensemble_model.joblib
+2025-07-06 22:18:57,236 - ModelingPipeline - INFO - 전체 결과 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/results/modeling_results.json
+2025-07-06 22:18:57,237 - ModelingPipeline - INFO - 설정 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/modeling_config.json
+2025-07-06 22:18:57,239 - ModelingPipeline - INFO - 실행 결과 요약:
+2025-07-06 22:18:57,243 - ModelingPipeline - INFO - 
+                  Model        Data_Type  Optimal_Threshold  CV_AUC  CV_AUC_Mean  CV_AP_Mean  CV_F1_Mean  Val_AUC  Val_F1  Test_AUC  Test_Precision  Test_Recall  Test_F1  Test_Balanced_Acc  Test_Average_Precision
+0   logistic_regression           NORMAL             0.7658  0.1061       0.1061           0           0   0.8537  0.2921    0.8668          0.2353       0.3636   0.2857             0.6781                  0.1277
+1         random_forest           NORMAL             0.3837  0.2814       0.2814           0           0   0.9063  0.3265    0.9170          0.1311       0.2424   0.1702             0.6162                  0.1025
+2               xgboost           NORMAL             0.4256  0.2713       0.2713           0           0   0.9055  0.2883    0.9083          0.1449       0.3030   0.1961             0.6459                  0.0932
+3   logistic_regression            SMOTE             0.8097  0.1470       0.1470           0           0   0.8383  0.3146    0.8213          0.1837       0.2727   0.2195             0.6326                  0.1186
+4         random_forest            SMOTE             0.6427  0.2605       0.2605           0           0   0.9127  0.2947    0.8935          0.1667       0.2727   0.2069             0.6321                  0.1105
+5               xgboost            SMOTE             0.5637  0.2537       0.2537           0           0   0.8587  0.2391    0.8952          0.1132       0.1818   0.1395             0.5865                  0.0970
+6   logistic_regression    UNDERSAMPLING             0.7719  0.1055       0.1055           0           0   0.8539  0.2889    0.8682          0.2353       0.3636   0.2857             0.6781                  0.1288
+7         random_forest    UNDERSAMPLING             0.4360  0.2605       0.2605           0           0   0.9162  0.3226    0.9089          0.1154       0.1818   0.1412             0.5866                  0.1021
+8               xgboost    UNDERSAMPLING             0.3435  0.2427       0.2427           0           0   0.8952  0.2628    0.9093          0.1149       0.3030   0.1667             0.6442                  0.0806
+9   logistic_regression         COMBINED             0.9919  0.1556       0.1556           0           0   0.8815  0.3611    0.8817          0.2500       0.2727   0.2609             0.6338                  0.1416
+10        random_forest         COMBINED             0.5553  0.2532       0.2532           0           0   0.8912  0.2857    0.9120          0.1571       0.3333   0.2136             0.6611                  0.1054
+11              xgboost         COMBINED             0.6190  0.2415       0.2415           0           0   0.8648  0.2653    0.8982          0.1356       0.2424   0.1739             0.6164                  0.1071
+12             ensemble  COMBINED_MODELS             0.4500  0.2814       0.2814           0           0   0.0000  0.0000    0.8844          0.1596       0.4545   0.2362             0.7198                  0.1146
+2025-07-06 22:18:57,244 - ModelingPipeline - INFO - 요약 테이블 저장: /Users/jojongho/KDT/P2_Default-invest/outputs/modeling_runs/default_modeling_run_20250706_131209/results/summary_table.csv
+2025-07-06 22:18:57,245 - ModelingPipeline - INFO - === 모델링 파이프라인 완료 ===

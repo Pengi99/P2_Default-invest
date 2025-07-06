@@ -53,8 +53,8 @@ project_root = os.path.dirname(os.path.dirname(current_dir))
 # 데이터 파일 경로 설정 (기본값: FS_filtered.csv, 필요시 수정 가능)
 # 다른 파일 분석하려면 아래 경로를 변경하세요
 # 예: 'FS.csv', 'FS_filtered.csv', 'custom_data.csv' 등
-data_filename = 'FS2_filtered.csv'  # 👈 여기서 파일명 변경 가능
-data_path = os.path.join(project_root, 'data', 'processed', data_filename)
+data_filename = 'X_train.csv'  # 👈 여기서 파일명 변경 가능
+data_path = os.path.join(project_root, 'data', 'final', data_filename)
 fs_ratio = pd.read_csv(data_path, dtype={'거래소코드': str})
 print(f"분석 데이터 ({data_filename}): {fs_ratio.shape}")
 

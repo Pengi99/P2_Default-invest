@@ -3,7 +3,7 @@
 # 1. Basic Settings
 data_paths:
   price_data_dir: 'data/raw'
-  fundamental: 'data/processed/FS2_no_default.csv'
+  fundamental: 'data/processed/FS2_default.csv'
   market_cap: 'data/processed/시가총액.csv'
 
 output_dir: 'outputs/backtesting_v2'
@@ -14,7 +14,7 @@ risk_free_rate_fallback: 0.025  # 2% annual risk-free rate fallback
 
 # 2. Portfolio Settings
 portfolio_params:
-  portfolio_size: 20
+  portfolio_size: 100
   weighting_scheme: 'Equal'
 
 # 3. Strategy-specific Settings

@@ -45,7 +45,7 @@ sampling:
       description: "원본 데이터 (샘플링 없음)"
     
     smote:
-      enabled: true
+      enabled: false
       description: "BorderlineSMOTE 오버샘플링"
       sampling_strategy: 0.1  # 부실 클래스 비율 목표 (양성 2%, 원래 0.7%에서 증가)
       k_neighbors: 5
@@ -57,7 +57,7 @@ sampling:
       enabled: true
       description: "언더샘플링"
       method: "tomek"  # random, edited_nearest_neighbours, tomek (노이즈 제거)
-      sampling_strategy: 1  # 정상 클래스 유지 비율 (정상 30% 유지)
+      sampling_strategy: 0.1  # 정상 클래스 유지 비율 (정상 30% 유지)
       random_state: 42
     
     ctgan:
@@ -75,19 +75,19 @@ sampling:
       description: "SMOTE + 언더샘플링 조합"
       # SMOTE 설정
       smote:
-        sampling_strategy: 0.3  # 부실 클래스 비율 목표 (원래 0.7% → 20%로 증가)
+        sampling_strategy: 0.03  # 부실 클래스 비율 목표 (원래 0.7% → 20%로 증가)
         k_neighbors: 5
         m_neighbors: 10 
         kind: "borderline-1"  # borderline-1, borderline-2, svm
       # 언더샘플링 설정  
       undersampling:
         method: "tomek"  # random, edited_nearest_neighbours, tomek
-        sampling_strategy: 1  # 정상 클래스 유지 비율 (10% 유지)
+        sampling_strategy: 0.3  # 정상 클래스 유지 비율 (10% 유지)
         random_state: 42
 
 # 특성 선택 설정
 feature_selection:
-  enabled: false  # 성능 최적화를 위해 비활성화
+  enabled: true  # 성능 최적화를 위해 비활성화
   method: "logistic_regression_cv"  # logistic_regression_cv, lasso_cv, permutation_importance, shap
   
   logistic_regression_cv:
@@ -95,7 +95,7 @@ feature_selection:
     penalty: "l1"  # l1 (Lasso), l2 (Ridge), elasticnet
     solver: "saga"  # l1 penalty를 위해서는 liblinear 또는 saga 사용
     max_iter: 10000
-    threshold: "median"  # median, mean, 또는 숫자값 (계수 임계값)
+    threshold: "0.00001"  # median, mean, 또는 숫자값 (계수 임계값)
     scoring: "f1"  # roc_auc, f1, average_precision 등
   
   # 기존 lasso_cv (연속 회귀용, 참고용으로 유지)
@@ -185,7 +185,7 @@ models:
     min_samples_split_range: [2, 20]
     min_samples_leaf_range: [1, 10]
     max_features_range: [0.1, 1.0]
-    n_trials: 100
+    n_trials: 30
   
   xgboost:
     enabled: true
@@ -198,7 +198,7 @@ models:
     colsample_bytree_range: [0.6, 1.0]
     reg_alpha_range: [0.0, 10.0]
     reg_lambda_range: [1.0, 10.0]
-    n_trials: 100
+    n_trials: 30
 
 # Threshold 최적화 설정
 threshold_optimization:

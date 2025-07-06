@@ -47,7 +47,7 @@ class MulticollinearityAnalyzer:
         self.data = pd.read_csv(self.data_path, encoding='utf-8')
         
         # 수치형 컬럼만 선택 (회사명, 거래소코드, 회계년도, default 제외)
-        exclude_columns = ['회사명', '거래소코드', '회계년도', 'default']
+        exclude_columns = ['회사명', '거래소코드', '회계년도', '연도', 'default']
         self.numeric_columns = [col for col in self.data.columns 
                                if col not in exclude_columns]
         
