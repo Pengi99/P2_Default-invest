@@ -80,9 +80,15 @@ class DefaultLabeler:
         
         return fs_df, fail_df
     
-    def create_default_labels(self, fs_df: pd.DataFrame, fail_df: pd.DataFrame) -> pd.DataFrame:
-        """부실 라벨 생성"""
-        self.logger.info("부실 라벨 생성 시작")
+    def create_default_labels(self, fs_df: pd.DataFrame, fail_df: pd.DataFrame, include_other_years: bool = False) -> pd.DataFrame:
+        """부실 라벨 생성
+        
+        Args:
+            fs_df: 재무데이터 DataFrame
+            fail_df: 부실기업 DataFrame  
+            include_other_years: 부실기업의 다른 연도 데이터 포함 여부 (기본값: False)
+        """
+        self.logger.info(f"부실 라벨 생성 시작 (다른 연도 포함: {include_other_years})")
         
         # 기본적으로 모든 기업은 정상(0)
         result_df = fs_df.copy()
@@ -112,28 +118,28 @@ class DefaultLabeler:
                 self.logger.warning(f"기업 {company_code}의 재무데이터가 없습니다 (폐지: {delisting_year}년)")
                 continue
             
-            # t-1, t-2, t-3년 순서로 데이터 찾기
-            target_years = [delisting_year - i for i in range(1, 4)]
-            labeled = False
-            
-            for target_year in target_years:
-                # 정수 타입으로 비교 (수정된 부분)
-                target_data = company_data[company_data['연도'] == target_year]
+            if include_other_years:
+                # 해당 기업의 모든 연도 데이터에 부실 라벨(1) 부여
+                company_indices = company_data.index.tolist()
+                result_df.loc[company_indices, 'default'] = 1
+                labeled_rows.extend(company_indices)
                 
-                if not target_data.empty:
-                    # 해당 년도에 부실 라벨 부여
-                    target_idx = target_data.index[0]
-                    result_df.loc[target_idx, 'default'] = 1
-                    labeled_rows.append(target_idx)
-                    labeled = True
-                    
-                    self.logger.info(f"부실 라벨 부여: 기업 {company_code}, {target_year}년 (폐지: {delisting_year}년)")
-                    break
-            
-            if labeled:
-                fail_companies.add(company_code)
+                self.logger.info(f"부실 라벨 부여: 기업 {company_code}, 모든 연도 ({len(company_indices)}개 레코드) (폐지: {delisting_year}년)")
             else:
-                self.logger.warning(f"기업 {company_code}의 부실 라벨을 부여할 데이터가 없습니다 (폐지: {delisting_year}년)")
+                # 가장 최근 연도 데이터만 부실 라벨(1) 부여
+                if '회계년도' in company_data.columns:
+                    latest_year_data = company_data[company_data['회계년도'] == company_data['회계년도'].max()]
+                else:
+                    # 회계년도 컬럼이 없으면 첫 번째 행을 최신으로 가정
+                    latest_year_data = company_data.iloc[:1]
+                
+                latest_indices = latest_year_data.index.tolist()
+                result_df.loc[latest_indices, 'default'] = 1
+                labeled_rows.extend(latest_indices)
+                
+                self.logger.info(f"부실 라벨 부여: 기업 {company_code}, 최근 연도만 ({len(latest_indices)}개 레코드) (폐지: {delisting_year}년)")
+            
+            fail_companies.add(company_code)
         
         # 정상 기업들의 모든 데이터 추가
         normal_companies = set(result_df['거래소코드'].unique()) - fail_companies
@@ -165,7 +171,6 @@ class DefaultLabeler:
         self.logger.info(f"  - 정상 레코드: {normal_records:,}개 ({normal_records/total_records*100:.1f}%)")
         
         return final_df
-    
     def save_result(self, df: pd.DataFrame):
         """결과 저장"""
         output_dir = self.project_root / "data" / "processed"
@@ -191,7 +196,7 @@ class DefaultLabeler:
             fs_df, fail_df = self.load_data()
             
             # 2. 부실 라벨 생성
-            labeled_df = self.create_default_labels(fs_df, fail_df)
+            labeled_df = self.create_default_labels(fs_df, fail_df, include_other_years=False)
             
             # 3. 결과 저장
             output_path = self.save_result(labeled_df)

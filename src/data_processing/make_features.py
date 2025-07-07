@@ -524,9 +524,9 @@ def create_profitability_features(df):
     # ROA, ROE
     if '당기순이익' in df.columns:
         if 'avg_총자산' in df.columns:
-            df['총자산수익률(ROA)'] = safe_divide(df['당기순이익'], df['avg_총자산'], outlier_threshold=5)
+            df['총자산수익률(ROA)'] = safe_divide(df['당기순이익'], df['avg_총자산'])
         if 'avg_총자본' in df.columns:
-            df['자기자본수익률(ROE)'] = safe_divide(df['당기순이익'], df['avg_총자본'], outlier_threshold=10)
+            df['자기자본수익률(ROE)'] = safe_divide(df['당기순이익'], df['avg_총자본'])
     
     # 자산회전율
     if '매출액' in df.columns and 'avg_총자산' in df.columns:

@@ -637,8 +637,20 @@ class FactorEngine:
                 self.ff3_factors = pd.DataFrame()
                 return df
             
-            # Risk-free rate
-            risk_free_rate = 0.02 / 12  # 2% annual, monthly
+            # Risk-free rate - 연도별 무위험 수익률 데이터 활용
+            annual_risk_free_rates = {
+                2012: 3.42, 2013: 3.37, 2014: 3.05, 2015: 2.37, 2016: 1.73,
+                2017: 2.32, 2018: 2.60, 2019: 1.74, 2020: 1.41, 2021: 2.08,
+                2022: 3.37, 2023: 3.64
+            }
+            
+            # 월별 무위험 수익률 계산 함수
+            def get_monthly_risk_free_rate(period):
+                year = period.year
+                if year in annual_risk_free_rates:
+                    return annual_risk_free_rates[year] / 100 / 12  # 연율을 월율로 변환
+                else:
+                    return 0.02 / 12  # 기본값: 2% 연율
             
             # Calculate market return (value-weighted)
             monthly_data['market_cap'] = pd.to_numeric(monthly_data['시가총액'], errors='coerce')
@@ -732,12 +744,15 @@ class FactorEngine:
             
             # Create FF3 factors dataframe
             if len(monthly_market) > 0:
+                # 각 기간별 무위험 수익률 계산
+                period_risk_free_rates = [get_monthly_risk_free_rate(period) for period in monthly_market.index]
+                
                 ff3_data = {
                     'date': monthly_market.index,
-                    'Mkt_RF': monthly_market - risk_free_rate,
+                    'Mkt_RF': monthly_market - period_risk_free_rates,
                     'SMB': smb_returns[:len(monthly_market)],
                     'HML': hml_returns[:len(monthly_market)],
-                    'RF': risk_free_rate
+                    'RF': period_risk_free_rates
                 }
                 
                 self.ff3_factors = pd.DataFrame(ff3_data)

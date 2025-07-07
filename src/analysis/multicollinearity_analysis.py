@@ -444,7 +444,7 @@ class MulticollinearityAnalyzer:
 def main():
     """메인 함수"""
     # 경로 설정
-    data_path = "data/processed/FS2_filtered.csv"
+    data_path = "data/processed/FS2_features.csv"
     output_dir = "outputs/analysis"
     
     # 분석 실행

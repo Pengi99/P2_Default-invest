@@ -10,7 +10,7 @@ output_dir: 'outputs/backtesting_v2'
 start_date: '2013-04-01'
 end_date: '2023-12-31'
 benchmark_ticker: '^KS11'  # yfinance KOSPI ticker
-risk_free_rate_fallback: 0.025  # 2% annual risk-free rate fallback
+risk_free_rate_fallback: 0.0364  # 3.64% annual risk-free rate fallback (2023년 기준)
 
 # 2. Portfolio Settings
 portfolio_params:

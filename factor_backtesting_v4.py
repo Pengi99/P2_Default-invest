@@ -58,7 +58,7 @@ class FactorBacktestingV4:
             print(f"⚠️ 설정 파일 로딩 실패: {e}")
             return {}
     
-    def load_master_data(self, master_df_path='data/final/master_df.csv'):
+    def load_master_data(self, master_df_path='data/final/master_df_realworld.csv'):
         """Load pre-processed master dataframe"""
         print("📊 마스터 데이터 로딩...")
         
@@ -251,6 +251,8 @@ class FactorBacktestingV4:
         print(f"   - 연간 수익률: {results['annual_return']:.4f} ({results['annual_return']*100:.2f}%)")
         print(f"   - 연간 변동성: {results['volatility']:.4f} ({results['volatility']*100:.2f}%)")
         print(f"   - 샤프 비율: {results['sharpe_ratio']:.4f}")
+        print(f"   - 소티노 비율: {results['sortino_ratio']:.4f}")
+        print(f"   - 정보 비율: {results['information_ratio']:.4f}")
         print(f"   - 최대 낙폭: {results['max_drawdown']:.4f} ({results['max_drawdown']*100:.2f}%)")
         
         return results
@@ -284,6 +286,34 @@ class FactorBacktestingV4:
             
         sharpe_ratio = annual_return / annual_volatility if annual_volatility > 0 else 0
         
+        # Sortino Ratio - using downside deviation
+        # 연도별 무위험 수익률 데이터 활용 (2023년 기준)
+        annual_risk_free_rates = {
+            2012: 3.42, 2013: 3.37, 2014: 3.05, 2015: 2.37, 2016: 1.73,
+            2017: 2.32, 2018: 2.60, 2019: 1.74, 2020: 1.41, 2021: 2.08,
+            2022: 3.37, 2023: 3.64
+        }
+        risk_free_rate = annual_risk_free_rates.get(2023, 0.02) / 100  # 2023년 기준 또는 기본값 2%
+        negative_returns = monthly_returns_array[monthly_returns_array < 0]
+        if len(negative_returns) > 0:
+            if n_periods > 24:  # Monthly data
+                downside_deviation = np.std(negative_returns) * np.sqrt(periods_per_year)
+                sortino_ratio = (annual_return - risk_free_rate) / downside_deviation
+            else:  # Annual data
+                downside_deviation = np.std(negative_returns)
+                sortino_ratio = (annual_return - risk_free_rate) / downside_deviation
+        else:
+            sortino_ratio = 0
+        
+        # Information Ratio (vs market benchmark)
+        # Using a simple market return assumption of 8% annually
+        market_return = 0.08  # 8% annual market return
+        excess_return = annual_return - market_return
+        if annual_volatility > 0:
+            information_ratio = excess_return / annual_volatility
+        else:
+            information_ratio = 0
+        
         # Maximum drawdown
         if len(portfolio_values) > 1:
             peak = np.maximum.accumulate(portfolio_values)
@@ -297,6 +327,8 @@ class FactorBacktestingV4:
             'annual_return': annual_return,
             'volatility': annual_volatility,
             'sharpe_ratio': sharpe_ratio,
+            'sortino_ratio': sortino_ratio,
+            'information_ratio': information_ratio,
             'max_drawdown': max_drawdown,
             'monthly_returns': monthly_returns,
             'portfolio_values': portfolio_values,
@@ -725,12 +757,22 @@ class FactorBacktestingV4:
             low_avg = (portfolios.get('Small_Low', 0) + portfolios.get('Big_Low', 0)) / 2
             hml = high_avg - low_avg
             
+            # 연도별 무위험 수익률 데이터 활용
+            annual_risk_free_rates = {
+                2012: 3.42, 2013: 3.37, 2014: 3.05, 2015: 2.37, 2016: 1.73,
+                2017: 2.32, 2018: 2.60, 2019: 1.74, 2020: 1.41, 2021: 2.08,
+                2022: 3.37, 2023: 3.64
+            }
+            
+            year = current_date.year
+            monthly_rf = annual_risk_free_rates.get(year, 2.0) / 100 / 12  # 연율을 월율로 변환
+            
             monthly_data.append({
                 'date': current_date,
-                'Mkt_RF': market_return - 0.02/12,  # Risk-free rate 2% annual
+                'Mkt_RF': market_return - monthly_rf,
                 'SMB': smb,
                 'HML': hml,
-                'RF': 0.02/12
+                'RF': monthly_rf
             })
         
         if monthly_data:
@@ -1003,6 +1045,8 @@ class FactorBacktestingV4:
         print(f"   - 연간 수익률: {results['annual_return']:.4f} ({results['annual_return']*100:.2f}%)")
         print(f"   - 연간 변동성: {results['volatility']:.4f} ({results['volatility']*100:.2f}%)")
         print(f"   - 샤프 비율: {results['sharpe_ratio']:.4f}")
+        print(f"   - 소티노 비율: {results['sortino_ratio']:.4f}")
+        print(f"   - 정보 비율: {results['information_ratio']:.4f}")
         print(f"   - 최대 낙폭: {results['max_drawdown']:.4f} ({results['max_drawdown']*100:.2f}%)")
         
         return results
@@ -1115,6 +1159,8 @@ class FactorBacktestingV4:
                                 'Annual_Return': universe_results['annual_return'],
                                 'Volatility': universe_results['volatility'],
                                 'Sharpe_Ratio': universe_results['sharpe_ratio'],
+                                'Sortino_Ratio': universe_results['sortino_ratio'],
+                                'Information_Ratio': universe_results['information_ratio'],
                                 'Max_Drawdown': universe_results['max_drawdown'],
                                 'N_Periods': universe_results.get('n_months', len(universe_results.get('monthly_returns', [])))
                             })
@@ -1129,6 +1175,8 @@ class FactorBacktestingV4:
                             'Annual_Return': results['annual_return'],
                             'Volatility': results['volatility'],
                             'Sharpe_Ratio': results['sharpe_ratio'],
+                            'Sortino_Ratio': results['sortino_ratio'],
+                            'Information_Ratio': results['information_ratio'],
                             'Max_Drawdown': results['max_drawdown'],
                             'N_Periods': results.get('n_months', len(results.get('monthly_returns', [])))
                         })

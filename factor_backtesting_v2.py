@@ -764,22 +764,50 @@ class FactorEngine:
             return pd.DataFrame()
             
     def _get_risk_free_rate(self):
-        """Get risk-free rate using pykrx or fallback"""
+        """Get risk-free rate using historical annual data"""
         try:
-            if PYKRX_AVAILABLE:
-                # Try to get CD 91-day rate from pykrx
-                rf_data = bond.get_otc_treasury_yields('2010-01-01', '2024-12-31')
-                if 'CD(91일)' in rf_data.columns:
-                    rf_monthly = rf_data['CD(91일)'].resample('M').last() / 100 / 12
-                    return rf_monthly.to_frame('RF')
+            # 연도별 무위험 수익률 데이터 (연율 %)
+            annual_risk_free_rates = {
+                2012: 3.42,
+                2013: 3.37,
+                2014: 3.05,
+                2015: 2.37,
+                2016: 1.73,
+                2017: 2.32,
+                2018: 2.60,
+                2019: 1.74,
+                2020: 1.41,
+                2021: 2.08,
+                2022: 3.37,
+                2023: 3.64
+            }
             
-            # Fallback to config value
-            fallback_rate = self.config.get('risk_free_rate_fallback', 0.02) / 12
-            dates = pd.date_range('2010-01-01', '2024-12-31', freq='M')
-            return pd.DataFrame({'RF': fallback_rate}, index=dates)
+            # 월별 데이터로 변환
+            monthly_data = []
+            for year in range(2012, 2024):
+                if year in annual_risk_free_rates:
+                    annual_rate = annual_risk_free_rates[year] / 100  # 퍼센트를 소수로 변환
+                    monthly_rate = annual_rate / 12  # 월별 수익률로 변환
+                    
+                    # 해당 연도의 모든 월에 대해 동일한 월별 수익률 적용
+                    for month in range(1, 13):
+                        date = pd.Timestamp(year, month, 1)
+                        monthly_data.append({
+                            'date': date,
+                            'RF': monthly_rate
+                        })
+            
+            if monthly_data:
+                rf_df = pd.DataFrame(monthly_data)
+                rf_df.set_index('date', inplace=True)
+                print(f"    ✅ 연도별 무위험 수익률 데이터 로딩 완료: {len(rf_df)}개월")
+                return rf_df
+            else:
+                raise ValueError("무위험 수익률 데이터 생성 실패")
             
         except Exception as e:
             print(f"    ⚠️ 무위험 이자율 데이터 로딩 실패: {e}")
+            # Fallback to config value
             fallback_rate = self.config.get('risk_free_rate_fallback', 0.02) / 12
             dates = pd.date_range('2010-01-01', '2024-12-31', freq='M')
             return pd.DataFrame({'RF': fallback_rate}, index=dates)

@@ -1,0 +1,3612 @@
+{
+  "analysis_timestamp": "20250707_101527",
+  "dataset_info": {
+    "total_observations": 22565,
+    "numeric_variables": 104,
+    "variable_names": [
+      "총자산",
+      "유형자산",
+      "무형자산",
+      "재고자산",
+      "현금및현금성자산",
+      "비유동자산",
+      "총자본",
+      "* 주당 액면가액(IFRS연결)(원)",
+      "* 주당 액면가액(IFRS연결)(천원)",
+      "발행주식총수",
+      "납입자본금",
+      "총부채",
+      "유동부채",
+      "비유동부채",
+      "장기차입금",
+      "단기차입금",
+      "매출채권",
+      "매입채무",
+      "선수수익",
+      "기타유동자산",
+      "기타유동부채",
+      "(금융)리스부채",
+      "단기금융상품(금융기관예치금)",
+      "자본금",
+      "기타포괄손익누계액",
+      "매출액",
+      "매출원가",
+      "매출총이익",
+      "영업이익",
+      "계속영업이익",
+      "당기순이익",
+      "이자비용",
+      "영업현금흐름",
+      "* 주당 액면가액(IFRS)(원)",
+      "* 주당 액면가액(IFRS)(천원)",
+      "종가",
+      "거래량",
+      "상장주식수",
+      "시가총액",
+      "avg_총자산",
+      "avg_유형자산",
+      "avg_무형자산",
+      "avg_재고자산",
+      "avg_현금및현금성자산",
+      "avg_비유동자산",
+      "avg_총자본",
+      "avg_발행주식총수",
+      "avg_총부채",
+      "avg_유동부채",
+      "avg_비유동부채",
+      "avg_장기차입금",
+      "avg_단기차입금",
+      "avg_매출채권",
+      "avg_매입채무",
+      "avg_선수수익",
+      "avg_기타유동부채",
+      "avg_기타유동자산",
+      "avg_(금융)리스부채",
+      "avg_단기금융상품(금융기관예치금)",
+      "avg_자본금",
+      "avg_기타포괄손익누계액",
+      "매출액증가율",
+      "영업이익증가율",
+      "당기순이익증가율",
+      "총자산증가율",
+      "총부채증가율",
+      "영업현금흐름증가율",
+      "부채자산비율",
+      "부채자본비율",
+      "부채총자본비율",
+      "자본비율",
+      "이자부담차입금비율",
+      "장기차입금자본비율",
+      "영업운전자본",
+      "투하자본",
+      "경영자본",
+      "avg_투하자본",
+      "avg_경영자본",
+      "avg_영업운전자본",
+      "총자산수익률(ROA)",
+      "자기자본수익률(ROE)",
+      "총자산회전율",
+      "영업이익대차입금비율",
+      "현금흐름대부채비율",
+      "투하자본수익률(ROIC)",
+      "DOL",
+      "DFL",
+      "ΔDFL",
+      "로그시가총액",
+      "로그총자산",
+      "EV",
+      "PBR",
+      "PER",
+      "PSR",
+      "PCR",
+      "주식회전율",
+      "ROA_변화량",
+      "ROE_변화량",
+      "ROIC_변화량",
+      "Δ부채자산비율",
+      "Δ부채자본비율",
+      "Δ자본비율",
+      "Δ총자산회전율",
+      "Δ현금흐름대부채비율"
+    ]
+  },
+  "correlation_analysis": {
+    "high_correlation_pairs_count": 697,
+    "high_correlation_pairs": [
+      {
+        "variable1": "총자산",
+        "variable2": "유형자산",
+        "correlation": 0.9746364958185155
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "무형자산",
+        "correlation": 0.8565857729798921
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "재고자산",
+        "correlation": 0.9498537851175376
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "현금및현금성자산",
+        "correlation": 0.9477087155971501
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "비유동자산",
+        "correlation": 0.9824483238966435
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "총자본",
+        "correlation": 0.9711929037849846
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "총부채",
+        "correlation": 0.9011796583474946
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "유동부채",
+        "correlation": 0.9499508591079213
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "매출채권",
+        "correlation": 0.9602240785001794
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "기타유동자산",
+        "correlation": 0.821084173349372
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "단기금융상품(금융기관예치금)",
+        "correlation": 0.8377656419661021
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "매출액",
+        "correlation": 0.9619674256225714
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "매출원가",
+        "correlation": 0.9250154303837254
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "매출총이익",
+        "correlation": 0.9133868712989097
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "영업이익",
+        "correlation": 0.833747304329532
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "계속영업이익",
+        "correlation": 0.8300365915525101
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "당기순이익",
+        "correlation": 0.826914195673897
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "영업현금흐름",
+        "correlation": 0.9092971624423571
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "시가총액",
+        "correlation": 0.885785053829422
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "avg_총자산",
+        "correlation": 0.9987475276348815
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "avg_유형자산",
+        "correlation": 0.973920861576933
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "avg_무형자산",
+        "correlation": 0.8546983185785255
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "avg_재고자산",
+        "correlation": 0.9508271468469085
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.9572997741403969
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.9818398717663223
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "avg_총자본",
+        "correlation": 0.9704661664220754
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "avg_총부채",
+        "correlation": 0.908230393458324
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "avg_유동부채",
+        "correlation": 0.9557248853829936
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9614208669446201
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "avg_기타유동자산",
+        "correlation": 0.822613199061209
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8652007438660776
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "영업운전자본",
+        "correlation": 0.9534381752276418
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "투하자본",
+        "correlation": 0.9939061762454855
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "경영자본",
+        "correlation": 0.9807957725831583
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9928260385298173
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9800641587712057
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9530571683183893
+      },
+      {
+        "variable1": "총자산",
+        "variable2": "EV",
+        "correlation": 0.9537359797457545
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "무형자산",
+        "correlation": 0.8311641873466185
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "재고자산",
+        "correlation": 0.9488664357963784
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "현금및현금성자산",
+        "correlation": 0.9323716485461578
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "비유동자산",
+        "correlation": 0.9729906771994608
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "총자본",
+        "correlation": 0.9587352136364575
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "총부채",
+        "correlation": 0.8561765835845696
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "유동부채",
+        "correlation": 0.9069103150596464
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "매출채권",
+        "correlation": 0.9462210120078076
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "기타유동자산",
+        "correlation": 0.8070268456421932
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "단기금융상품(금융기관예치금)",
+        "correlation": 0.8085974752908377
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "매출액",
+        "correlation": 0.9379643780265388
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "매출원가",
+        "correlation": 0.9001589890903504
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "매출총이익",
+        "correlation": 0.8941889516249992
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "영업이익",
+        "correlation": 0.8092114429197197
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "계속영업이익",
+        "correlation": 0.8097757098898763
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "당기순이익",
+        "correlation": 0.8039297582225642
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "영업현금흐름",
+        "correlation": 0.9103198449320142
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "시가총액",
+        "correlation": 0.8804567778860024
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "avg_총자산",
+        "correlation": 0.9743903013320065
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "avg_유형자산",
+        "correlation": 0.9984657127862059
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "avg_무형자산",
+        "correlation": 0.8287663717936039
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "avg_재고자산",
+        "correlation": 0.9503517045106853
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.9390036804495304
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.9713323016807016
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "avg_총자본",
+        "correlation": 0.9589391001807445
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "avg_총부채",
+        "correlation": 0.8640559558720804
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "avg_유동부채",
+        "correlation": 0.9110189509800721
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9480931318010533
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "avg_기타유동자산",
+        "correlation": 0.8123083754663776
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8430280084071708
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "영업운전자본",
+        "correlation": 0.955813842954126
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "투하자본",
+        "correlation": 0.9691206526715631
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "경영자본",
+        "correlation": 0.9963499031631438
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9682100927928711
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9952444394498133
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9562550163603791
+      },
+      {
+        "variable1": "유형자산",
+        "variable2": "EV",
+        "correlation": 0.9381084671014519
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "비유동자산",
+        "correlation": 0.8942475703614391
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "총부채",
+        "correlation": 0.8659372816318016
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "유동부채",
+        "correlation": 0.8467042117511173
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "비유동부채",
+        "correlation": 0.8466229711648863
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "매출채권",
+        "correlation": 0.8286055128977823
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "매출액",
+        "correlation": 0.8230671195395302
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "매출원가",
+        "correlation": 0.825077871026795
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "avg_총자산",
+        "correlation": 0.8528891964824008
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "avg_유형자산",
+        "correlation": 0.8276307528654594
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "avg_무형자산",
+        "correlation": 0.9910866034249382
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.88986268921907
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "avg_총부채",
+        "correlation": 0.864587823291959
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "avg_유동부채",
+        "correlation": 0.8427350576734829
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "avg_비유동부채",
+        "correlation": 0.8469307147080853
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "avg_매출채권",
+        "correlation": 0.8256186962234059
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "투하자본",
+        "correlation": 0.8753922314496387
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "경영자본",
+        "correlation": 0.844458143559235
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "avg_투하자본",
+        "correlation": 0.871149300411233
+      },
+      {
+        "variable1": "무형자산",
+        "variable2": "avg_경영자본",
+        "correlation": 0.8408367413664554
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "현금및현금성자산",
+        "correlation": 0.9426706854782537
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "비유동자산",
+        "correlation": 0.92837527272305
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "총자본",
+        "correlation": 0.9437860424629518
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "총부채",
+        "correlation": 0.8172547850188793
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "유동부채",
+        "correlation": 0.8951628607238963
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "매출채권",
+        "correlation": 0.9316884028689951
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "매입채무",
+        "correlation": 0.8036879103930652
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "기타유동자산",
+        "correlation": 0.8357425359887798
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "매출액",
+        "correlation": 0.9422203963389522
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "매출원가",
+        "correlation": 0.9206614526438867
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "매출총이익",
+        "correlation": 0.8650210352476061
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "계속영업이익",
+        "correlation": 0.8023686310302212
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "영업현금흐름",
+        "correlation": 0.8657214039255828
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "시가총액",
+        "correlation": 0.8649935536631128
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "avg_총자산",
+        "correlation": 0.9499385192378519
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "avg_유형자산",
+        "correlation": 0.9472552357387432
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "avg_재고자산",
+        "correlation": 0.9962738059580901
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.9445874441190116
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.9268281327902419
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "avg_총자본",
+        "correlation": 0.94311263206579
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "avg_총부채",
+        "correlation": 0.8274286602953629
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "avg_유동부채",
+        "correlation": 0.8996393504787862
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9337351701613049
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "avg_매입채무",
+        "correlation": 0.8055168027133931
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "avg_기타유동자산",
+        "correlation": 0.8396312987579458
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8251915994016771
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "영업운전자본",
+        "correlation": 0.96401520199802
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "투하자본",
+        "correlation": 0.9413360521058567
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "경영자본",
+        "correlation": 0.9616256558243794
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9396765807027597
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9598778250611203
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.961320919146275
+      },
+      {
+        "variable1": "재고자산",
+        "variable2": "EV",
+        "correlation": 0.9122190125948716
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "비유동자산",
+        "correlation": 0.9256722172603776
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "총자본",
+        "correlation": 0.9516399599408718
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "유동부채",
+        "correlation": 0.8779346451950003
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "매출채권",
+        "correlation": 0.9066720941819587
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "기타유동자산",
+        "correlation": 0.8400970940875728
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "매출액",
+        "correlation": 0.9108236831745834
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "매출원가",
+        "correlation": 0.8745740922703866
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "매출총이익",
+        "correlation": 0.8673802364639184
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "영업현금흐름",
+        "correlation": 0.866957775806319
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "시가총액",
+        "correlation": 0.8753489515971198
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "avg_총자산",
+        "correlation": 0.9494623275953281
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "avg_유형자산",
+        "correlation": 0.9305506643759268
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "avg_재고자산",
+        "correlation": 0.9475147405709096
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.9954012749795272
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.9239410942741135
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "avg_총자본",
+        "correlation": 0.9525332972079269
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "avg_총부채",
+        "correlation": 0.8090655903162121
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "avg_유동부채",
+        "correlation": 0.8849826766169828
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9093127977630439
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "avg_기타유동자산",
+        "correlation": 0.8575360119636831
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8311276254717651
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "영업운전자본",
+        "correlation": 0.9334833778218169
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "투하자본",
+        "correlation": 0.9320194673734418
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "경영자본",
+        "correlation": 0.9418284853459209
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9316481059168255
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9416693246791532
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9373426788305721
+      },
+      {
+        "variable1": "현금및현금성자산",
+        "variable2": "EV",
+        "correlation": 0.9098030841409873
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "총자본",
+        "correlation": 0.9400887703845903
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "총부채",
+        "correlation": 0.9109333531948555
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "유동부채",
+        "correlation": 0.9380613318456629
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "비유동부채",
+        "correlation": 0.8117167543139959
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "매출채권",
+        "correlation": 0.9368137693049087
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "매입채무",
+        "correlation": 0.8033844300826237
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "매출액",
+        "correlation": 0.9432143591489998
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "매출원가",
+        "correlation": 0.9195151270839425
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "매출총이익",
+        "correlation": 0.8702188647882841
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "영업현금흐름",
+        "correlation": 0.8681798325240003
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "시가총액",
+        "correlation": 0.8360378336014345
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "avg_총자산",
+        "correlation": 0.9812910603724934
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "avg_유형자산",
+        "correlation": 0.9715344312345929
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "avg_무형자산",
+        "correlation": 0.8930914126508884
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "avg_재고자산",
+        "correlation": 0.9301297441033375
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.9329576858692945
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.9981753899716772
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "avg_총자본",
+        "correlation": 0.9399283056905828
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "avg_총부채",
+        "correlation": 0.9169845415273433
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "avg_유동부채",
+        "correlation": 0.9401967653682364
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "avg_비유동부채",
+        "correlation": 0.8200631098314365
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9380119741348384
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "avg_매입채무",
+        "correlation": 0.8068743171680645
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "영업운전자본",
+        "correlation": 0.9171249347249086
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "투하자본",
+        "correlation": 0.989211047841625
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "경영자본",
+        "correlation": 0.9726036870666622
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9879923761195134
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9715616467775134
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.917389553337101
+      },
+      {
+        "variable1": "비유동자산",
+        "variable2": "EV",
+        "correlation": 0.9234510352261136
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "발행주식총수",
+        "correlation": 0.8061372592628208
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "유동부채",
+        "correlation": 0.8626960042197095
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "매출채권",
+        "correlation": 0.9416806525929114
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "기타유동자산",
+        "correlation": 0.8721767767711815
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "단기금융상품(금융기관예치금)",
+        "correlation": 0.8934967234247991
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "매출액",
+        "correlation": 0.9254627115265728
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "매출원가",
+        "correlation": 0.8608402622859096
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "매출총이익",
+        "correlation": 0.9375605223735289
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "영업이익",
+        "correlation": 0.8628530250369464
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "계속영업이익",
+        "correlation": 0.8843792232939441
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "당기순이익",
+        "correlation": 0.8797987117899837
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "영업현금흐름",
+        "correlation": 0.9468975695785743
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "시가총액",
+        "correlation": 0.9436300511227369
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "avg_총자산",
+        "correlation": 0.9720220821761812
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "avg_유형자산",
+        "correlation": 0.958441777739651
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "avg_재고자산",
+        "correlation": 0.9444357244294752
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.9602414550404283
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.9391856882174924
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "avg_총자본",
+        "correlation": 0.999239238575495
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "avg_발행주식총수",
+        "correlation": 0.803239889925464
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "avg_유동부채",
+        "correlation": 0.8722070388292683
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9451096122301357
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "avg_기타유동자산",
+        "correlation": 0.8761295838513065
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.927410538825911
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "영업운전자본",
+        "correlation": 0.9773066783016651
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "투하자본",
+        "correlation": 0.9457269408810511
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "경영자본",
+        "correlation": 0.9708064481207758
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9456124026420165
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9705533376507597
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9778682486607717
+      },
+      {
+        "variable1": "총자본",
+        "variable2": "EV",
+        "correlation": 0.9531323436810561
+      },
+      {
+        "variable1": "* 주당 액면가액(IFRS연결)(원)",
+        "variable2": "* 주당 액면가액(IFRS연결)(천원)",
+        "correlation": 1.0000000000000029
+      },
+      {
+        "variable1": "* 주당 액면가액(IFRS연결)(원)",
+        "variable2": "* 주당 액면가액(IFRS)(원)",
+        "correlation": 0.9449767461088353
+      },
+      {
+        "variable1": "* 주당 액면가액(IFRS연결)(원)",
+        "variable2": "* 주당 액면가액(IFRS)(천원)",
+        "correlation": 0.9449767461088383
+      },
+      {
+        "variable1": "* 주당 액면가액(IFRS연결)(천원)",
+        "variable2": "* 주당 액면가액(IFRS)(원)",
+        "correlation": 0.9449767461088383
+      },
+      {
+        "variable1": "* 주당 액면가액(IFRS연결)(천원)",
+        "variable2": "* 주당 액면가액(IFRS)(천원)",
+        "correlation": 0.9449767461088351
+      },
+      {
+        "variable1": "발행주식총수",
+        "variable2": "상장주식수",
+        "correlation": 0.9975930081204776
+      },
+      {
+        "variable1": "발행주식총수",
+        "variable2": "avg_총자본",
+        "correlation": 0.8071994285212125
+      },
+      {
+        "variable1": "발행주식총수",
+        "variable2": "avg_발행주식총수",
+        "correlation": 0.9803831194616086
+      },
+      {
+        "variable1": "발행주식총수",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8119351342011284
+      },
+      {
+        "variable1": "납입자본금",
+        "variable2": "자본금",
+        "correlation": 0.9884513086005238
+      },
+      {
+        "variable1": "납입자본금",
+        "variable2": "avg_자본금",
+        "correlation": 0.9845511474205192
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "유동부채",
+        "correlation": 0.9650123715232238
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "비유동부채",
+        "correlation": 0.9085303845769925
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "단기차입금",
+        "correlation": 0.8326619428310005
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "매출채권",
+        "correlation": 0.8487495210959165
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "매입채무",
+        "correlation": 0.8638285192447793
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "매출액",
+        "correlation": 0.882899902783794
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "매출원가",
+        "correlation": 0.9018668865010085
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "이자비용",
+        "correlation": 0.8417278889082063
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "avg_총자산",
+        "correlation": 0.8963301676380291
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "avg_유형자산",
+        "correlation": 0.8548012096901682
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "avg_무형자산",
+        "correlation": 0.8673803049924623
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "avg_재고자산",
+        "correlation": 0.8186697128727971
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.8071871199993409
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.9109528274925339
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "avg_총부채",
+        "correlation": 0.9957356417250366
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "avg_유동부채",
+        "correlation": 0.9631158290436936
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "avg_비유동부채",
+        "correlation": 0.9136176154513437
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "avg_단기차입금",
+        "correlation": 0.8547365429542159
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "avg_매출채권",
+        "correlation": 0.8457051275374404
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "avg_매입채무",
+        "correlation": 0.8627626662093962
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "투하자본",
+        "correlation": 0.9312442636070735
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "경영자본",
+        "correlation": 0.8506509130610613
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9285710872990093
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "avg_경영자본",
+        "correlation": 0.8491595601093437
+      },
+      {
+        "variable1": "총부채",
+        "variable2": "EV",
+        "correlation": 0.8106109886092129
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "비유동부채",
+        "correlation": 0.8147937352561405
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "단기차입금",
+        "correlation": 0.8464740809720829
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "매출채권",
+        "correlation": 0.9168389322140384
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "매입채무",
+        "correlation": 0.8734895426440686
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "매출액",
+        "correlation": 0.9441548559161934
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "매출원가",
+        "correlation": 0.941523389671163
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "매출총이익",
+        "correlation": 0.8284036310581381
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "영업현금흐름",
+        "correlation": 0.8021899722364788
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_총자산",
+        "correlation": 0.9467826283550059
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_유형자산",
+        "correlation": 0.9062561141628565
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_무형자산",
+        "correlation": 0.8468653841550379
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_재고자산",
+        "correlation": 0.8966035432783724
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.8885229634363414
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.9379274553839771
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_총자본",
+        "correlation": 0.8618617782074107
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_총부채",
+        "correlation": 0.9663978024120022
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_유동부채",
+        "correlation": 0.9936479413206928
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_비유동부채",
+        "correlation": 0.825680554346918
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_단기차입금",
+        "correlation": 0.8542923769742289
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9157682660462784
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_매입채무",
+        "correlation": 0.8746337711567882
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "영업운전자본",
+        "correlation": 0.8585871745273942
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "투하자본",
+        "correlation": 0.9612544881188386
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "경영자본",
+        "correlation": 0.9086258471840385
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_투하자본",
+        "correlation": 0.959734064823291
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9077668767228924
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.8572014695594683
+      },
+      {
+        "variable1": "유동부채",
+        "variable2": "EV",
+        "correlation": 0.8783414571987082
+      },
+      {
+        "variable1": "비유동부채",
+        "variable2": "장기차입금",
+        "correlation": 0.8248355986548002
+      },
+      {
+        "variable1": "비유동부채",
+        "variable2": "매입채무",
+        "correlation": 0.8010787691321267
+      },
+      {
+        "variable1": "비유동부채",
+        "variable2": "이자비용",
+        "correlation": 0.9200079291936973
+      },
+      {
+        "variable1": "비유동부채",
+        "variable2": "avg_무형자산",
+        "correlation": 0.8498006136431312
+      },
+      {
+        "variable1": "비유동부채",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.8098246658338001
+      },
+      {
+        "variable1": "비유동부채",
+        "variable2": "avg_총부채",
+        "correlation": 0.8982096061157162
+      },
+      {
+        "variable1": "비유동부채",
+        "variable2": "avg_유동부채",
+        "correlation": 0.8019661720214959
+      },
+      {
+        "variable1": "비유동부채",
+        "variable2": "avg_비유동부채",
+        "correlation": 0.9929345378478942
+      },
+      {
+        "variable1": "비유동부채",
+        "variable2": "avg_장기차입금",
+        "correlation": 0.8254662661890393
+      },
+      {
+        "variable1": "장기차입금",
+        "variable2": "이자비용",
+        "correlation": 0.8297198383280083
+      },
+      {
+        "variable1": "장기차입금",
+        "variable2": "avg_비유동부채",
+        "correlation": 0.8141174509241889
+      },
+      {
+        "variable1": "장기차입금",
+        "variable2": "avg_장기차입금",
+        "correlation": 0.9852699356505366
+      },
+      {
+        "variable1": "단기차입금",
+        "variable2": "avg_총부채",
+        "correlation": 0.8258276298055366
+      },
+      {
+        "variable1": "단기차입금",
+        "variable2": "avg_유동부채",
+        "correlation": 0.8326892372794444
+      },
+      {
+        "variable1": "단기차입금",
+        "variable2": "avg_단기차입금",
+        "correlation": 0.9700363995725229
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "매입채무",
+        "correlation": 0.8045223301506744
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "기타유동자산",
+        "correlation": 0.8035364601833478
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "단기금융상품(금융기관예치금)",
+        "correlation": 0.8374172990931645
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "매출액",
+        "correlation": 0.965682150748308
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "매출원가",
+        "correlation": 0.9299742306861235
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "매출총이익",
+        "correlation": 0.9141075756073299
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "영업이익",
+        "correlation": 0.8448772771262234
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "계속영업이익",
+        "correlation": 0.8299150258611718
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "당기순이익",
+        "correlation": 0.8222935655460325
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "영업현금흐름",
+        "correlation": 0.9065571926039644
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "시가총액",
+        "correlation": 0.8660077008245881
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_총자산",
+        "correlation": 0.9581528979197633
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_유형자산",
+        "correlation": 0.9449809622138652
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_무형자산",
+        "correlation": 0.822052322063519
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_재고자산",
+        "correlation": 0.9338047454137123
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.9188684295860492
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.9356519544767202
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_총자본",
+        "correlation": 0.9399599634036215
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_총부채",
+        "correlation": 0.8550982430610107
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_유동부채",
+        "correlation": 0.9198615694246163
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9960564042330183
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_매입채무",
+        "correlation": 0.8069034995566753
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_기타유동자산",
+        "correlation": 0.8017950893203852
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8561867612764072
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "영업운전자본",
+        "correlation": 0.9600164210715534
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "투하자본",
+        "correlation": 0.9483867289414948
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "경영자본",
+        "correlation": 0.9614866858617478
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9471595329065934
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9596320442605528
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9580037216805405
+      },
+      {
+        "variable1": "매출채권",
+        "variable2": "EV",
+        "correlation": 0.9199232741876566
+      },
+      {
+        "variable1": "매입채무",
+        "variable2": "매출액",
+        "correlation": 0.8724469212823918
+      },
+      {
+        "variable1": "매입채무",
+        "variable2": "매출원가",
+        "correlation": 0.9273699525970877
+      },
+      {
+        "variable1": "매입채무",
+        "variable2": "avg_재고자산",
+        "correlation": 0.8042194303922083
+      },
+      {
+        "variable1": "매입채무",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.8024337764005252
+      },
+      {
+        "variable1": "매입채무",
+        "variable2": "avg_총부채",
+        "correlation": 0.86302781315356
+      },
+      {
+        "variable1": "매입채무",
+        "variable2": "avg_유동부채",
+        "correlation": 0.8671506015844181
+      },
+      {
+        "variable1": "매입채무",
+        "variable2": "avg_비유동부채",
+        "correlation": 0.8058641408526109
+      },
+      {
+        "variable1": "매입채무",
+        "variable2": "avg_매출채권",
+        "correlation": 0.8005249183362603
+      },
+      {
+        "variable1": "매입채무",
+        "variable2": "avg_매입채무",
+        "correlation": 0.9930932300682282
+      },
+      {
+        "variable1": "매입채무",
+        "variable2": "투하자본",
+        "correlation": 0.8126478221446496
+      },
+      {
+        "variable1": "매입채무",
+        "variable2": "avg_투하자본",
+        "correlation": 0.810877557023954
+      },
+      {
+        "variable1": "선수수익",
+        "variable2": "avg_선수수익",
+        "correlation": 0.9748064081294802
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "단기금융상품(금융기관예치금)",
+        "correlation": 0.809133725563473
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "매출총이익",
+        "correlation": 0.8008575007498799
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "영업현금흐름",
+        "correlation": 0.8032267494301253
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "시가총액",
+        "correlation": 0.8467771115494696
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "avg_총자산",
+        "correlation": 0.825619273604167
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "avg_유형자산",
+        "correlation": 0.8073262353424913
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "avg_재고자산",
+        "correlation": 0.8341031605296805
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.841817649361228
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "avg_총자본",
+        "correlation": 0.870988933257731
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "avg_발행주식총수",
+        "correlation": 0.8128524185961646
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "avg_매출채권",
+        "correlation": 0.8111916090885699
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "avg_기타유동자산",
+        "correlation": 0.9877452899903145
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8580558715982539
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "영업운전자본",
+        "correlation": 0.8784425026371774
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "경영자본",
+        "correlation": 0.8305930613206659
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "avg_경영자본",
+        "correlation": 0.8311048943742051
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.8779407631532148
+      },
+      {
+        "variable1": "기타유동자산",
+        "variable2": "EV",
+        "correlation": 0.8233198105645309
+      },
+      {
+        "variable1": "기타유동부채",
+        "variable2": "avg_기타유동부채",
+        "correlation": 0.9855418603982271
+      },
+      {
+        "variable1": "(금융)리스부채",
+        "variable2": "avg_(금융)리스부채",
+        "correlation": 0.9839359308742178
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "매출액",
+        "correlation": 0.8070381011151667
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "매출총이익",
+        "correlation": 0.8999820948107106
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "영업이익",
+        "correlation": 0.8982621290922569
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "계속영업이익",
+        "correlation": 0.8873144084358171
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "당기순이익",
+        "correlation": 0.8782761516420724
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "영업현금흐름",
+        "correlation": 0.9283066503578602
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "시가총액",
+        "correlation": 0.8997545336410337
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "avg_총자산",
+        "correlation": 0.8367891584591842
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "avg_유형자산",
+        "correlation": 0.8113276765897799
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "avg_총자본",
+        "correlation": 0.8907501771500393
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "avg_매출채권",
+        "correlation": 0.839507250362242
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.9892342793537291
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "영업운전자본",
+        "correlation": 0.8680442475238327
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "경영자본",
+        "correlation": 0.8270374733298645
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "avg_경영자본",
+        "correlation": 0.8276294707844141
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.8641625745968694
+      },
+      {
+        "variable1": "단기금융상품(금융기관예치금)",
+        "variable2": "EV",
+        "correlation": 0.8536765429495594
+      },
+      {
+        "variable1": "자본금",
+        "variable2": "avg_자본금",
+        "correlation": 0.9964901439006867
+      },
+      {
+        "variable1": "기타포괄손익누계액",
+        "variable2": "avg_기타포괄손익누계액",
+        "correlation": 0.9695437575875014
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "매출원가",
+        "correlation": 0.9795181808959988
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "매출총이익",
+        "correlation": 0.9132113047365318
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "영업이익",
+        "correlation": 0.8419326943303083
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "계속영업이익",
+        "correlation": 0.8255716386625895
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "당기순이익",
+        "correlation": 0.8188411094492876
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "영업현금흐름",
+        "correlation": 0.8923036815900973
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "시가총액",
+        "correlation": 0.8306124918537712
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "avg_총자산",
+        "correlation": 0.9609799872718366
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "avg_유형자산",
+        "correlation": 0.9387649272173825
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "avg_무형자산",
+        "correlation": 0.823009841314531
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "avg_재고자산",
+        "correlation": 0.9446408321365337
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.9249187950371941
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.9442998054087418
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "avg_총자본",
+        "correlation": 0.9236334005414275
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "avg_총부채",
+        "correlation": 0.8922717023594038
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "avg_유동부채",
+        "correlation": 0.9488511525704467
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9673976503087428
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "avg_매입채무",
+        "correlation": 0.8797109436517092
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8227011826324055
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "영업운전자본",
+        "correlation": 0.9230587105919614
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "투하자본",
+        "correlation": 0.9559926203253815
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "경영자본",
+        "correlation": 0.9453127246053965
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9567798078546108
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9456416042251923
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9223217309085726
+      },
+      {
+        "variable1": "매출액",
+        "variable2": "EV",
+        "correlation": 0.9027686820540083
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "매출총이익",
+        "correlation": 0.8124573642875476
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "avg_총자산",
+        "correlation": 0.9245231870158508
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "avg_유형자산",
+        "correlation": 0.9009738398327096
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "avg_무형자산",
+        "correlation": 0.8267629303488677
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "avg_재고자산",
+        "correlation": 0.9263278769979353
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.8855302335224854
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.9209538522974172
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "avg_총자본",
+        "correlation": 0.860263201074226
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "avg_총부채",
+        "correlation": 0.9098170967368752
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "avg_유동부채",
+        "correlation": 0.945219280060772
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9329124085175544
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "avg_매입채무",
+        "correlation": 0.9351484883661676
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "영업운전자본",
+        "correlation": 0.8668744488717685
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "투하자본",
+        "correlation": 0.9322849440902029
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "경영자본",
+        "correlation": 0.9047222262727377
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9337121012955171
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9057948571717909
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.8684049906169412
+      },
+      {
+        "variable1": "매출원가",
+        "variable2": "EV",
+        "correlation": 0.8453118170743402
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "영업이익",
+        "correlation": 0.9358773449966641
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "계속영업이익",
+        "correlation": 0.9289817964267995
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "당기순이익",
+        "correlation": 0.9217959574487875
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "영업현금흐름",
+        "correlation": 0.9662173573462084
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "시가총액",
+        "correlation": 0.8990975124625473
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "avg_총자산",
+        "correlation": 0.91152392730301
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "avg_유형자산",
+        "correlation": 0.8948578977212137
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "avg_재고자산",
+        "correlation": 0.8605621281194327
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.8860201962891691
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.8704501801543462
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "avg_총자본",
+        "correlation": 0.9334316037975956
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "avg_유동부채",
+        "correlation": 0.8345222195889788
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9131287323059654
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.9083256662075524
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "영업운전자본",
+        "correlation": 0.9183883314058005
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "투하자본",
+        "correlation": 0.8813755555057919
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "경영자본",
+        "correlation": 0.9062312243237122
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "avg_투하자본",
+        "correlation": 0.880766680355454
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "avg_경영자본",
+        "correlation": 0.905012789531325
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9131570467175084
+      },
+      {
+        "variable1": "매출총이익",
+        "variable2": "EV",
+        "correlation": 0.9032756406090342
+      },
+      {
+        "variable1": "영업이익",
+        "variable2": "계속영업이익",
+        "correlation": 0.9707327935493748
+      },
+      {
+        "variable1": "영업이익",
+        "variable2": "당기순이익",
+        "correlation": 0.9614253194830129
+      },
+      {
+        "variable1": "영업이익",
+        "variable2": "영업현금흐름",
+        "correlation": 0.9530101410295116
+      },
+      {
+        "variable1": "영업이익",
+        "variable2": "시가총액",
+        "correlation": 0.8301501611198475
+      },
+      {
+        "variable1": "영업이익",
+        "variable2": "avg_총자산",
+        "correlation": 0.8258604101948736
+      },
+      {
+        "variable1": "영업이익",
+        "variable2": "avg_유형자산",
+        "correlation": 0.8063003368826663
+      },
+      {
+        "variable1": "영업이익",
+        "variable2": "avg_총자본",
+        "correlation": 0.8527005151713578
+      },
+      {
+        "variable1": "영업이익",
+        "variable2": "avg_매출채권",
+        "correlation": 0.8362989486339604
+      },
+      {
+        "variable1": "영업이익",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8868628877539734
+      },
+      {
+        "variable1": "영업이익",
+        "variable2": "영업운전자본",
+        "correlation": 0.8471560223436738
+      },
+      {
+        "variable1": "영업이익",
+        "variable2": "경영자본",
+        "correlation": 0.8223197311345246
+      },
+      {
+        "variable1": "영업이익",
+        "variable2": "avg_경영자본",
+        "correlation": 0.8153130895162387
+      },
+      {
+        "variable1": "영업이익",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.8303429422701061
+      },
+      {
+        "variable1": "영업이익",
+        "variable2": "EV",
+        "correlation": 0.819896450920501
+      },
+      {
+        "variable1": "계속영업이익",
+        "variable2": "당기순이익",
+        "correlation": 0.9902234193581891
+      },
+      {
+        "variable1": "계속영업이익",
+        "variable2": "영업현금흐름",
+        "correlation": 0.9425150866816411
+      },
+      {
+        "variable1": "계속영업이익",
+        "variable2": "시가총액",
+        "correlation": 0.8416875884783358
+      },
+      {
+        "variable1": "계속영업이익",
+        "variable2": "avg_총자산",
+        "correlation": 0.8228695182903618
+      },
+      {
+        "variable1": "계속영업이익",
+        "variable2": "avg_유형자산",
+        "correlation": 0.8047099652954761
+      },
+      {
+        "variable1": "계속영업이익",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.8105771613839282
+      },
+      {
+        "variable1": "계속영업이익",
+        "variable2": "avg_총자본",
+        "correlation": 0.8723158276868948
+      },
+      {
+        "variable1": "계속영업이익",
+        "variable2": "avg_매출채권",
+        "correlation": 0.8257942104179852
+      },
+      {
+        "variable1": "계속영업이익",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.894168253708865
+      },
+      {
+        "variable1": "계속영업이익",
+        "variable2": "영업운전자본",
+        "correlation": 0.8662050018901709
+      },
+      {
+        "variable1": "계속영업이익",
+        "variable2": "경영자본",
+        "correlation": 0.8271880004700596
+      },
+      {
+        "variable1": "계속영업이익",
+        "variable2": "avg_경영자본",
+        "correlation": 0.8188772507011236
+      },
+      {
+        "variable1": "계속영업이익",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.8508925102192441
+      },
+      {
+        "variable1": "계속영업이익",
+        "variable2": "EV",
+        "correlation": 0.8121700987216669
+      },
+      {
+        "variable1": "당기순이익",
+        "variable2": "영업현금흐름",
+        "correlation": 0.9339497672311167
+      },
+      {
+        "variable1": "당기순이익",
+        "variable2": "시가총액",
+        "correlation": 0.8388688799102356
+      },
+      {
+        "variable1": "당기순이익",
+        "variable2": "avg_총자산",
+        "correlation": 0.8195267534406541
+      },
+      {
+        "variable1": "당기순이익",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.8066377166024381
+      },
+      {
+        "variable1": "당기순이익",
+        "variable2": "avg_총자본",
+        "correlation": 0.8670875981780172
+      },
+      {
+        "variable1": "당기순이익",
+        "variable2": "avg_매출채권",
+        "correlation": 0.8188186418949287
+      },
+      {
+        "variable1": "당기순이익",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.885016671176912
+      },
+      {
+        "variable1": "당기순이익",
+        "variable2": "영업운전자본",
+        "correlation": 0.8575749942339345
+      },
+      {
+        "variable1": "당기순이익",
+        "variable2": "경영자본",
+        "correlation": 0.8207185111814473
+      },
+      {
+        "variable1": "당기순이익",
+        "variable2": "avg_경영자본",
+        "correlation": 0.8128451001513947
+      },
+      {
+        "variable1": "당기순이익",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.8429223543178763
+      },
+      {
+        "variable1": "당기순이익",
+        "variable2": "EV",
+        "correlation": 0.8111841952808792
+      },
+      {
+        "variable1": "이자비용",
+        "variable2": "avg_총부채",
+        "correlation": 0.8428737014093222
+      },
+      {
+        "variable1": "이자비용",
+        "variable2": "avg_비유동부채",
+        "correlation": 0.9276039547330703
+      },
+      {
+        "variable1": "이자비용",
+        "variable2": "avg_장기차입금",
+        "correlation": 0.8468797685724323
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "시가총액",
+        "correlation": 0.9186771822222951
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "avg_총자산",
+        "correlation": 0.9067903561961397
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "avg_유형자산",
+        "correlation": 0.9096416859591715
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "avg_재고자산",
+        "correlation": 0.8610112260378855
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.8847611218506362
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.8670470088168475
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "avg_총자본",
+        "correlation": 0.9427973102061347
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "avg_유동부채",
+        "correlation": 0.8059693112323064
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9071462815254286
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.9342332442462933
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "영업운전자본",
+        "correlation": 0.9272029922150926
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "투하자본",
+        "correlation": 0.8706904627337323
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "경영자본",
+        "correlation": 0.91865534216105
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "avg_투하자본",
+        "correlation": 0.8696311536753071
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9167555181114905
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9224944684693777
+      },
+      {
+        "variable1": "영업현금흐름",
+        "variable2": "EV",
+        "correlation": 0.9076098705909592
+      },
+      {
+        "variable1": "* 주당 액면가액(IFRS)(원)",
+        "variable2": "* 주당 액면가액(IFRS)(천원)",
+        "correlation": 1.0000000000000036
+      },
+      {
+        "variable1": "상장주식수",
+        "variable2": "avg_발행주식총수",
+        "correlation": 0.9788507183338346
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "avg_총자산",
+        "correlation": 0.8862670532840838
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "avg_유형자산",
+        "correlation": 0.8803333790704552
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "avg_재고자산",
+        "correlation": 0.8644810755567003
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.8838873092167021
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.8342037918795382
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "avg_총자본",
+        "correlation": 0.9448106409924207
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "avg_발행주식총수",
+        "correlation": 0.8048771674335934
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "avg_매출채권",
+        "correlation": 0.8672778068343555
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "avg_기타유동자산",
+        "correlation": 0.8478457172025539
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.9293957727531473
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "영업운전자본",
+        "correlation": 0.9236733478079037
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "투하자본",
+        "correlation": 0.8451051525750858
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "경영자본",
+        "correlation": 0.8949770760720352
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "avg_투하자본",
+        "correlation": 0.8443272268221484
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "avg_경영자본",
+        "correlation": 0.894666319722191
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9245474038283937
+      },
+      {
+        "variable1": "시가총액",
+        "variable2": "EV",
+        "correlation": 0.9676721453318051
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "avg_유형자산",
+        "correlation": 0.9757732950916319
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "avg_무형자산",
+        "correlation": 0.8547559974908677
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "avg_재고자산",
+        "correlation": 0.953280131966422
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.9600498489232249
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.9832108610860689
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "avg_총자본",
+        "correlation": 0.972787329927475
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "avg_총부채",
+        "correlation": 0.9073662337762683
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "avg_유동부채",
+        "correlation": 0.9561659430854599
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9621419413266082
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "avg_기타유동자산",
+        "correlation": 0.8289562727521252
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8658997685048845
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "영업운전자본",
+        "correlation": 0.953626297546604
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "투하자본",
+        "correlation": 0.9922695525226497
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "경영자본",
+        "correlation": 0.9803929948715012
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9939588291764349
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9819117775758953
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.955252601934533
+      },
+      {
+        "variable1": "avg_총자산",
+        "variable2": "EV",
+        "correlation": 0.952404498147171
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "avg_무형자산",
+        "correlation": 0.8290311349512186
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "avg_재고자산",
+        "correlation": 0.9509327176042325
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.9386573623497768
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.9727142073069487
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "avg_총자본",
+        "correlation": 0.9598647578838774
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "avg_총부채",
+        "correlation": 0.8660722433768875
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "avg_유동부채",
+        "correlation": 0.9133726130217797
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9492806548198155
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "avg_기타유동자산",
+        "correlation": 0.8130794096141888
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8445812138346731
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "영업운전자본",
+        "correlation": 0.954549279900998
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "투하자본",
+        "correlation": 0.9679083603159037
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "경영자본",
+        "correlation": 0.994699457454992
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9697183220738692
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9964082341479987
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9566954260518391
+      },
+      {
+        "variable1": "avg_유형자산",
+        "variable2": "EV",
+        "correlation": 0.937265664532047
+      },
+      {
+        "variable1": "avg_무형자산",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.8936506671309772
+      },
+      {
+        "variable1": "avg_무형자산",
+        "variable2": "avg_총부채",
+        "correlation": 0.8724590141258625
+      },
+      {
+        "variable1": "avg_무형자산",
+        "variable2": "avg_유동부채",
+        "correlation": 0.8474329721182831
+      },
+      {
+        "variable1": "avg_무형자산",
+        "variable2": "avg_비유동부채",
+        "correlation": 0.8592760376567927
+      },
+      {
+        "variable1": "avg_무형자산",
+        "variable2": "avg_매출채권",
+        "correlation": 0.8251515917458482
+      },
+      {
+        "variable1": "avg_무형자산",
+        "variable2": "투하자본",
+        "correlation": 0.873734341825306
+      },
+      {
+        "variable1": "avg_무형자산",
+        "variable2": "경영자본",
+        "correlation": 0.84116761787598
+      },
+      {
+        "variable1": "avg_무형자산",
+        "variable2": "avg_투하자본",
+        "correlation": 0.8741939683909664
+      },
+      {
+        "variable1": "avg_무형자산",
+        "variable2": "avg_경영자본",
+        "correlation": 0.8421855804300273
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "avg_현금및현금성자산",
+        "correlation": 0.9505001651654
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.9307111185000745
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "avg_총자본",
+        "correlation": 0.9455370824610534
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "avg_총부채",
+        "correlation": 0.8319596382739142
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "avg_유동부채",
+        "correlation": 0.9049654512263205
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9384978800107009
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "avg_매입채무",
+        "correlation": 0.8117325368608344
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "avg_기타유동자산",
+        "correlation": 0.8422786881438965
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8207972341294535
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "영업운전자본",
+        "correlation": 0.9626315395862493
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "투하자본",
+        "correlation": 0.9428923130133178
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "경영자본",
+        "correlation": 0.9621976489488784
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9441308395466487
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9633437638523045
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9645287808038654
+      },
+      {
+        "variable1": "avg_재고자산",
+        "variable2": "EV",
+        "correlation": 0.9124826620879899
+      },
+      {
+        "variable1": "avg_현금및현금성자산",
+        "variable2": "avg_비유동자산",
+        "correlation": 0.9326712690863411
+      },
+      {
+        "variable1": "avg_현금및현금성자산",
+        "variable2": "avg_총자본",
+        "correlation": 0.9614314285649956
+      },
+      {
+        "variable1": "avg_현금및현금성자산",
+        "variable2": "avg_총부채",
+        "correlation": 0.8212144895436446
+      },
+      {
+        "variable1": "avg_현금및현금성자산",
+        "variable2": "avg_유동부채",
+        "correlation": 0.8983362536527753
+      },
+      {
+        "variable1": "avg_현금및현금성자산",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9231887680633606
+      },
+      {
+        "variable1": "avg_현금및현금성자산",
+        "variable2": "avg_기타유동자산",
+        "correlation": 0.8564887692322457
+      },
+      {
+        "variable1": "avg_현금및현금성자산",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8470059226814733
+      },
+      {
+        "variable1": "avg_현금및현금성자산",
+        "variable2": "영업운전자본",
+        "correlation": 0.9400211319756433
+      },
+      {
+        "variable1": "avg_현금및현금성자산",
+        "variable2": "투하자본",
+        "correlation": 0.9405477176742109
+      },
+      {
+        "variable1": "avg_현금및현금성자산",
+        "variable2": "경영자본",
+        "correlation": 0.9484994986483692
+      },
+      {
+        "variable1": "avg_현금및현금성자산",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9415052594167996
+      },
+      {
+        "variable1": "avg_현금및현금성자산",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9494939016900851
+      },
+      {
+        "variable1": "avg_현금및현금성자산",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9443435607903873
+      },
+      {
+        "variable1": "avg_현금및현금성자산",
+        "variable2": "EV",
+        "correlation": 0.9187008929642315
+      },
+      {
+        "variable1": "avg_비유동자산",
+        "variable2": "avg_총자본",
+        "correlation": 0.9406118794930807
+      },
+      {
+        "variable1": "avg_비유동자산",
+        "variable2": "avg_총부채",
+        "correlation": 0.9208744423039649
+      },
+      {
+        "variable1": "avg_비유동자산",
+        "variable2": "avg_유동부채",
+        "correlation": 0.943558750458673
+      },
+      {
+        "variable1": "avg_비유동자산",
+        "variable2": "avg_비유동부채",
+        "correlation": 0.8232009269276758
+      },
+      {
+        "variable1": "avg_비유동자산",
+        "variable2": "avg_매출채권",
+        "correlation": 0.939494445542334
+      },
+      {
+        "variable1": "avg_비유동자산",
+        "variable2": "avg_매입채무",
+        "correlation": 0.809642687871369
+      },
+      {
+        "variable1": "avg_비유동자산",
+        "variable2": "영업운전자본",
+        "correlation": 0.9157738820060478
+      },
+      {
+        "variable1": "avg_비유동자산",
+        "variable2": "투하자본",
+        "correlation": 0.9881300041419484
+      },
+      {
+        "variable1": "avg_비유동자산",
+        "variable2": "경영자본",
+        "correlation": 0.9707796182920958
+      },
+      {
+        "variable1": "avg_비유동자산",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9901875412755875
+      },
+      {
+        "variable1": "avg_비유동자산",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9724836313595512
+      },
+      {
+        "variable1": "avg_비유동자산",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9177253016825776
+      },
+      {
+        "variable1": "avg_비유동자산",
+        "variable2": "EV",
+        "correlation": 0.9214847214549102
+      },
+      {
+        "variable1": "avg_총자본",
+        "variable2": "avg_발행주식총수",
+        "correlation": 0.8058328913667923
+      },
+      {
+        "variable1": "avg_총자본",
+        "variable2": "avg_유동부채",
+        "correlation": 0.8724986969056762
+      },
+      {
+        "variable1": "avg_총자본",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9446506025105796
+      },
+      {
+        "variable1": "avg_총자본",
+        "variable2": "avg_기타유동자산",
+        "correlation": 0.8766769398694361
+      },
+      {
+        "variable1": "avg_총자본",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.926053489129113
+      },
+      {
+        "variable1": "avg_총자본",
+        "variable2": "영업운전자본",
+        "correlation": 0.9761639347753828
+      },
+      {
+        "variable1": "avg_총자본",
+        "variable2": "투하자본",
+        "correlation": 0.9452173396327839
+      },
+      {
+        "variable1": "avg_총자본",
+        "variable2": "경영자본",
+        "correlation": 0.9705823957376961
+      },
+      {
+        "variable1": "avg_총자본",
+        "variable2": "avg_투하자본",
+        "correlation": 0.946723005737458
+      },
+      {
+        "variable1": "avg_총자본",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9717042312822538
+      },
+      {
+        "variable1": "avg_총자본",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9782021093203358
+      },
+      {
+        "variable1": "avg_총자본",
+        "variable2": "EV",
+        "correlation": 0.9543711733607472
+      },
+      {
+        "variable1": "avg_발행주식총수",
+        "variable2": "avg_기타유동자산",
+        "correlation": 0.806006944556384
+      },
+      {
+        "variable1": "avg_발행주식총수",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8063367601308654
+      },
+      {
+        "variable1": "avg_총부채",
+        "variable2": "avg_유동부채",
+        "correlation": 0.9721744278552477
+      },
+      {
+        "variable1": "avg_총부채",
+        "variable2": "avg_비유동부채",
+        "correlation": 0.9121157744083701
+      },
+      {
+        "variable1": "avg_총부채",
+        "variable2": "avg_단기차입금",
+        "correlation": 0.8562395136527285
+      },
+      {
+        "variable1": "avg_총부채",
+        "variable2": "avg_매출채권",
+        "correlation": 0.8572480264793378
+      },
+      {
+        "variable1": "avg_총부채",
+        "variable2": "avg_매입채무",
+        "correlation": 0.8692348322531999
+      },
+      {
+        "variable1": "avg_총부채",
+        "variable2": "투하자본",
+        "correlation": 0.9367256635254101
+      },
+      {
+        "variable1": "avg_총부채",
+        "variable2": "경영자본",
+        "correlation": 0.8589732911105759
+      },
+      {
+        "variable1": "avg_총부채",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9385081588259562
+      },
+      {
+        "variable1": "avg_총부채",
+        "variable2": "avg_경영자본",
+        "correlation": 0.8609965300421513
+      },
+      {
+        "variable1": "avg_총부채",
+        "variable2": "EV",
+        "correlation": 0.8135933355177624
+      },
+      {
+        "variable1": "avg_유동부채",
+        "variable2": "avg_비유동부채",
+        "correlation": 0.8185495962018069
+      },
+      {
+        "variable1": "avg_유동부채",
+        "variable2": "avg_단기차입금",
+        "correlation": 0.8608298149525578
+      },
+      {
+        "variable1": "avg_유동부채",
+        "variable2": "avg_매출채권",
+        "correlation": 0.9233346996134252
+      },
+      {
+        "variable1": "avg_유동부채",
+        "variable2": "avg_매입채무",
+        "correlation": 0.8755223606155393
+      },
+      {
+        "variable1": "avg_유동부채",
+        "variable2": "영업운전자본",
+        "correlation": 0.8660566772213684
+      },
+      {
+        "variable1": "avg_유동부채",
+        "variable2": "투하자본",
+        "correlation": 0.9665365619069812
+      },
+      {
+        "variable1": "avg_유동부채",
+        "variable2": "경영자본",
+        "correlation": 0.9131197315379688
+      },
+      {
+        "variable1": "avg_유동부채",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9689726816149297
+      },
+      {
+        "variable1": "avg_유동부채",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9154280547324071
+      },
+      {
+        "variable1": "avg_유동부채",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.8675615680914206
+      },
+      {
+        "variable1": "avg_유동부채",
+        "variable2": "EV",
+        "correlation": 0.8807861705900519
+      },
+      {
+        "variable1": "avg_비유동부채",
+        "variable2": "avg_장기차입금",
+        "correlation": 0.8260782378063237
+      },
+      {
+        "variable1": "avg_비유동부채",
+        "variable2": "avg_매입채무",
+        "correlation": 0.8083150632204001
+      },
+      {
+        "variable1": "avg_매출채권",
+        "variable2": "avg_매입채무",
+        "correlation": 0.809363439154362
+      },
+      {
+        "variable1": "avg_매출채권",
+        "variable2": "avg_기타유동자산",
+        "correlation": 0.8113497699208703
+      },
+      {
+        "variable1": "avg_매출채권",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8586521753459022
+      },
+      {
+        "variable1": "avg_매출채권",
+        "variable2": "영업운전자본",
+        "correlation": 0.9606233707120538
+      },
+      {
+        "variable1": "avg_매출채권",
+        "variable2": "투하자본",
+        "correlation": 0.9491712353936346
+      },
+      {
+        "variable1": "avg_매출채권",
+        "variable2": "경영자본",
+        "correlation": 0.9626669414378902
+      },
+      {
+        "variable1": "avg_매출채권",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9512630058033572
+      },
+      {
+        "variable1": "avg_매출채권",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9640990614071954
+      },
+      {
+        "variable1": "avg_매출채권",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9629050364712699
+      },
+      {
+        "variable1": "avg_매출채권",
+        "variable2": "EV",
+        "correlation": 0.9194583195636009
+      },
+      {
+        "variable1": "avg_매입채무",
+        "variable2": "투하자본",
+        "correlation": 0.8162049104195302
+      },
+      {
+        "variable1": "avg_매입채무",
+        "variable2": "avg_투하자본",
+        "correlation": 0.8188493443451322
+      },
+      {
+        "variable1": "avg_기타유동자산",
+        "variable2": "avg_단기금융상품(금융기관예치금)",
+        "correlation": 0.8426372989193172
+      },
+      {
+        "variable1": "avg_기타유동자산",
+        "variable2": "영업운전자본",
+        "correlation": 0.8789654155361831
+      },
+      {
+        "variable1": "avg_기타유동자산",
+        "variable2": "경영자본",
+        "correlation": 0.8343186348421456
+      },
+      {
+        "variable1": "avg_기타유동자산",
+        "variable2": "avg_경영자본",
+        "correlation": 0.8363733132233792
+      },
+      {
+        "variable1": "avg_기타유동자산",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.8830817768102168
+      },
+      {
+        "variable1": "avg_기타유동자산",
+        "variable2": "EV",
+        "correlation": 0.8251604431468608
+      },
+      {
+        "variable1": "avg_단기금융상품(금융기관예치금)",
+        "variable2": "영업운전자본",
+        "correlation": 0.903815696204882
+      },
+      {
+        "variable1": "avg_단기금융상품(금융기관예치금)",
+        "variable2": "투하자본",
+        "correlation": 0.8070575827601877
+      },
+      {
+        "variable1": "avg_단기금융상품(금융기관예치금)",
+        "variable2": "경영자본",
+        "correlation": 0.8620544221296722
+      },
+      {
+        "variable1": "avg_단기금융상품(금융기관예치금)",
+        "variable2": "avg_투하자본",
+        "correlation": 0.8084782555703769
+      },
+      {
+        "variable1": "avg_단기금융상품(금융기관예치금)",
+        "variable2": "avg_경영자본",
+        "correlation": 0.8621686908896231
+      },
+      {
+        "variable1": "avg_단기금융상품(금융기관예치금)",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9009345502040657
+      },
+      {
+        "variable1": "avg_단기금융상품(금융기관예치금)",
+        "variable2": "EV",
+        "correlation": 0.8824192766770945
+      },
+      {
+        "variable1": "부채자산비율",
+        "variable2": "부채총자본비율",
+        "correlation": 0.999999999985746
+      },
+      {
+        "variable1": "부채자산비율",
+        "variable2": "자본비율",
+        "correlation": -0.9999999997167632
+      },
+      {
+        "variable1": "부채총자본비율",
+        "variable2": "자본비율",
+        "correlation": -0.999999999829605
+      },
+      {
+        "variable1": "영업운전자본",
+        "variable2": "투하자본",
+        "correlation": 0.9303091260581174
+      },
+      {
+        "variable1": "영업운전자본",
+        "variable2": "경영자본",
+        "correlation": 0.9739919441117911
+      },
+      {
+        "variable1": "영업운전자본",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9291812913961679
+      },
+      {
+        "variable1": "영업운전자본",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9723188188642551
+      },
+      {
+        "variable1": "영업운전자본",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9976544856207494
+      },
+      {
+        "variable1": "영업운전자본",
+        "variable2": "EV",
+        "correlation": 0.9374723687076266
+      },
+      {
+        "variable1": "투하자본",
+        "variable2": "경영자본",
+        "correlation": 0.9721940727941202
+      },
+      {
+        "variable1": "투하자본",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9982311177947424
+      },
+      {
+        "variable1": "투하자본",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9711639112172645
+      },
+      {
+        "variable1": "투하자본",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9300815200411592
+      },
+      {
+        "variable1": "투하자본",
+        "variable2": "EV",
+        "correlation": 0.9365259591450908
+      },
+      {
+        "variable1": "경영자본",
+        "variable2": "avg_투하자본",
+        "correlation": 0.9709411823454485
+      },
+      {
+        "variable1": "경영자본",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9985151247831195
+      },
+      {
+        "variable1": "경영자본",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9735105359387056
+      },
+      {
+        "variable1": "경영자본",
+        "variable2": "EV",
+        "correlation": 0.9462610103960253
+      },
+      {
+        "variable1": "avg_투하자본",
+        "variable2": "avg_경영자본",
+        "correlation": 0.9727488299217978
+      },
+      {
+        "variable1": "avg_투하자본",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9313212990809783
+      },
+      {
+        "variable1": "avg_투하자본",
+        "variable2": "EV",
+        "correlation": 0.9345204674785743
+      },
+      {
+        "variable1": "avg_경영자본",
+        "variable2": "avg_영업운전자본",
+        "correlation": 0.9744752864302272
+      },
+      {
+        "variable1": "avg_경영자본",
+        "variable2": "EV",
+        "correlation": 0.9453515813548794
+      },
+      {
+        "variable1": "avg_영업운전자본",
+        "variable2": "EV",
+        "correlation": 0.9377592947871162
+      },
+      {
+        "variable1": "로그시가총액",
+        "variable2": "로그총자산",
+        "correlation": 0.80981615383199
+      },
+      {
+        "variable1": "Δ부채자산비율",
+        "variable2": "Δ자본비율",
+        "correlation": -0.9999999993507862
+      }
+    ]
+  },
+  "vif_analysis": {
+    "variables_with_high_vif": 71,
+    "max_vif": 11038234380810.04,
+    "mean_vif": 295897479822.3933
+  },
+  "condition_index_analysis": {
+    "max_condition_index": 126535019.61930631,
+    "multicollinearity_severity": "High"
+  }
+}
