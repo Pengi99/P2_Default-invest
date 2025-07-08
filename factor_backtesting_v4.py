@@ -915,7 +915,7 @@ class FactorBacktestingV4:
         print(f"   - Alpha 표준편차: {valid_alpha['ff3_alpha'].std():.4f}")
     
     def build_ff3_alpha_portfolio(self):
-        """Build FF3-Alpha portfolio with July 1st annual rebalancing"""
+        """Build FF3-Alpha portfolio with July first available date annual rebalancing"""
         print("📈 FF3-Alpha 포트폴리오 구성...")
         
         if self.master_df is None or 'ff3_alpha' not in self.master_df.columns:
@@ -930,10 +930,10 @@ class FactorBacktestingV4:
         for year in sorted(july_years):
             year_july_dates = [date for date in all_july_dates if date.year == year]
             if year_july_dates:
-                july_dates.append(min(year_july_dates))
+                july_dates.append(min(year_july_dates))  # 7월 첫째 날 (가장 이른 날짜)
         
-        # FF3-Alpha 전략 수정: 알파 임계값을 매우 낮춰서 더 많은 포트폴리오 생성
-        min_alpha = self.config.get('strategy_params', {}).get('ff3_alpha', {}).get('min_alpha', 0.5)  # 매우 관대한 기준
+        # FF3-Alpha 전략 수정: 알파 임계값을 낮춰서 더 많은 포트폴리오 생성
+        min_alpha = self.config.get('strategy_params', {}).get('ff3_alpha', {}).get('min_alpha', 0.0)  # 기본값을 0.0으로 완화
         
         portfolios = {'All': [], 'Normal': []}
         
@@ -941,33 +941,50 @@ class FactorBacktestingV4:
             # Get data for this July date
             date_data = self.master_df[self.master_df['매매년월일'] == rebalance_date].copy()
             
-            # Filter stocks with positive alpha (ignore p-value for more portfolios)
+            # Filter stocks with alpha >= min_alpha
             valid_data = date_data.dropna(subset=['ff3_alpha'])
             significant_alpha = valid_data[valid_data['ff3_alpha'] >= min_alpha]
             
-            # All firms portfolio
-            if len(significant_alpha) >= self.portfolio_size:
-                top_stocks = significant_alpha.nlargest(self.portfolio_size, 'ff3_alpha')
+            # All firms portfolio - 포트폴리오 사이즈에 만족하지 못해도 가능한 종목으로 구성
+            if len(significant_alpha) > 0:
+                # 가능한 종목 수와 원하는 포트폴리오 사이즈 중 작은 값 선택
+                actual_portfolio_size = min(len(significant_alpha), self.portfolio_size)
+                top_stocks = significant_alpha.nlargest(actual_portfolio_size, 'ff3_alpha')
                 
                 portfolios['All'].append({
                     'date': rebalance_date,
                     'stocks': top_stocks['거래소코드'].tolist(),
-                    'signals': top_stocks['ff3_alpha'].tolist()
+                    'signals': top_stocks['ff3_alpha'].tolist(),
+                    'actual_size': actual_portfolio_size
                 })
             
             # Normal firms (non-default) portfolio
             normal_data = significant_alpha[significant_alpha.get('default', 0) == 0]
-            if len(normal_data) >= self.portfolio_size:
-                top_normal_stocks = normal_data.nlargest(self.portfolio_size, 'ff3_alpha')
+            if len(normal_data) > 0:
+                # 가능한 종목 수와 원하는 포트폴리오 사이즈 중 작은 값 선택
+                actual_normal_size = min(len(normal_data), self.portfolio_size)
+                top_normal_stocks = normal_data.nlargest(actual_normal_size, 'ff3_alpha')
                 
                 portfolios['Normal'].append({
                     'date': rebalance_date,
                     'stocks': top_normal_stocks['거래소코드'].tolist(),
-                    'signals': top_normal_stocks['ff3_alpha'].tolist()
+                    'signals': top_normal_stocks['ff3_alpha'].tolist(),
+                    'actual_size': actual_normal_size
                 })
         
         print(f"✅ FF3-Alpha 포트폴리오 구성 완료: All {len(portfolios['All'])}개년, Normal {len(portfolios['Normal'])}개년")
         print(f"   - 최소 알파 임계값: {min_alpha:.4f}")
+        print(f"   - 목표 포트폴리오 사이즈: {self.portfolio_size}")
+        
+        # 실제 포트폴리오 사이즈 통계 출력
+        if portfolios['All']:
+            all_sizes = [p.get('actual_size', len(p['stocks'])) for p in portfolios['All']]
+            print(f"   - All 포트폴리오 실제 사이즈: 평균 {np.mean(all_sizes):.1f}, 범위 {min(all_sizes)}-{max(all_sizes)}")
+        
+        if portfolios['Normal']:
+            normal_sizes = [p.get('actual_size', len(p['stocks'])) for p in portfolios['Normal']]
+            print(f"   - Normal 포트폴리오 실제 사이즈: 평균 {np.mean(normal_sizes):.1f}, 범위 {min(normal_sizes)}-{max(normal_sizes)}")
+        
         return portfolios
     
     def backtest_strategy(self, portfolios, strategy_name):
