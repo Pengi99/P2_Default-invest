@@ -1,0 +1,411 @@
+{
+  "metadata": {
+    "total_models": 13,
+    "extraction_date": "2025-07-08T09:33:51.377870",
+    "models_directory": "/Users/jojongho/KDT/P2_Default-invest/final_models",
+    "model_types": [
+      "logistic_regression",
+      "unknown",
+      "random_forest",
+      "xgboost"
+    ]
+  },
+  "model_summary": {
+    "logistic_regression": [
+      {
+        "data_type": "combined",
+        "model_name": "logistic_regression",
+        "file_size_mb": 0.0
+      },
+      {
+        "data_type": "undersampling",
+        "model_name": "logistic_regression",
+        "file_size_mb": 0.0
+      },
+      {
+        "data_type": "smote",
+        "model_name": "logistic_regression",
+        "file_size_mb": 0.0
+      },
+      {
+        "data_type": "normal",
+        "model_name": "logistic_regression",
+        "file_size_mb": 0.0
+      }
+    ],
+    "unknown": [
+      {
+        "data_type": "combined_models",
+        "model_name": "ensemble",
+        "file_size_mb": 9.79
+      }
+    ],
+    "random_forest": [
+      {
+        "data_type": "combined",
+        "model_name": "random_forest",
+        "file_size_mb": 15.81
+      },
+      {
+        "data_type": "smote",
+        "model_name": "random_forest",
+        "file_size_mb": 12.61
+      },
+      {
+        "data_type": "undersampling",
+        "model_name": "random_forest",
+        "file_size_mb": 4.6
+      },
+      {
+        "data_type": "normal",
+        "model_name": "random_forest",
+        "file_size_mb": 4.33
+      }
+    ],
+    "xgboost": [
+      {
+        "data_type": "smote",
+        "model_name": "xgboost",
+        "file_size_mb": 3.37
+      },
+      {
+        "data_type": "normal",
+        "model_name": "xgboost",
+        "file_size_mb": 0.41
+      },
+      {
+        "data_type": "undersampling",
+        "model_name": "xgboost",
+        "file_size_mb": 0.27
+      },
+      {
+        "data_type": "combined",
+        "model_name": "xgboost",
+        "file_size_mb": 0.45
+      }
+    ]
+  },
+  "detailed_hyperparameters": {
+    "combined__logistic_regression": {
+      "model_type": "logistic_regression",
+      "hyperparameters": {
+        "C": 0.04206413587412684,
+        "class_weight": "balanced",
+        "dual": false,
+        "fit_intercept": true,
+        "intercept_scaling": 1,
+        "max_iter": 6130,
+        "multi_class": "deprecated",
+        "penalty": "l2",
+        "solver": "newton-cg",
+        "tol": 0.0001,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "n_classes": 2,
+      "file_info": {
+        "filename": "combined__logistic_regression_model.joblib",
+        "data_type": "combined",
+        "model_name": "logistic_regression",
+        "file_size_mb": 0.0
+      }
+    },
+    "combined_models__ensemble": {
+      "model_type": "unknown",
+      "error": "'dict' object has no attribute 'tolist'",
+      "hyperparameters": {},
+      "file_info": {
+        "filename": "combined_models__ensemble_model.joblib",
+        "data_type": "combined_models",
+        "model_name": "ensemble",
+        "file_size_mb": 9.79
+      }
+    },
+    "combined__random_forest": {
+      "model_type": "random_forest",
+      "hyperparameters": {
+        "bootstrap": true,
+        "ccp_alpha": 0.0,
+        "class_weight": "balanced",
+        "criterion": "gini",
+        "max_depth": 17,
+        "max_features": 0.15717147988820843,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 8,
+        "min_samples_split": 10,
+        "min_weight_fraction_leaf": 0.0,
+        "n_estimators": 389,
+        "oob_score": false,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "has_feature_importance": true,
+      "n_features": 17,
+      "n_classes": 2,
+      "file_info": {
+        "filename": "combined__random_forest_model.joblib",
+        "data_type": "combined",
+        "model_name": "random_forest",
+        "file_size_mb": 15.81
+      }
+    },
+    "undersampling__logistic_regression": {
+      "model_type": "logistic_regression",
+      "hyperparameters": {
+        "C": 72.86653737491046,
+        "class_weight": "balanced",
+        "dual": false,
+        "fit_intercept": true,
+        "intercept_scaling": 1,
+        "l1_ratio": 0.34369101533869656,
+        "max_iter": 8467,
+        "multi_class": "deprecated",
+        "penalty": "elasticnet",
+        "solver": "saga",
+        "tol": 0.0001,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "n_classes": 2,
+      "file_info": {
+        "filename": "undersampling__logistic_regression_model.joblib",
+        "data_type": "undersampling",
+        "model_name": "logistic_regression",
+        "file_size_mb": 0.0
+      }
+    },
+    "smote__logistic_regression": {
+      "model_type": "logistic_regression",
+      "hyperparameters": {
+        "C": 15.082562201938483,
+        "class_weight": "balanced",
+        "dual": false,
+        "fit_intercept": true,
+        "intercept_scaling": 1,
+        "max_iter": 7683,
+        "multi_class": "deprecated",
+        "penalty": "l2",
+        "solver": "newton-cg",
+        "tol": 0.0001,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "n_classes": 2,
+      "file_info": {
+        "filename": "smote__logistic_regression_model.joblib",
+        "data_type": "smote",
+        "model_name": "logistic_regression",
+        "file_size_mb": 0.0
+      }
+    },
+    "smote__random_forest": {
+      "model_type": "random_forest",
+      "hyperparameters": {
+        "bootstrap": true,
+        "ccp_alpha": 0.0,
+        "class_weight": "balanced",
+        "criterion": "gini",
+        "max_depth": 17,
+        "max_features": 0.5621724959154547,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 10,
+        "min_samples_split": 5,
+        "min_weight_fraction_leaf": 0.0,
+        "n_estimators": 297,
+        "oob_score": false,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "has_feature_importance": true,
+      "n_features": 17,
+      "n_classes": 2,
+      "file_info": {
+        "filename": "smote__random_forest_model.joblib",
+        "data_type": "smote",
+        "model_name": "random_forest",
+        "file_size_mb": 12.61
+      }
+    },
+    "smote__xgboost": {
+      "model_type": "xgboost",
+      "hyperparameters": {
+        "objective": "binary:logistic",
+        "colsample_bytree": 0.6418011350640668,
+        "enable_categorical": false,
+        "learning_rate": 0.06365971095880671,
+        "max_depth": 15,
+        "missing": null,
+        "n_estimators": 311,
+        "reg_alpha": 5.440581060634886,
+        "reg_lambda": 8.950349251999352,
+        "scale_pos_weight": 10.0,
+        "subsample": 0.9164028432207376
+      },
+      "has_feature_importance": true,
+      "n_features": 17,
+      "n_classes": 2,
+      "file_info": {
+        "filename": "smote__xgboost_model.joblib",
+        "data_type": "smote",
+        "model_name": "xgboost",
+        "file_size_mb": 3.37
+      }
+    },
+    "undersampling__random_forest": {
+      "model_type": "random_forest",
+      "hyperparameters": {
+        "bootstrap": true,
+        "ccp_alpha": 0.0,
+        "class_weight": "balanced",
+        "criterion": "gini",
+        "max_depth": 12,
+        "max_features": 0.19443248736445,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 8,
+        "min_samples_split": 7,
+        "min_weight_fraction_leaf": 0.0,
+        "n_estimators": 500,
+        "oob_score": false,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "has_feature_importance": true,
+      "n_features": 10,
+      "n_classes": 2,
+      "file_info": {
+        "filename": "undersampling__random_forest_model.joblib",
+        "data_type": "undersampling",
+        "model_name": "random_forest",
+        "file_size_mb": 4.6
+      }
+    },
+    "normal__xgboost": {
+      "model_type": "xgboost",
+      "hyperparameters": {
+        "objective": "binary:logistic",
+        "colsample_bytree": 0.6415891003000077,
+        "enable_categorical": false,
+        "learning_rate": 0.1432151916643713,
+        "max_depth": 7,
+        "missing": null,
+        "n_estimators": 187,
+        "reg_alpha": 1.7311188447819836,
+        "reg_lambda": 2.186220644787512,
+        "scale_pos_weight": 138.73076923076923,
+        "subsample": 0.8350346898416487
+      },
+      "has_feature_importance": true,
+      "n_features": 10,
+      "n_classes": 2,
+      "file_info": {
+        "filename": "normal__xgboost_model.joblib",
+        "data_type": "normal",
+        "model_name": "xgboost",
+        "file_size_mb": 0.41
+      }
+    },
+    "undersampling__xgboost": {
+      "model_type": "xgboost",
+      "hyperparameters": {
+        "objective": "binary:logistic",
+        "colsample_bytree": 0.9956031406161934,
+        "enable_categorical": false,
+        "learning_rate": 0.2631991755607169,
+        "max_depth": 6,
+        "missing": null,
+        "n_estimators": 169,
+        "reg_alpha": 7.399928347525591,
+        "reg_lambda": 7.407800219920706,
+        "scale_pos_weight": 138.73076923076923,
+        "subsample": 0.6916807777598375
+      },
+      "has_feature_importance": true,
+      "n_features": 10,
+      "n_classes": 2,
+      "file_info": {
+        "filename": "undersampling__xgboost_model.joblib",
+        "data_type": "undersampling",
+        "model_name": "xgboost",
+        "file_size_mb": 0.27
+      }
+    },
+    "normal__random_forest": {
+      "model_type": "random_forest",
+      "hyperparameters": {
+        "bootstrap": true,
+        "ccp_alpha": 0.0,
+        "class_weight": "balanced",
+        "criterion": "gini",
+        "max_depth": 13,
+        "max_features": 0.10888929728938818,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 8,
+        "min_samples_split": 5,
+        "min_weight_fraction_leaf": 0.0,
+        "n_estimators": 443,
+        "oob_score": false,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "has_feature_importance": true,
+      "n_features": 10,
+      "n_classes": 2,
+      "file_info": {
+        "filename": "normal__random_forest_model.joblib",
+        "data_type": "normal",
+        "model_name": "random_forest",
+        "file_size_mb": 4.33
+      }
+    },
+    "combined__xgboost": {
+      "model_type": "xgboost",
+      "hyperparameters": {
+        "objective": "binary:logistic",
+        "colsample_bytree": 0.7916411466893118,
+        "enable_categorical": false,
+        "learning_rate": 0.12019753171882139,
+        "max_depth": 4,
+        "missing": null,
+        "n_estimators": 282,
+        "reg_alpha": 7.277375536712108,
+        "reg_lambda": 6.405668104667231,
+        "scale_pos_weight": 10.0,
+        "subsample": 0.8138201455356602
+      },
+      "has_feature_importance": true,
+      "n_features": 17,
+      "n_classes": 2,
+      "file_info": {
+        "filename": "combined__xgboost_model.joblib",
+        "data_type": "combined",
+        "model_name": "xgboost",
+        "file_size_mb": 0.45
+      }
+    },
+    "normal__logistic_regression": {
+      "model_type": "logistic_regression",
+      "hyperparameters": {
+        "C": 2.5170246135486845,
+        "class_weight": "balanced",
+        "dual": false,
+        "fit_intercept": true,
+        "intercept_scaling": 1,
+        "l1_ratio": 0.41820939175807254,
+        "max_iter": 3133,
+        "multi_class": "deprecated",
+        "penalty": "elasticnet",
+        "solver": "saga",
+        "tol": 0.0001,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "n_classes": 2,
+      "file_info": {
+        "filename": "normal__logistic_regression_model.joblib",
+        "data_type": "normal",
+        "model_name": "logistic_regression",
+        "file_size_mb": 0.0
+      }
+    }
+  }
+}

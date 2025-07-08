@@ -62,7 +62,7 @@ class EnsemblePipeline:
     
     def calculate_weights(self, X_val: pd.DataFrame, y_val: pd.Series) -> Dict[str, float]:
         """
-        검증 데이터 기반으로 각 모델의 가중치 계산
+        검증 데이터 기반으로 각 모델의 가중치 계산 (F1 스코어 우선)
         
         Args:
             X_val: 검증 특성 데이터
@@ -77,7 +77,7 @@ class EnsemblePipeline:
             return {model_key: equal_weight for model_key in self.models.keys()}
         
         # YAML에서 가중치 계산 메트릭 읽기
-        weight_metric = self.ensemble_config.get('weight_metric', 'roc_auc')
+        weight_metric = self.ensemble_config.get('weight_metric', 'f1')  # 기본값을 f1으로 변경
         print(f"🔍 검증 데이터 기반 가중치 계산 중... (메트릭: {weight_metric.upper()})")
         
         model_scores = {}
@@ -89,15 +89,19 @@ class EnsemblePipeline:
                 
                 # 설정된 메트릭에 따라 점수 계산
                 if weight_metric == 'f1':
-                    # F1의 경우 임계값 0.3 기준으로 계산
-                    y_pred = (y_pred_proba >= 0.3).astype(int)
-                    score = f1_score(y_val, y_pred, zero_division=0)
+                    # F1의 경우 최적 임계값 찾기
+                    score = self._find_best_f1_score(y_val, y_pred_proba)
+                elif weight_metric == 'f1_composite':
+                    # F1 스코어와 AUC의 조합 (F1에 더 큰 가중치)
+                    f1_score_val = self._find_best_f1_score(y_val, y_pred_proba)
+                    auc_score = roc_auc_score(y_val, y_pred_proba)
+                    score = 0.7 * f1_score_val + 0.3 * auc_score  # F1에 70% 가중치
                 elif weight_metric == 'average_precision':
                     score = average_precision_score(y_val, y_pred_proba)
                 elif weight_metric == 'balanced_accuracy':
                     y_pred = (y_pred_proba >= 0.5).astype(int)
                     score = balanced_accuracy_score(y_val, y_pred)
-                else:  # roc_auc (기본값)
+                else:  # roc_auc
                     score = roc_auc_score(y_val, y_pred_proba)
                 
                 model_scores[model_key] = score
@@ -106,25 +110,56 @@ class EnsemblePipeline:
                 
             except Exception as e:
                 print(f"  ⚠️ {model_key} 평가 실패: {e}")
-                model_scores[model_key] = 0.5  # 기본값
+                model_scores[model_key] = 0.1  # F1의 경우 더 낮은 기본값
         
-        # 성능 기반 가중치 계산 (소프트맥스)
+        # F1 스코어 기반 가중치 계산 (더 강한 차별화)
         scores = np.array(list(model_scores.values()))
         
-        # 성능이 0.5 이하인 모델은 제외하거나 낮은 가중치 부여
-        scores = np.maximum(scores, 0.5)  # 최소값 보장
+        # F1의 경우 최소값을 0.1로 설정 (성능이 매우 낮은 모델 페널티)
+        min_score = 0.1 if weight_metric in ['f1', 'f1_composite'] else 0.5
+        scores = np.maximum(scores, min_score)
         
-        # 소프트맥스로 가중치 계산
-        exp_scores = np.exp((scores - np.max(scores)) * 10)  # 온도 파라미터 10
-        weights_array = exp_scores / np.sum(exp_scores)
+        # F1 스코어에 대해 더 강한 차별화를 위한 지수 가중치
+        if weight_metric in ['f1', 'f1_composite']:
+            # F1 스코어에 제곱을 적용하여 높은 성능 모델에 더 큰 가중치 부여
+            scores_normalized = (scores - min_score) / (1.0 - min_score)  # 0-1 정규화
+            scores_squared = scores_normalized ** 2  # 제곱으로 차별화 강화
+            weights_array = scores_squared / np.sum(scores_squared)
+        else:
+            # 다른 메트릭의 경우 소프트맥스 사용
+            exp_scores = np.exp((scores - np.max(scores)) * 10)
+            weights_array = exp_scores / np.sum(exp_scores)
         
         weights = dict(zip(model_scores.keys(), weights_array))
         
-        print("✅ 최종 가중치:")
+        print("✅ 최종 가중치 (F1 스코어 우선):")
         for model_key, weight in weights.items():
             print(f"  🎯 {model_key}: {weight:.4f}")
         
         return weights
+    
+    def _find_best_f1_score(self, y_true: pd.Series, y_pred_proba: np.ndarray) -> float:
+        """
+        주어진 예측 확률에서 최적의 F1 스코어 찾기
+        
+        Args:
+            y_true: 실제 레이블
+            y_pred_proba: 예측 확률
+            
+        Returns:
+            float: 최대 F1 스코어
+        """
+        # 다양한 임계값에서 F1 스코어 계산
+        thresholds = np.arange(0.1, 0.9, 0.05)
+        best_f1 = 0.0
+        
+        for threshold in thresholds:
+            y_pred = (y_pred_proba >= threshold).astype(int)
+            if len(np.unique(y_pred)) > 1:  # 예측이 한 클래스로만 나오지 않는 경우
+                f1 = f1_score(y_true, y_pred, zero_division=0)
+                best_f1 = max(best_f1, f1)
+        
+        return best_f1
     
     def ensemble_predict_proba(self, X: pd.DataFrame, X_val: Optional[pd.DataFrame] = None, 
                               y_val: Optional[pd.Series] = None) -> np.ndarray:

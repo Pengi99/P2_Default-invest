@@ -2244,60 +2244,84 @@ class ModelingPipeline:
         return summary_df
     
     def create_visualizations(self):
-        """시각화 생성"""
+        """시각화 생성 - 개별 모델 시각화 + 통합 시각화"""
         self.logger.info("시각화 생성 시작")
         
         viz_dir = self.output_dir / 'visualizations'
-        viz_dir.mkdir(parents=True, exist_ok=True)  # 디렉토리 생성 확인
+        viz_dir.mkdir(parents=True, exist_ok=True)
+        
+        # 개별 모델 시각화를 위한 하위 디렉토리 생성
+        individual_dir = viz_dir / 'individual_models'
+        individual_dir.mkdir(parents=True, exist_ok=True)
+        
+        combined_dir = viz_dir / 'combined'
+        combined_dir.mkdir(parents=True, exist_ok=True)
         
         try:
-            # 1. ROC 곡선 비교
+            # 1. 개별 모델 시각화 생성
+            self.logger.info("개별 모델 시각화 생성 중...")
+            for model_key, result in self.model_results.items():
+                try:
+                    self._create_individual_model_visualization(model_key, result, individual_dir)
+                except Exception as e:
+                    self.logger.error(f"{model_key} 개별 시각화 실패: {e}")
+            
+            # 2. 통합 시각화 생성 (기존 기능)
+            self.logger.info("통합 시각화 생성 중...")
+            
+            # ROC 곡선 비교
             try:
-                self._plot_roc_curves(viz_dir)
+                self._plot_roc_curves(combined_dir)
             except Exception as e:
                 self.logger.error(f"ROC 곡선 시각화 실패: {e}")
             
-            # 2. Precision-Recall 곡선 비교
+            # Precision-Recall 곡선 비교
             try:
-                self._plot_pr_curves(viz_dir)
+                self._plot_pr_curves(combined_dir)
             except Exception as e:
                 self.logger.error(f"PR 곡선 시각화 실패: {e}")
             
-            # 3. 성능 비교 차트
+            # 성능 비교 차트
             try:
-                self._plot_performance_comparison(viz_dir)
+                self._plot_performance_comparison(combined_dir)
             except Exception as e:
                 self.logger.error(f"성능 비교 차트 시각화 실패: {e}")
             
-            # 4. 특성 중요도 (tree 기반 모델)
+            # 특성 중요도 (tree 기반 모델)
             try:
-                self._plot_feature_importance(viz_dir)
+                self._plot_feature_importance(combined_dir)
             except Exception as e:
                 self.logger.error(f"특성 중요도 시각화 실패: {e}")
             
-            # 5. 임계값 분석
+            # 임계값 분석
             try:
-                self._plot_threshold_analysis(viz_dir)
+                self._plot_threshold_analysis(combined_dir)
             except Exception as e:
                 self.logger.error(f"임계값 분석 시각화 실패: {e}")
             
-            # 6. Train vs Test 성능 비교 (Overfitting 분석)
+            # Train vs Test 성능 비교 (Overfitting 분석)
             try:
-                self._plot_train_vs_test_comparison(viz_dir)
+                self._plot_train_vs_test_comparison(combined_dir)
             except Exception as e:
                 self.logger.error(f"Train vs Test 비교 시각화 실패: {e}")
             
-            # 7. 앙상블 가중치 시각화 (모델 성능 기반)
+            # 앙상블 가중치 시각화 (모델 성능 기반)
             try:
-                self._plot_ensemble_weights(viz_dir)
+                self._plot_ensemble_weights(combined_dir)
             except Exception as e:
                 self.logger.error(f"앙상블 가중치 시각화 실패: {e}")
             
-            # 8. 앙상블 모델이 있다면 추가 리포트 생성
+            # 앙상블 모델을 포함한 성능 비교 차트
+            try:
+                self._plot_ensemble_performance_comparison(combined_dir)
+            except Exception as e:
+                self.logger.error(f"앙상블 성능 비교 차트 생성 실패: {e}")
+            
+            # 앙상블 모델이 있다면 추가 리포트 생성
             if 'ensemble_model' in self.models:
                 try:
                     ensemble_pipeline = self.models['ensemble_model']
-                    ensemble_pipeline.create_ensemble_report(viz_dir)
+                    ensemble_pipeline.create_ensemble_report(combined_dir)
                 except Exception as e:
                     self.logger.error(f"앙상블 시각화 리포트 생성 중 오류: {e}")
             
@@ -2305,6 +2329,292 @@ class ModelingPipeline:
             
         except Exception as e:
             self.logger.error(f"시각화 생성 중 전반적 오류: {e}")
+    
+    def _create_individual_model_visualization(self, model_key: str, result: dict, individual_dir: Path):
+        """개별 모델 시각화 생성"""
+        model_name = result['model_name']
+        data_type = result['data_type']
+        
+        # 모델별 하위 디렉토리 생성
+        model_dir = individual_dir / f"{model_name}_{data_type}"
+        model_dir.mkdir(parents=True, exist_ok=True)
+        
+        self.logger.info(f"개별 시각화 생성: {model_name}_{data_type}")
+        
+        # 1. 개별 ROC 곡선
+        try:
+            self._plot_individual_roc_curve(model_key, result, model_dir)
+        except Exception as e:
+            self.logger.error(f"{model_key} ROC 곡선 생성 실패: {e}")
+        
+        # 2. 개별 PR 곡선
+        try:
+            self._plot_individual_pr_curve(model_key, result, model_dir)
+        except Exception as e:
+            self.logger.error(f"{model_key} PR 곡선 생성 실패: {e}")
+        
+        # 3. 개별 성능 메트릭 차트
+        try:
+            self._plot_individual_performance_metrics(model_key, result, model_dir)
+        except Exception as e:
+            self.logger.error(f"{model_key} 성능 메트릭 차트 생성 실패: {e}")
+        
+        # 4. 개별 혼동행렬
+        try:
+            self._plot_individual_confusion_matrix(model_key, result, model_dir)
+        except Exception as e:
+            self.logger.error(f"{model_key} 혼동행렬 생성 실패: {e}")
+        
+        # 5. 개별 임계값 분석 (해당 모델만)
+        try:
+            self._plot_individual_threshold_analysis(model_key, result, model_dir)
+        except Exception as e:
+            self.logger.error(f"{model_key} 임계값 분석 생성 실패: {e}")
+    
+    def _plot_individual_roc_curve(self, model_key: str, result: dict, model_dir: Path):
+        """개별 모델의 ROC 곡선"""
+        plt.figure(figsize=(8, 6))
+        
+        model_name = result['model_name']
+        data_type = result['data_type']
+        
+        # 예측 데이터 가져오기
+        y_test, y_pred_proba = self._get_model_predictions(model_key, result)
+        
+        if y_test is None or y_pred_proba is None:
+            self.logger.warning(f"{model_key}: 예측 데이터를 가져올 수 없음")
+            return
+        
+        # ROC 곡선 계산
+        fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
+        auc_score = roc_auc_score(y_test, y_pred_proba)
+        
+        # 플롯
+        plt.plot(fpr, tpr, color='blue', lw=3, label=f'ROC Curve (AUC = {auc_score:.3f})')
+        plt.plot([0, 1], [0, 1], 'k--', lw=2, label='Random Classifier')
+        
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate', fontsize=12)
+        plt.ylabel('True Positive Rate', fontsize=12)
+        plt.title(f'ROC Curve: {model_name.upper()} ({data_type.upper()})', fontsize=14, fontweight='bold')
+        plt.legend(loc="lower right", fontsize=11)
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        
+        # 저장
+        save_path = model_dir / f'roc_curve_{model_name}_{data_type}.png'
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        self.logger.info(f"개별 ROC 곡선 저장: {save_path}")
+    
+    def _plot_individual_pr_curve(self, model_key: str, result: dict, model_dir: Path):
+        """개별 모델의 Precision-Recall 곡선"""
+        plt.figure(figsize=(8, 6))
+        
+        model_name = result['model_name']
+        data_type = result['data_type']
+        
+        # 예측 데이터 가져오기
+        y_test, y_pred_proba = self._get_model_predictions(model_key, result)
+        
+        if y_test is None or y_pred_proba is None:
+            return
+        
+        # PR 곡선 계산
+        precision, recall, _ = precision_recall_curve(y_test, y_pred_proba)
+        ap_score = average_precision_score(y_test, y_pred_proba)
+        
+        # 기준선 (양성 클래스 비율)
+        baseline = np.mean(y_test)
+        
+        # 플롯
+        plt.plot(recall, precision, color='red', lw=3, label=f'PR Curve (AP = {ap_score:.3f})')
+        plt.axhline(y=baseline, color='k', linestyle='--', lw=2, label=f'Baseline (AP = {baseline:.3f})')
+        
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('Recall', fontsize=12)
+        plt.ylabel('Precision', fontsize=12)
+        plt.title(f'Precision-Recall Curve: {model_name.upper()} ({data_type.upper()})', fontsize=14, fontweight='bold')
+        plt.legend(loc="upper right", fontsize=11)
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        
+        # 저장
+        save_path = model_dir / f'pr_curve_{model_name}_{data_type}.png'
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        self.logger.info(f"개별 PR 곡선 저장: {save_path}")
+    
+    def _plot_individual_performance_metrics(self, model_key: str, result: dict, model_dir: Path):
+        """개별 모델의 성능 메트릭 바차트"""
+        plt.figure(figsize=(10, 6))
+        
+        model_name = result['model_name']
+        data_type = result['data_type']
+        
+        # 성능 메트릭 가져오기
+        metrics = result.get('test_metrics', {})
+        
+        # 주요 메트릭 선택
+        metric_names = ['roc_auc', 'f1_optimal', 'precision_optimal', 'recall_optimal', 'balanced_accuracy_optimal']
+        metric_values = []
+        display_names = []
+        
+        for metric in metric_names:
+            if metric in metrics:
+                metric_values.append(metrics[metric])
+                display_names.append(metric.replace('_optimal', '').replace('_', ' ').title())
+        
+        if not metric_values:
+            self.logger.warning(f"{model_key}: 성능 메트릭을 찾을 수 없음")
+            return
+        
+        # 바차트 생성
+        colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
+        bars = plt.bar(display_names, metric_values, color=colors[:len(metric_values)])
+        
+        # 값 표시
+        for bar, value in zip(bars, metric_values):
+            height = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                    f'{value:.3f}', ha='center', va='bottom', fontweight='bold')
+        
+        plt.ylim(0, 1.1)
+        plt.ylabel('Score', fontsize=12)
+        plt.title(f'Performance Metrics: {model_name.upper()} ({data_type.upper()})', fontsize=14, fontweight='bold')
+        plt.xticks(rotation=45)
+        plt.grid(True, alpha=0.3, axis='y')
+        plt.tight_layout()
+        
+        # 저장
+        save_path = model_dir / f'performance_metrics_{model_name}_{data_type}.png'
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        self.logger.info(f"개별 성능 메트릭 저장: {save_path}")
+    
+    def _plot_individual_confusion_matrix(self, model_key: str, result: dict, model_dir: Path):
+        """개별 모델의 혼동행렬"""
+        plt.figure(figsize=(8, 6))
+        
+        model_name = result['model_name']
+        data_type = result['data_type']
+        
+        # 예측 데이터 가져오기
+        y_test, y_pred_proba = self._get_model_predictions(model_key, result)
+        
+        if y_test is None or y_pred_proba is None:
+            return
+        
+        # 최적 임계값 사용 (저장된 것이 있다면)
+        optimal_threshold = result.get('optimal_threshold', 0.5)
+        y_pred = (y_pred_proba >= optimal_threshold).astype(int)
+        
+        # 혼동행렬 계산
+        cm = confusion_matrix(y_test, y_pred)
+        
+        # 히트맵 생성
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', square=True, 
+                    xticklabels=['Normal', 'Default'], yticklabels=['Normal', 'Default'],
+                    cbar_kws={'label': 'Count'})
+        
+        plt.xlabel('Predicted Label', fontsize=12)
+        plt.ylabel('True Label', fontsize=12)
+        plt.title(f'Confusion Matrix: {model_name.upper()} ({data_type.upper()})\nThreshold: {optimal_threshold:.3f}', 
+                 fontsize=14, fontweight='bold')
+        plt.tight_layout()
+        
+        # 저장
+        save_path = model_dir / f'confusion_matrix_{model_name}_{data_type}.png'
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        self.logger.info(f"개별 혼동행렬 저장: {save_path}")
+    
+    def _plot_individual_threshold_analysis(self, model_key: str, result: dict, model_dir: Path):
+        """개별 모델의 임계값 분석"""
+        plt.figure(figsize=(10, 6))
+        
+        model_name = result['model_name']
+        data_type = result['data_type']
+        
+        # 예측 데이터 가져오기
+        y_test, y_pred_proba = self._get_model_predictions(model_key, result)
+        
+        if y_test is None or y_pred_proba is None:
+            return
+        
+        # 다양한 임계값에서 성능 계산
+        thresholds = np.arange(0.1, 0.9, 0.02)
+        precision_scores = []
+        recall_scores = []
+        f1_scores = []
+        
+        for threshold in thresholds:
+            y_pred = (y_pred_proba >= threshold).astype(int)
+            
+            if len(np.unique(y_pred)) > 1:
+                precision_scores.append(precision_score(y_test, y_pred, zero_division=0))
+                recall_scores.append(recall_score(y_test, y_pred, zero_division=0))
+                f1_scores.append(f1_score(y_test, y_pred, zero_division=0))
+            else:
+                precision_scores.append(0)
+                recall_scores.append(0)
+                f1_scores.append(0)
+        
+        # 플롯
+        plt.plot(thresholds, precision_scores, 'b-', label='Precision', linewidth=2)
+        plt.plot(thresholds, recall_scores, 'r-', label='Recall', linewidth=2)
+        plt.plot(thresholds, f1_scores, 'g-', label='F1-Score', linewidth=2)
+        
+        # 최적 임계값 표시
+        optimal_threshold = result.get('optimal_threshold', 0.5)
+        plt.axvline(x=optimal_threshold, color='orange', linestyle='--', linewidth=2, 
+                   label=f'Optimal Threshold: {optimal_threshold:.3f}')
+        
+        plt.xlabel('Threshold', fontsize=12)
+        plt.ylabel('Score', fontsize=12)
+        plt.title(f'Threshold Analysis: {model_name.upper()} ({data_type.upper()})', fontsize=14, fontweight='bold')
+        plt.legend(fontsize=11)
+        plt.grid(True, alpha=0.3)
+        plt.xlim(0.1, 0.9)
+        plt.ylim(0, 1)
+        plt.tight_layout()
+        
+        # 저장
+        save_path = model_dir / f'threshold_analysis_{model_name}_{data_type}.png'
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        self.logger.info(f"개별 임계값 분석 저장: {save_path}")
+    
+    def _get_model_predictions(self, model_key: str, result: dict):
+        """모델의 예측 결과 가져오기"""
+        model_name = result['model_name']
+        data_type = result['data_type']
+        
+        # 앙상블 모델 처리
+        if model_name == 'ensemble':
+            X_test = self.data['normal']['X_test']
+            y_test = self.data['normal']['y_test']
+            model = self.models[model_key]
+            y_pred_proba = model.predict_proba(X_test)
+            return y_test, y_pred_proba
+        else:
+            # 일반 모델의 경우 저장된 예측 결과 사용
+            y_test = self.data[data_type]['y_test']
+            predictions = result.get('predictions', {})
+            y_pred_proba = predictions.get('y_proba_test', [])
+            
+            if not y_pred_proba:
+                self.logger.warning(f"{model_key}: 저장된 예측 결과 없음")
+                return None, None
+            
+            return y_test, np.array(y_pred_proba)
     
     def _plot_roc_curves(self, viz_dir: Path):
         """ROC 곡선 비교"""
@@ -2363,16 +2673,18 @@ class ModelingPipeline:
             linewidth = 3 if model_name == 'ensemble' else 2
             linestyle = '-' if model_name != 'ensemble' else '--'
             
+            # 모델명을 더 명확하게 표시
+            display_name = f'{model_name.upper()}_{data_type.upper()}'
             plt.plot(fpr, tpr, color=color, lw=linewidth, linestyle=linestyle,
-                    label=f'{model_name}_{data_type} (AUC = {auc_score:.3f})')
+                    label=f'{display_name} (AUC = {auc_score:.3f})')
         
-        plt.plot([0, 1], [0, 1], 'k--', lw=2)
+        plt.plot([0, 1], [0, 1], 'k--', lw=2, label='Random Classifier')
         plt.xlim([0.0, 1.0])
         plt.ylim([0.0, 1.05])
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('ROC Curves Comparison')
-        plt.legend(loc="lower right")
+        plt.xlabel('False Positive Rate', fontsize=12)
+        plt.ylabel('True Positive Rate', fontsize=12)
+        plt.title('ROC Curves Comparison - All Models', fontsize=16, fontweight='bold')
+        plt.legend(loc="lower right", fontsize=10, framealpha=0.9)
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
         
@@ -2440,15 +2752,29 @@ class ModelingPipeline:
             
             # 플롯
             color = colors[i % len(colors)]
-            plt.plot(recall, precision, color=color, lw=2,
-                    label=f'{model_name}_{data_type} (AP = {ap_score:.3f})')
+            linewidth = 3 if model_name == 'ensemble' else 2
+            linestyle = '-' if model_name != 'ensemble' else '--'
+            
+            # 모델명을 더 명확하게 표시
+            display_name = f'{model_name.upper()}_{data_type.upper()}'
+            plt.plot(recall, precision, color=color, lw=linewidth, linestyle=linestyle,
+                    label=f'{display_name} (AP = {ap_score:.3f})')
+        
+        # 기준선 추가 (양성 클래스 비율)
+        if len(self.model_results) > 0:
+            # 첫 번째 모델의 타겟 데이터를 사용하여 기준선 계산
+            first_result = list(self.model_results.values())[0]
+            first_data_type = first_result['data_type']
+            y_test_baseline = self.data[first_data_type]['y_test']
+            baseline = np.mean(y_test_baseline)
+            plt.axhline(y=baseline, color='k', linestyle=':', lw=2, label=f'Baseline (AP = {baseline:.3f})')
         
         plt.xlim([0.0, 1.0])
         plt.ylim([0.0, 1.05])
-        plt.xlabel('Recall')
-        plt.ylabel('Precision')
-        plt.title('Precision-Recall Curves Comparison')
-        plt.legend(loc="lower left")
+        plt.xlabel('Recall', fontsize=12)
+        plt.ylabel('Precision', fontsize=12)
+        plt.title('Precision-Recall Curves Comparison - All Models', fontsize=16, fontweight='bold')
+        plt.legend(loc="lower left", fontsize=10, framealpha=0.9)
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
         
@@ -2471,7 +2797,7 @@ class ModelingPipeline:
         metric_values = {metric: [] for metric in metrics}
         
         for model_key, result in self.model_results.items():
-            model_name = f"{result['model_name']}_{result['data_type']}"
+            model_name = f"{result['model_name'].upper()}_{result['data_type'].upper()}"
             model_names.append(model_name)
             
             # test_metrics 구조 확인 후 안전하게 접근
@@ -2506,7 +2832,10 @@ class ModelingPipeline:
             # x축 레이블 회전
             ax.tick_params(axis='x', rotation=45)
         
+        # 전체 제목 추가
+        fig.suptitle('Performance Metrics Comparison - All Models', fontsize=18, fontweight='bold', y=0.98)
         plt.tight_layout()
+        plt.subplots_adjust(top=0.93)  # 제목 공간 확보
         
         # 저장 경로 확인 및 저장
         save_path = viz_dir / 'performance_comparison.png'
@@ -2905,9 +3234,183 @@ class ModelingPipeline:
         except Exception as e:
             self.logger.error(f"앙상블 가중치 시각화 중 오류: {e}")
     
+    def _plot_ensemble_performance_comparison(self, viz_dir: Path):
+        """앙상블 모델을 포함한 성능 비교 차트 (ensemble.png)"""
+        try:
+            # 모든 모델 (앙상블 포함) 성능 수집
+            all_results = {}
+            
+            # 개별 모델 결과 수집
+            for model_key, result in self.model_results.items():
+                if result['model_name'] != 'ensemble':  # 앙상블 제외
+                    all_results[model_key] = result
+            
+            # 앙상블 모델 결과 추가 (앙상블이 실행된 경우)
+            if hasattr(self, 'ensemble_results') and self.ensemble_results:
+                # 앙상블 결과가 있는 경우 추가
+                ensemble_result = {
+                    'model_name': 'ensemble',
+                    'data_type': 'combined_models',
+                    'test_metrics': self.ensemble_results.get('test_metrics', {})
+                }
+                all_results['ensemble_combined_models'] = ensemble_result
+            elif 'ensemble_model' in self.models:
+                # 앙상블 모델 객체가 있는 경우
+                ensemble_pipeline = self.models['ensemble_model']
+                ensemble_result = {
+                    'model_name': 'ensemble',
+                    'data_type': 'combined_models',
+                    'test_metrics': {}
+                }
+                
+                # 앙상블 파이프라인에서 결과 가져오기
+                if hasattr(ensemble_pipeline, 'results') and ensemble_pipeline.results:
+                    ensemble_metrics = ensemble_pipeline.results.get('test_metrics', {})
+                    ensemble_result['test_metrics'] = ensemble_metrics
+                
+                all_results['ensemble_combined_models'] = ensemble_result
+            
+            if not all_results:
+                self.logger.info("앙상블 성능 비교를 위한 모델이 없습니다.")
+                return
+            
+            # 성능 메트릭 정의
+            metrics = ['test_auc', 'test_f1', 'test_precision', 'test_recall']
+            metric_names = ['AUC', 'F1-Score', 'Precision', 'Recall']
+            
+            model_names = []
+            metric_values = {metric: [] for metric in metrics}
+            
+            # 데이터 수집 및 정렬 (모델 타입별로 그룹화)
+            model_order = ['logistic_regression', 'random_forest', 'xgboost', 'ensemble']
+            data_type_order = ['normal', 'smote', 'undersampling', 'combined', 'combined_models']
+            
+            # 정렬된 결과 생성
+            sorted_results = []
+            for model_type in model_order:
+                for data_type in data_type_order:
+                    for model_key, result in all_results.items():
+                        if (result['model_name'] == model_type and 
+                            result['data_type'] == data_type):
+                            sorted_results.append((model_key, result))
+            
+            # 정렬된 데이터로 메트릭 수집
+            for model_key, result in sorted_results:
+                if result['model_name'] == 'ensemble':
+                    model_name = "ENSEMBLE"
+                else:
+                    model_name = f"{result['model_name'].upper()}"
+                    if result['data_type'] != 'normal':
+                        model_name += f"_{result['data_type'].upper()}"
+                
+                model_names.append(model_name)
+                
+                # test_metrics에서 값 추출
+                test_metrics = result.get('test_metrics', {})
+                
+                # AUC 값
+                auc_value = test_metrics.get('auc', test_metrics.get('roc_auc', 0))
+                metric_values['test_auc'].append(auc_value)
+                
+                # F1 값 (optimal > default > f1)
+                f1_value = test_metrics.get('f1_optimal', 
+                          test_metrics.get('f1_default', 
+                          test_metrics.get('f1', 0)))
+                metric_values['test_f1'].append(f1_value)
+                
+                # Precision 값
+                precision_value = test_metrics.get('precision_optimal',
+                                test_metrics.get('precision_default',
+                                test_metrics.get('precision', 0)))
+                metric_values['test_precision'].append(precision_value)
+                
+                # Recall 값
+                recall_value = test_metrics.get('recall_optimal',
+                             test_metrics.get('recall_default',
+                             test_metrics.get('recall', 0)))
+                metric_values['test_recall'].append(recall_value)
+            
+            if not model_names:
+                self.logger.info("표시할 모델 결과가 없습니다.")
+                return
+            
+            # 서브플롯 생성
+            fig, axes = plt.subplots(2, 2, figsize=(18, 12))
+            axes = axes.flatten()
+            
+            # 색상 설정
+            colors = ['skyblue', 'lightcoral', 'lightgreen', 'orange', 'plum', 'wheat', 'lightgray', 'cyan', 'yellow']
+            ensemble_color = 'darkred'  # 앙상블 강조 색상
+            
+            for i, (metric, name) in enumerate(zip(metrics, metric_names)):
+                ax = axes[i]
+                
+                # 색상 배정
+                bar_colors = []
+                for j, model_name in enumerate(model_names):
+                    if model_name == "ENSEMBLE":
+                        bar_colors.append(ensemble_color)
+                    else:
+                        bar_colors.append(colors[j % len(colors)])
+                
+                bars = ax.bar(range(len(model_names)), metric_values[metric], 
+                             color=bar_colors, alpha=0.8, edgecolor='black', linewidth=1)
+                
+                ax.set_title(f'{name} Comparison (Including Ensemble)', fontsize=14, fontweight='bold')
+                ax.set_ylabel(name, fontsize=12)
+                ax.set_ylim(0, 1.0)
+                ax.grid(True, alpha=0.3, axis='y')
+                
+                # 값 표시
+                for bar, value in zip(bars, metric_values[metric]):
+                    height = bar.get_height()
+                    ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                           f'{value:.3f}', ha='center', va='bottom', 
+                           fontsize=9, fontweight='bold')
+                
+                # x축 설정
+                ax.set_xticks(range(len(model_names)))
+                ax.set_xticklabels(model_names, rotation=45, ha='right', fontsize=10)
+            
+            # 전체 제목
+            fig.suptitle('Performance Comparison: All Models + Ensemble', 
+                        fontsize=18, fontweight='bold', y=0.98)
+            
+            # 범례 추가
+            legend_elements = [
+                plt.Rectangle((0,0),1,1, facecolor=ensemble_color, alpha=0.8, label='Ensemble Model'),
+                plt.Rectangle((0,0),1,1, facecolor='lightblue', alpha=0.8, label='Individual Models')
+            ]
+            fig.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(0.98, 0.94))
+            
+            plt.tight_layout()
+            plt.subplots_adjust(top=0.88, bottom=0.15)  # 제목과 x축 레이블 공간 확보
+            
+            # ensemble.png로 저장
+            save_path = viz_dir / 'ensemble.png'
+            try:
+                plt.savefig(save_path, dpi=300, bbox_inches='tight')
+                self.logger.info(f"앙상블 성능 비교 차트 저장 완료: {save_path}")
+                
+                # 결과 요약 로그
+                self.logger.info("앙상블 성능 비교 결과:")
+                for name, values in zip(model_names, zip(*[metric_values[m] for m in metrics])):
+                    self.logger.info(f"  {name}: AUC={values[0]:.3f}, F1={values[1]:.3f}, "
+                                   f"Precision={values[2]:.3f}, Recall={values[3]:.3f}")
+                    
+            except Exception as e:
+                self.logger.error(f"앙상블 성능 비교 차트 저장 실패: {e}")
+            finally:
+                plt.close()
+                
+        except Exception as e:
+            self.logger.error(f"앙상블 성능 비교 시각화 중 오류: {e}")
+            import traceback
+            self.logger.error(f"상세 오류: {traceback.format_exc()}")
+    
     def find_optimal_threshold(self, model, X_val, y_val):
         """
-        Find optimal threshold using F1 score maximization with improved debugging and fallback strategies
+        Find optimal threshold using F1 score maximization with config-based search range
         
         Args:
             model: Trained model
@@ -2917,7 +3420,7 @@ class ModelingPipeline:
         Returns:
             tuple: (optimal_threshold, optimal_f1_score)
         """
-        from sklearn.metrics import precision_recall_curve
+        from sklearn.metrics import precision_score, recall_score, f1_score
         import numpy as np
         
         # Get validation predictions
@@ -2939,26 +3442,42 @@ class ModelingPipeline:
             self.logger.warning("모든 예측 확률이 거의 동일합니다. 모델이 제대로 학습되지 않았을 수 있습니다.")
             return 0.5, 0.0
         
-        # Calculate precision-recall curve
-        precision, recall, thresholds = precision_recall_curve(y_val, y_val_proba)
+        # Config에서 임계값 탐색 범위 가져오기
+        threshold_config = self.config.get('threshold_optimization', {})
+        search_range = threshold_config.get('search_range', {})
         
-        # Calculate F1 scores for each threshold
-        f1_scores = 2 * (precision * recall) / (precision + recall + 1e-8)
+        # 기본값 설정
+        low = search_range.get('low', 0.0005)
+        high = search_range.get('high', 0.5) 
+        n_grid = search_range.get('n_grid', 500)
         
-        # thresholds에 해당하는 f1_scores만 사용 (마지막 값 제외)
-        valid_f1_scores = f1_scores[:-1]
+        self.logger.info(f"  - 설정된 임계값 탐색 범위: [{low:.4f}, {high:.4f}] ({n_grid}개 그리드)")
+        
+        # 그리드 기반 임계값 후보 생성
+        threshold_candidates = np.linspace(low, high, n_grid)
+        
+        # 각 임계값에 대해 F1 점수 계산
+        best_f1 = 0
+        best_threshold = 0.5
+        f1_scores = []
+        
+        for threshold in threshold_candidates:
+            y_pred = (y_val_proba >= threshold).astype(int)
+            f1 = f1_score(y_val, y_pred, zero_division=0)
+            f1_scores.append(f1)
+            
+            if f1 > best_f1:
+                best_f1 = f1
+                best_threshold = threshold
+        
+        f1_scores = np.array(f1_scores)
         
         # 디버깅: F1 점수 분포 확인
-        if len(valid_f1_scores) > 0:
-            self.logger.info(f"  - F1 점수 범위: [{valid_f1_scores.min():.4f}, {valid_f1_scores.max():.4f}]")
-            self.logger.info(f"  - 0이 아닌 F1 점수 개수: {np.sum(valid_f1_scores > 0)}/{len(valid_f1_scores)}")
-
-        # Find optimal threshold
-        if len(valid_f1_scores) == 0:
-            self.logger.warning("F1 점수를 계산할 수 있는 임계값이 없습니다. 기본 임계값 0.5를 사용합니다.")
-            return 0.5, 0.0
-            
-        if np.all(valid_f1_scores == 0):
+        self.logger.info(f"  - F1 점수 범위: [{f1_scores.min():.4f}, {f1_scores.max():.4f}]")
+        self.logger.info(f"  - 0이 아닌 F1 점수 개수: {np.sum(f1_scores > 0)}/{len(f1_scores)}")
+        
+        # F1 점수가 모두 0인 경우 대안 방법 사용
+        if best_f1 == 0:
             self.logger.warning("모든 임계값에서 F1 점수가 0입니다.")
             
             # 대안 1: Balanced Accuracy로 임계값 선택
@@ -2968,9 +3487,8 @@ class ModelingPipeline:
                 best_balanced_acc = 0
                 best_threshold_ba = 0.5
                 
-                # 다양한 임계값에서 Balanced Accuracy 계산
-                test_thresholds = np.arange(0.1, 0.9, 0.1)
-                for thresh in test_thresholds:
+                # Config 범위 내에서 Balanced Accuracy 계산
+                for thresh in threshold_candidates[::10]:  # 샘플링으로 계산 속도 향상
                     y_pred_thresh = (y_val_proba >= thresh).astype(int)
                     if len(np.unique(y_pred_thresh)) > 1:  # 두 클래스가 모두 예측되는 경우만
                         ba_score = balanced_accuracy_score(y_val, y_pred_thresh)
@@ -2990,42 +3508,43 @@ class ModelingPipeline:
                 from sklearn.metrics import roc_curve
                 fpr, tpr, roc_thresholds = roc_curve(y_val, y_val_proba)
                 
-                # Youden's J statistic 계산
-                j_scores = tpr - fpr
-                best_j_idx = np.argmax(j_scores)
-                best_threshold_j = roc_thresholds[best_j_idx]
-                best_j_score = j_scores[best_j_idx]
-                
-                if best_j_score > 0:
-                    self.logger.info(f"Youden's J 기준 최적 임계값: {best_threshold_j:.3f} (J: {best_j_score:.4f})")
-                    return best_threshold_j, 0.0
+                # Config 범위 내의 임계값만 고려
+                mask = (roc_thresholds >= low) & (roc_thresholds <= high)
+                if np.any(mask):
+                    fpr_filtered = fpr[mask]
+                    tpr_filtered = tpr[mask]
+                    thresholds_filtered = roc_thresholds[mask]
+                    
+                    # Youden's J statistic 계산
+                    j_scores = tpr_filtered - fpr_filtered
+                    best_j_idx = np.argmax(j_scores)
+                    best_threshold_j = thresholds_filtered[best_j_idx]
+                    best_j_score = j_scores[best_j_idx]
+                    
+                    if best_j_score > 0:
+                        self.logger.info(f"Youden's J 기준 최적 임계값: {best_threshold_j:.3f} (J: {best_j_score:.4f})")
+                        return best_threshold_j, 0.0
             except Exception as e:
                 self.logger.warning(f"Youden's J 기준 임계값 선택 실패: {e}")
             
-            # 대안 3: 예측 확률의 중앙값 사용
-            self.logger.info("대안 3: 예측 확률 중앙값을 임계값으로 사용")
-            median_threshold = np.median(y_val_proba)
-            self.logger.info(f"예측 확률 중앙값 임계값: {median_threshold:.3f}")
-            return median_threshold, 0.0
-            
-        # 정상적인 경우: F1 점수 기준으로 최적 임계값 찾기
-        optimal_idx = np.argmax(valid_f1_scores)
-        optimal_threshold = thresholds[optimal_idx]
-        optimal_f1 = valid_f1_scores[optimal_idx]
+            # 대안 3: 탐색 범위의 중간값 사용
+            self.logger.info("대안 3: 탐색 범위의 중간값을 임계값으로 사용")
+            middle_threshold = (low + high) / 2
+            self.logger.info(f"탐색 범위 중간값 임계값: {middle_threshold:.3f}")
+            return middle_threshold, 0.0
         
-        # 최종 결과로 실제 성능 재확인
-        y_pred_final = (y_val_proba >= optimal_threshold).astype(int)
-        from sklearn.metrics import precision_score, recall_score, f1_score
+        # 정상적인 경우: 최적 임계값으로 실제 성능 재확인
+        y_pred_final = (y_val_proba >= best_threshold).astype(int)
         
         final_precision = precision_score(y_val, y_pred_final, zero_division=0)
         final_recall = recall_score(y_val, y_pred_final, zero_division=0)
         final_f1 = f1_score(y_val, y_pred_final, zero_division=0)
         
-        self.logger.info(f"최적 임계값 검증: {optimal_threshold:.4f}")
+        self.logger.info(f"최적 임계값 검증: {best_threshold:.4f}")
         self.logger.info(f"  - F1: {final_f1:.4f}, Precision: {final_precision:.4f}, Recall: {final_recall:.4f}")
         self.logger.info(f"  - 양성 예측 개수: {y_pred_final.sum()}/{len(y_pred_final)}")
         
-        return optimal_threshold, optimal_f1
+        return best_threshold, best_f1
 
     def run_ensemble(self):
         """앙상블 모델 실행"""

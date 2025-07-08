@@ -20,9 +20,9 @@ data_split:
   
   # 랜덤 분할 설정 (split_method가 'random'일 때 사용)
   random:
-    train_ratio: 0.5
-    val_ratio: 0.25
-    test_ratio: 0.25
+    train_ratio: 0.6
+    val_ratio: 0.2
+    test_ratio: 0.2
     random_state: 42
     stratify: true      # 타겟 변수 기준 층화 샘플링
     group_by_exchange: true  # 거래소코드별 그룹핑 여부 (true: 거래소코드가 같은 행들을 그룹화해서 분할)

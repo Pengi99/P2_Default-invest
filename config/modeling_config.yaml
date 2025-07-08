@@ -45,9 +45,9 @@ sampling:
       description: "원본 데이터 (샘플링 없음)"
     
     smote:
-      enabled: false
+      enabled: true
       description: "BorderlineSMOTE 오버샘플링"
-      sampling_strategy: 0.1  # 부실 클래스 비율 목표 (양성 2%, 원래 0.7%에서 증가)
+      sampling_strategy: 0.3  # 부실 클래스 비율 목표 (양성 2%, 원래 0.7%에서 증가)
       k_neighbors: 5
       m_neighbors: 10
       kind: "borderline-1"  # borderline-1, borderline-2, svm
@@ -57,7 +57,7 @@ sampling:
       enabled: true
       description: "언더샘플링"
       method: "tomek"  # random, edited_nearest_neighbours, tomek (노이즈 제거)
-      sampling_strategy: 0.5  # 정상 클래스 유지 비율 (정상 30% 유지)
+      sampling_strategy: 'auto'  # 정상 클래스 유지 비율 (정상 30% 유지)
       random_state: 42
     
     ctgan:
@@ -82,7 +82,7 @@ sampling:
       # 언더샘플링 설정  
       undersampling:
         method: "tomek"  # random, edited_nearest_neighbours, tomek
-        sampling_strategy: 0.1  # 정상 클래스 유지 비율 (10% 유지)
+        sampling_strategy: 'auto'  # 정상 클래스 유지 비율 (10% 유지)
         random_state: 42
 
 # 특성 선택 설정
@@ -95,7 +95,7 @@ feature_selection:
     penalty: "l1"  # l1 (Lasso), l2 (Ridge), elasticnet
     solver: "saga"  # l1 penalty를 위해서는 liblinear 또는 saga 사용
     max_iter: 10000
-    threshold: "0.00001"  # median, mean, 또는 숫자값 (계수 임계값)
+    threshold: "median"  # median, mean, 또는 숫자값 (계수 임계값)
     scoring: "f1"  # roc_auc, f1, average_precision 등
   
   # 기존 lasso_cv (연속 회귀용, 참고용으로 유지)
@@ -164,7 +164,7 @@ feature_selection:
 models:
   # 최적화 메트릭 설정
   optimization:
-    primary_metric: "average_precision"  # roc_auc, f1, average_precision, balanced_accuracy
+    primary_metric: "f1"  # roc_auc, f1, average_precision, balanced_accuracy
     description: "하이퍼파라미터 최적화 시 사용할 주요 메트릭"
   
   logistic_regression:
@@ -180,25 +180,25 @@ models:
   random_forest:
     enabled: true
     class_weight: 'balanced'  # class_weight 제거로 Precision 개선 (극심한 불균형 데이터에서 오히려 성능 저하)
-    n_estimators_range: [100, 500]
+    n_estimators_range: [100, 700]
     max_depth_range: [3, 20]
     min_samples_split_range: [2, 20]
     min_samples_leaf_range: [1, 10]
     max_features_range: [0.1, 1.0]
-    n_trials: 20
+    n_trials: 10
   
   xgboost:
     enabled: true
     class_weight_mode: "scale_pos_weight"  # "scale_pos_weight" 또는 "sample_weight"
-    scale_pos_weight: auto  # 적당한 가중치 사용 (auto는 102.11로 너무 극단적)
-    n_estimators_range: [100, 500]
+    scale_pos_weight: 'auto'  # 적당한 가중치 사용 (auto는 102.11로 너무 극단적)
+    n_estimators_range: [100, 700]
     max_depth_range: [3, 20]
     learning_rate_range: [0.001, 0.3]
     subsample_range: [0.6, 1.0]
     colsample_bytree_range: [0.6, 1.0]
     reg_alpha_range: [0.0, 10.0]
     reg_lambda_range: [1.0, 10.0]
-    n_trials: 20
+    n_trials: 10
 
 # Threshold 최적화 설정
 threshold_optimization:
@@ -214,7 +214,7 @@ ensemble:
   enabled: true  # 성능 최적화를 위해 비활성화
   method: "weighted_average"  # simple_average, weighted_average, stacking
   auto_weight: true  # 검증 성능 기반 자동 가중치
-  weight_metric: "average_precision"  # 앙상블 가중치 계산에 사용할 메트릭 (roc_auc, f1, average_precision)
+  weight_metric: "f1"  # 앙상블 가중치 계산에 사용할 메트릭 (roc_auc, f1, average_precision)
   models: ["logistic_regression", "random_forest", "xgboost"]
   data_types: ["normal", "undersampling"]  # combined 비활성화 시
   threshold_optimization:

@@ -1,0 +1,160 @@
+{
+  "combined__logistic_regression": {
+    "data_type": "combined",
+    "model_name": "logistic_regression",
+    "model_type": "logistic_regression",
+    "optimized_params": {
+      "C": 0.0421,
+      "penalty": "l2",
+      "solver": "newton-cg",
+      "max_iter": 6130
+    }
+  },
+  "combined__random_forest": {
+    "data_type": "combined",
+    "model_name": "random_forest",
+    "model_type": "random_forest",
+    "optimized_params": {
+      "n_estimators": 389,
+      "max_depth": 17,
+      "min_samples_split": 10,
+      "min_samples_leaf": 8,
+      "max_features": 0.157
+    }
+  },
+  "combined__xgboost": {
+    "data_type": "combined",
+    "model_name": "xgboost",
+    "model_type": "xgboost",
+    "optimized_params": {
+      "n_estimators": 282,
+      "max_depth": 4,
+      "learning_rate": 0.1202,
+      "subsample": 0.814,
+      "colsample_bytree": 0.792,
+      "reg_alpha": 7.28,
+      "reg_lambda": 6.41,
+      "scale_pos_weight": 10.0
+    }
+  },
+  "combined_models__ensemble": {
+    "data_type": "combined_models",
+    "model_name": "ensemble",
+    "model_type": "ensemble",
+    "optimized_params": "ensemble_model"
+  },
+  "normal__logistic_regression": {
+    "data_type": "normal",
+    "model_name": "logistic_regression",
+    "model_type": "logistic_regression",
+    "optimized_params": {
+      "C": 2.517,
+      "penalty": "elasticnet",
+      "solver": "saga",
+      "max_iter": 3133
+    }
+  },
+  "normal__random_forest": {
+    "data_type": "normal",
+    "model_name": "random_forest",
+    "model_type": "random_forest",
+    "optimized_params": {
+      "n_estimators": 443,
+      "max_depth": 13,
+      "min_samples_split": 5,
+      "min_samples_leaf": 8,
+      "max_features": 0.109
+    }
+  },
+  "normal__xgboost": {
+    "data_type": "normal",
+    "model_name": "xgboost",
+    "model_type": "xgboost",
+    "optimized_params": {
+      "n_estimators": 187,
+      "max_depth": 7,
+      "learning_rate": 0.1432,
+      "subsample": 0.835,
+      "colsample_bytree": 0.642,
+      "reg_alpha": 1.73,
+      "reg_lambda": 2.19,
+      "scale_pos_weight": 138.7
+    }
+  },
+  "smote__logistic_regression": {
+    "data_type": "smote",
+    "model_name": "logistic_regression",
+    "model_type": "logistic_regression",
+    "optimized_params": {
+      "C": 15.0826,
+      "penalty": "l2",
+      "solver": "newton-cg",
+      "max_iter": 7683
+    }
+  },
+  "smote__random_forest": {
+    "data_type": "smote",
+    "model_name": "random_forest",
+    "model_type": "random_forest",
+    "optimized_params": {
+      "n_estimators": 297,
+      "max_depth": 17,
+      "min_samples_split": 5,
+      "min_samples_leaf": 10,
+      "max_features": 0.562
+    }
+  },
+  "smote__xgboost": {
+    "data_type": "smote",
+    "model_name": "xgboost",
+    "model_type": "xgboost",
+    "optimized_params": {
+      "n_estimators": 311,
+      "max_depth": 15,
+      "learning_rate": 0.0637,
+      "subsample": 0.916,
+      "colsample_bytree": 0.642,
+      "reg_alpha": 5.44,
+      "reg_lambda": 8.95,
+      "scale_pos_weight": 10.0
+    }
+  },
+  "undersampling__logistic_regression": {
+    "data_type": "undersampling",
+    "model_name": "logistic_regression",
+    "model_type": "logistic_regression",
+    "optimized_params": {
+      "C": 72.8665,
+      "penalty": "elasticnet",
+      "solver": "saga",
+      "max_iter": 8467
+    }
+  },
+  "undersampling__random_forest": {
+    "data_type": "undersampling",
+    "model_name": "random_forest",
+    "model_type": "random_forest",
+    "optimized_params": {
+      "n_estimators": 500,
+      "max_depth": 12,
+      "min_samples_split": 7,
+      "min_samples_leaf": 8,
+      "max_features": 0.194
+    }
+  },
+  "undersampling__xgboost": {
+    "data_type": "undersampling",
+    "model_name": "xgboost",
+    "model_type": "xgboost",
+    "optimized_params": {
+      "n_estimators": 169,
+      "max_depth": 6,
+      "learning_rate": 0.2632,
+      "subsample": 0.692,
+      "colsample_bytree": 0.996,
+      "reg_alpha": 7.4,
+      "reg_lambda": 7.41,
+      "scale_pos_weight": 138.7
+    }
+  }
+}
